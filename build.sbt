@@ -3,7 +3,7 @@
 val scala212Version = "2.12.1"
 
 lazy val faacets = (project in file("."))
-  .settings(moduleName := "facets")
+  .settings(moduleName := "faacets")
   .settings(faacetsSettings)
   .settings(noPublishSettings)
 //  .aggregate(core) no dependencies yet
