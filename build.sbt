@@ -24,6 +24,11 @@ lazy val docsSettings = Seq(
   micrositeDocumentationUrl := "/faacets/",
   micrositeGithubOwner := "denisrosset",
   micrositeGithubRepo := "faacets-gamma",
+  micrositeCDNDirectives := microsites.CdnDirectives(
+    jsList = List(
+      "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
+    )
+  ),
   micrositePalette := Map(
     "brand-primary"     -> "#E05236",
     "brand-secondary"   -> "#3F3242",
