@@ -6,6 +6,7 @@ val fastParseVersion = "0.4.2"
 val spireVersion = "0.13.1-SNAPSHOT"
 val circeVersion = "0.7.0"
 val catsVersion = "0.9.0"
+val scalinVersion = "0.13.1.2"
 
 // dependency for tests only
 
@@ -93,6 +94,7 @@ lazy val commonSettings = Seq(
   ),
   libraryDependencies ++= Seq(
     "org.spire-math" %% "spire" % spireVersion,
+    "net.alasc" %% "scalin-core" % scalinVersion,
     "org.typelevel" %% "cats" % catsVersion,
     "com.lihaoyi" %% "fastparse" % fastParseVersion,
     "io.circe" %% "circe-core" % circeVersion
