@@ -6,15 +6,20 @@ lazy val faacets = (project in file("."))
   .settings(moduleName := "faacets")
   .settings(faacetsSettings)
   .settings(noPublishSettings)
-//  .aggregate(core) no dependencies yet
-//  .dependsOn(core)
+  .aggregate(core)
+  .dependsOn(core)
+
+lazy val core = (project in file("core"))
+  .settings(modulename := "faacets-core")
+  .settings(faacetsSettings)
+  .settings(commonJvmSettings: _*)
 
 lazy val docs = (project in file("docs"))
   .enablePlugins(MicrositesPlugin)
   .settings(moduleName := "faacets-docs")
   .settings(faacetsSettings)
   .settings(docsSettings)
-//  .dependsOn(core) no dependencies yet
+  .dependsOn(core)
 
 lazy val docsSettings = Seq(
   micrositeName := "Faacets",
