@@ -7,11 +7,11 @@ position: 1
 
 # Bell scenarios
 
-In a Bell experiment, two or more _parties_ perform _measurements_ on individual systems. The parties then seek for conclusions based on the _outcomes_ produced by these measurements. These parties can be numbered from $$1$$ to $$n$$ and are often named following the letters of the alphabet, as in Alice, Bob, Charlie and so on. Measurements and outcomes are also often referred to as _inputs_ and _outputs_.
+In a Bell experiment, two or more _parties_ perform _measurements_ on individual systems and observe the produced _outcomes_. These parties can be numbered from $$1$$ to $$n$$ and are often named following the letters of the alphabet, as in Alice, Bob, Charlie and so on. The measurement settings and outcomes are also often referred to as _inputs_ and _outputs_.
 
 [Bell experiment: the measurement settings and outcomes can be seen as the _inputs_ and _outputs_ of $$n$$ boxes]
 
-Each measurement performed by a party has a number of possible outcomes $$k\geq1$$. All the measurements performed by a party can thus be characterized by a vector containing the maximum number of outcomes corresponding to each of his measurement. Similarly, a tuple of these vectors describes the _Bell scenario_:
+Since each measurement performed by a party has a number of possible outcomes $$k\geq1$$, all the measurements performed by one party can be described by a vector containing the maximum number of outcomes of each of his measurement. Similarly, a tuple of these vectors characterize the _Bell scenario_:
 
 	Party := (k1 k2 ...)
 	Scenario := [Party1 Party2 ...]
@@ -30,6 +30,6 @@ In general, the following notation characterizes an arbitrary Bell scenario: $$[
 
 
 ## Canonical form of a Bell scenario
-Notice that parties `(3 2)` and `(2 3)` have essentially the same measurement structure: it only differs by a reordering of the measurement settings. We thus define a party description as _canonical_ when its successive numbers of outcomes are non-increasing. The canonical form of `(2 3)` is then `(3 2)`.
+Notice that parties `(3 2)` and `(2 3)` have essentially the same measurement structure: the only difference lies in a reordering of the measurement settings. We thus define a party description as _canonical_ when its successive numbers of outcomes are non-increasing. The canonical form of `(2 3)` is then `(3 2)`.
 
-Similarly, notice that scenarios `[(2 2) (3 3)]` and `[(3 3) (2 2)]` are also identical up to a reordering of the parties. The canonical form of a scenario is then defined as the one in which all its parties are themselves canonical and ordered lexicographically. Hence, in a canonical scenario, any two parties $$i,i'$$ with $$i'>i$$, either $$m_{i}<j$$ or $$k_{i,j} \geq k_{i',j}$$. The canonical form of `[(2 3 4) (5 6)]` is thus `[(6 5) (4 3 2)]`.
+Similarly, notice that scenarios `[(2 2) (3 3)]` and `[(3 3) (2 2)]` are identical up to a reordering of the parties. The canonical form of a scenario is then defined as the one in which all its parties' structures are themselves canonical and ordered lexicographically. Hence, in a canonical scenario, we have either $$m_{i}<j$$ or $$k_{i,j} \geq k_{i',j}$$ for all parties $$i,i'$$ with $$i'>i$$ and any measurement setting $$j$. The canonical form of `[(2 3 4) (5 6)]` is thus `[(6 5) (4 3 2)]`.
