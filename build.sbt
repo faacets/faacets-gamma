@@ -2,15 +2,22 @@
 
 val scala212Version = "2.12.1"
 
+val spireVersion = "0.13.1-SNAPSHOT"
+
+// dependency for tests only
+
+val scalaCheckVersion = "1.13.4"
+val scalaTestVersion = "3.0.1"
+
 lazy val faacets = (project in file("."))
   .settings(moduleName := "faacets")
   .settings(faacetsSettings)
   .settings(noPublishSettings)
-  .aggregate(core)
-  .dependsOn(core)
+  .aggregate(core, tests)
+  .dependsOn(core, tests)
 
 lazy val core = (project in file("core"))
-  .settings(modulename := "faacets-core")
+  .settings(moduleName := "faacets-core")
   .settings(faacetsSettings)
   .settings(commonJvmSettings: _*)
 
@@ -49,6 +56,15 @@ lazy val docsSettings = Seq(
   fork in tut := true
 )
 
+lazy val tests = (project in file("tests"))
+  .settings(moduleName := "faacets-tests")
+  .settings(faacetsSettings: _*)
+  .settings(testSettings:_*)
+  .settings(noPublishSettings:_*)
+  .settings(commonJvmSettings: _*)
+  .dependsOn(core)
+
+
 lazy val faacetsSettings = buildSettings ++ commonSettings ++ publishSettings
 
 lazy val buildSettings = Seq(
@@ -67,7 +83,8 @@ lazy val commonSettings = Seq(
     "bintray/denisrosset/maven" at "https://dl.bintray.com/denisrosset/maven",
     Resolver.sonatypeRepo("snapshots"),
     Resolver.sonatypeRepo("releases")
-  )
+  ),
+  libraryDependencies += "org.spire-math" %% "spire" % spireVersion
 ) ++ warnUnusedImport
 
 lazy val publishSettings = Seq(
@@ -149,3 +166,10 @@ lazy val warnUnusedImport = Seq(
   scalacOptions in (Test, console) := (scalacOptions in (Compile, console)).value
 )
 
+lazy val testSettings = Seq(
+  libraryDependencies ++= Seq(
+    "org.scalatest" %% "scalatest" % scalaTestVersion,
+//    "org.typelevel" %% "discipline" % disciplineVersion, // TODO: not used yet
+    "org.scalacheck" %% "scalacheck" % scalaCheckVersion
+  )
+)
