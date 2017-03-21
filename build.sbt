@@ -2,7 +2,10 @@
 
 val scala212Version = "2.12.1"
 
+val fastParseVersion = "0.4.2"
 val spireVersion = "0.13.1-SNAPSHOT"
+val circeVersion = "0.7.0"
+val catsVersion = "0.9.0"
 
 // dependency for tests only
 
@@ -13,13 +16,17 @@ lazy val faacets = (project in file("."))
   .settings(moduleName := "faacets")
   .settings(faacetsSettings)
   .settings(noPublishSettings)
-  .aggregate(core, tests)
-  .dependsOn(core, tests)
+  .aggregate(core, data, tests)
+  .dependsOn(core, data, tests)
+
+lazy val data = (project in file("data"))
+  .settings(faacetsSettings: _*)
 
 lazy val core = (project in file("core"))
   .settings(moduleName := "faacets-core")
   .settings(faacetsSettings)
   .settings(commonJvmSettings: _*)
+  .dependsOn(data)
 
 lazy val docs = (project in file("docs"))
   .enablePlugins(MicrositesPlugin)
@@ -62,7 +69,7 @@ lazy val tests = (project in file("tests"))
   .settings(testSettings:_*)
   .settings(noPublishSettings:_*)
   .settings(commonJvmSettings: _*)
-  .dependsOn(core)
+  .dependsOn(core, data)
 
 
 lazy val faacetsSettings = buildSettings ++ commonSettings ++ publishSettings
@@ -84,7 +91,14 @@ lazy val commonSettings = Seq(
     Resolver.sonatypeRepo("snapshots"),
     Resolver.sonatypeRepo("releases")
   ),
-  libraryDependencies += "org.spire-math" %% "spire" % spireVersion
+  libraryDependencies ++= Seq(
+    "org.spire-math" %% "spire" % spireVersion,
+    "org.typelevel" %% "cats" % catsVersion,
+    "com.lihaoyi" %% "fastparse" % fastParseVersion,
+    "io.circe" %% "circe-core" % circeVersion
+//    "io.circe" %% "circe-generic" % circeVersion, // do we need them?
+//    "io.circe" %% "circe-parser" % circeVersion
+  )
 ) ++ warnUnusedImport
 
 lazy val publishSettings = Seq(
