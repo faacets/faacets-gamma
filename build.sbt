@@ -2,11 +2,12 @@
 
 val scala212Version = "2.12.1"
 
-val fastParseVersion = "0.4.2"
-val spireVersion = "0.13.1-SNAPSHOT"
-val circeVersion = "0.7.0"
 val catsVersion = "0.9.0"
+val circeVersion = "0.7.0"
+val consolidateVersion = "0.2"
+val fastParseVersion = "0.4.2"
 val scalinVersion = "0.13.1.2"
+val spireVersion = "0.13.1-SNAPSHOT"
 
 // dependency for tests only
 
@@ -93,6 +94,7 @@ lazy val commonSettings = Seq(
     Resolver.sonatypeRepo("releases")
   ),
   libraryDependencies ++= Seq(
+    "com.faacets" %% "consolidate" % consolidateVersion,
     "org.spire-math" %% "spire" % spireVersion,
     "net.alasc" %% "scalin-core" % scalinVersion,
     "org.typelevel" %% "cats" % catsVersion,

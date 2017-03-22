@@ -7,3 +7,4 @@
 - [FastParse](github.com/lihaoyi/fastparse): lihaoyi/sourcecode (no further deps)
 - [Cats](github.com/typelevel/cats): compile/test dependencies
 - [Circe](github.com/circe/circe): cats-core (only dependency for circe-core); if we use the other modules, monocle (for optics) refined (for refined) shapeless (for generic, shapes) jawn (for parser)
+- [Consolidate](github.com/denisrosset/consolidate): cats, [shapeless](github.com/milessabin/shapeless)

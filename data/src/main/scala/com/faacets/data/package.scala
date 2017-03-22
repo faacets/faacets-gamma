@@ -33,4 +33,5 @@ package object data {
   implicit class WithCheck[A](val merge: Merged[A]) extends AnyVal {
    }*/
   
+
 }

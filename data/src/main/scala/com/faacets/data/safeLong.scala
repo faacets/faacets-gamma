@@ -7,7 +7,7 @@ import spire.math.SafeLong
 
 import io.circe._
 
-// import com.faacets.consolidate.Merge
+import com.faacets.consolidate.Merge
 
 trait SafeLongInstances {
   import Decoder.Result
@@ -37,8 +37,7 @@ trait SafeLongInstances {
       )
     }
   }
-    
-/*
+
   implicit val safeLongMerge: Merge[SafeLong] = Merge.fromEquals[SafeLong]
- */
+
 }
