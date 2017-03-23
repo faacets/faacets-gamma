@@ -40,3 +40,9 @@ object PrimitivePrimitiveRelabelingRep {
 
 }
 */
+
+  /** TODO
+  val marginalPRepBuilder = new InhImpImpRelabelingPRepBuilder
+  implicit val probabilityPRepBuilder = new InhPriImpRelabelingPRepBuilder
+  val strategyPRepBuilder = new InhPriPriRelabelingPRepBuilder
+    */

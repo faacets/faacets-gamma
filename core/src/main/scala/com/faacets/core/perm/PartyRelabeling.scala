@@ -5,6 +5,7 @@ package perm
 import spire.algebra._
 import spire.syntax.cfor._
 
+import net.alasc.finite.FaithfulPermutationActionBuilder
 import net.alasc.perms.{Cycles, Perm}
 import net.alasc.syntax.all._
 
@@ -139,7 +140,7 @@ object PartyRelabeling extends PartyRelabelingCompanion {
 
   implicit val parsable = new PartyRelabelingParsable
 
-// TODO implicit def imprimitivePartyRelabelingRepBuilder: FaithfulPermRepBuilder[PartyRelabeling] =
-//    new ImprimitivePartyRelabelingRepBuilder
+  implicit lazy val imprimitivePartyRelabelingRepBuilder: FaithfulPermutationActionBuilder[PartyRelabeling] =
+    new ImprimitivePartyRelabelingRepBuilder
 
 }

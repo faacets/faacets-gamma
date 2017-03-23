@@ -12,11 +12,10 @@ import spire.syntax.cfor._
 import spire.syntax.lattice._
 
 import net.alasc.algebra._
-import net.alasc.finite.Grp
+import net.alasc.finite.{FaithfulPermutationActionBuilder, Grp}
 import net.alasc.perms._
 import net.alasc.syntax.all._
 import net.alasc.util._
-
 import data.NiceGenerators
 
 abstract class Relabeling {
@@ -190,15 +189,9 @@ object Relabeling extends RelabelingCompanion {
 
   implicit val equ: Eq[Relabeling] = new RelabelingEq
 
-  /* TODO
-  implicit val imprimitiveImprimitiveRelabelingRepBuilder: FaithfulPermRepBuilder[Relabeling] =
+  implicit val imprimitiveImprimitiveRelabelingRepBuilder: FaithfulPermutationActionBuilder[Relabeling] =
     new ImprimitiveImprimitiveRelabelingRepBuilder
-*/
-  /** TODO
-  val marginalPRepBuilder = new InhImpImpRelabelingPRepBuilder
-  implicit val probabilityPRepBuilder = new InhPriImpRelabelingPRepBuilder
-  val strategyPRepBuilder = new InhPriPriRelabelingPRepBuilder
-    */
+
   implicit val parsable = new RelabelingParsable
 
   def unapply(r: Relabeling): Option[(Map[Int, PartyRelabeling], Perm)] =
