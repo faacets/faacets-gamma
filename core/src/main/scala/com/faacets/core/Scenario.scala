@@ -77,10 +77,10 @@ final class Scenario private (val parties: Seq[Party]) {
   val nInputTuples = parties.foldLeft(SafeLong(1)) { case (mul, party) => mul * SafeLong(party.nInputs) }
 
 
-  /*
   val shape = new Shape(parties)
   val shapeLattice = ShapeLattice(parties)
 
+  /*
   def primitiveShape(repr: Representation): PrimitiveShape = repr match {
     case NPRepresentation | SPRepresentation => shapeP
     case NCRepresentation => shapeNC

@@ -1,7 +1,7 @@
 package com.faacets
 package core
 
-import net.alasc.util.Tuple2Int
+import com.faacets.core.perm.{PartyShape, PartyShapeLattice}
 
 import com.faacets.data.Parsable
 import com.faacets.data.Textable.syntax._
@@ -45,10 +45,10 @@ final class Party private (val inputs: Seq[Int]) {
     case _ => false
   }
 
-/*  val shape = new PartyShape(inputs)
+  val shape = new PartyShape(inputs)
 
   val shapeLattice = PartyShapeLattice(inputs)
-
+/*
   lazy val matrices = repr.PartyMatrices(this)
 
   def shapeP: ImprimitiveShape = shape.imprimitive
