@@ -1,0 +1,57 @@
+package com.faacets.core
+package repr
+
+import scala.util.{Either, Left, Right}
+
+import spire.algebra.Eq
+import spire.algebra.lattice.JoinSemilattice
+import spire.math.Rational
+import spire.util.Opt
+
+import scalin.immutable.Vec
+
+import spire.syntax.cfor._
+
+import scalin.immutable.dense._
+
+case object SCRepresentation extends SignalingRepresentation {
+
+  val abbrev = "SC"
+  val longName = "Signaling Correlators"
+  val alternatives = Seq("Full Correlators")
+
+  def corrMatrix(party: Party) = party.matrices.matSCfromSP
+  def exprMatrix(party: Party) = party.matrices.matSPfromSC.t
+
+  implicit val exprConversion = new ExprConversion[this.type](p => p.matrices.matSCfromSP.t)
+  implicit val corrConversion = new CorrConversion[this.type](p => p.matrices.matSPfromSC)
+
+}
+
+case object NCRepresentation extends NonSignalingRepresentation {
+
+  val abbrev = "NC"
+  val longName = "Non-signaling Correlators"
+  val alternatives = Seq.empty[String]
+
+  def corrMatrix(party: Party) = party.matrices.matNCfromSC * party.matrices.matSCfromSP
+  def exprMatrix(party: Party) = (party.matrices.matSPfromSC * party.matrices.matSCfromNC).t
+
+  implicit val exprConversion = new ExprConversion[this.type](p => (p.matrices.matNCfromSC * p.matrices.matSCfromSP).t)
+  implicit val corrConversion = new CorrConversion[this.type](p => p.matrices.matSPfromSC * p.matrices.matSCfromNC)
+
+  implicit class Extra[V[X <: Scenario with Singleton] <: BellVec[V, X], S <: Scenario with Singleton]
+    (val r: Represented[this.type, V, S]) {
+
+    def coefficient(kArray: Array[Int], xArray: Array[Int]): Rational = {
+      var ind = 0
+      cforRange(0 until r.scenario.nParties) { p =>
+        val partySub = r.scenario.parties(p).shapeNC.offsets(xArray(p) + 1) + kArray(p)
+        ind = ind + r.scenario.shapeNC.factors(p) * partySub
+      }
+      r.coefficients(ind)
+    }
+
+  }
+
+}

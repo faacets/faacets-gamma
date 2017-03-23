@@ -1,0 +1,20 @@
+package com.faacets.core
+package repr
+
+import spire.math.Rational
+
+import scalin.immutable.Mat
+import scalin.immutable.dense._
+import scalin.syntax.all._
+
+case object WRepresentation extends LocalModelRepresentation {
+
+  val abbrev = "W"
+  val longName = "Strategy Weights"
+  val alternatives = Seq.empty[String]
+
+  def partyMatrix(party: Party): Mat[Rational] = eye[Rational](party.shapeW.size)
+
+  implicit val conversion = new LocalModelConversion[this.type](p => eye[Rational](p.shapeW.size))
+
+}

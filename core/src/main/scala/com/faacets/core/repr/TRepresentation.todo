@@ -1,0 +1,18 @@
+package com.faacets.core
+package repr
+import spire.math.Rational
+
+import scalin.immutable.{Mat, Vec}
+import scalin.syntax.all._
+
+case object TRepresentation extends LocalModelRepresentation {
+
+  val abbrev = "T"
+  val longName = "Strategy Correlators"
+  val alternatives = Seq.empty[String]
+
+  def partyMatrix(party: Party): Mat[Rational] = party.matrices.matTfromW
+
+  implicit val conversion = new LocalModelConversion[this.type](p => p.matrices.matWfromT)
+
+}
