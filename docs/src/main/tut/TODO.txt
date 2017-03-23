@@ -1,0 +1,6 @@
+# TODO to improve the documention
+
+## Formatting
+ - Improve the table style to allow for cells spanning two lines (lines are put in distinct `<tbody></tbody>` in the html, but styling inserts a separator for each `<tr></tr>` section).
+
+
