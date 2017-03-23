@@ -1,7 +1,6 @@
 package com.faacets
 package core
 
-/*
 import scala.reflect.classTag
 import scala.util.{Failure, Success, Try}
 
@@ -9,25 +8,24 @@ import spire.math.{Rational, SafeLong}
 import spire.syntax.cfor._
 import spire.util.Opt
 
-import com.faacets.core.repr.{NCRepresentation, Represented, SCRepresentation}
+import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import scalin.immutable.dense._
 
 import net.alasc.algebra._
 import scalin.immutable.Vec
 import scalin.syntax.all._
 
-/** Describes correlations or a distribution of deterministic points, 
-  * depending on the representation:
-  * 
-  * - `[N|S][P|G|C]Repr` describe correlations,
-  * - `[T|Q]Repr` describe a decomposition of correlations over deterministic strategies.
-  */
-final class Corr[S <: Scenario with Singleton](val scenario: S, val coefficients: Vec[Rational]) extends BellVec[Corr, S] {
+/** Describes a behavior in a causal scenario. */
+trait Behavior extends NDVec {
 
-  override def toString = s"Corr($scenario, $coefficients)"
+  type V = Behavior
 
-  def classTagV = classTag[Corr[S]]
+  def classTagV = classTag[Behavior]
 
+
+  override def toString = s"Behavior($scenario, $coefficients)"
+
+  /*
   def builder = Corr
 
   def normalization: Rational = coefficients.sum / scenario.nInputTuples
@@ -65,6 +63,7 @@ final class Corr[S <: Scenario with Singleton](val scenario: S, val coefficients
     }
     true
   }
+  */
   /*
 
     override def as(toRepresentation: Representation): Try[Corr] = {
@@ -88,25 +87,51 @@ final class Corr[S <: Scenario with Singleton](val scenario: S, val coefficients
 
     def toNonSignaling: (Corr, Corr) = ??? // TODO implement*/
 
+  /*
   /** Returns these correlations with the given visibility, mixed with the uniformly
     * random correlations. */
   def withVisibility(v: Rational) = {
     val corr0 = Corr.uniformlyRandom(scenario)
     val newCoefficients = (coefficients * v) + (corr0.coefficients * (1 - v))
     val res = new Corr[S](scenario, newCoefficients)
-    this.attr.get(BellVec.symmetryGroup) match {
-      case Opt(grp) if !v.isZero => res._attrUpdate(BellVec.symmetryGroup, grp)
+    this.attr.get(PVec.symmetryGroup) match {
+      case Opt(grp) if !v.isZero => res._attrUpdate(PVec.symmetryGroup, grp)
       case _ =>
     }
     res
-  }
+  }*/
 
 }
 
-object Corr extends BellVecBuilder[Corr] {
+object Behavior {
 
-  def uniformlyRandom(scenario: Scenario): Corr[scenario.type] =
-    tabulate(scenario) { (aInd, xInd) =>
+  type Aux[S0 <: Scenario with Singleton] = Behavior { type S = S0 }
+
+  def apply(scenario0: Scenario, coefficients0: Vec[Rational]): Behavior.Aux[scenario0.type] = {
+    ???
+  }
+
+  def applyUnsafe(scenario0: Scenario, coefficients0: Vec[Rational]): Behavior.Aux[scenario0.type] =
+    new Behavior {
+      type S = scenario0.type
+      val scenario: S = scenario0
+      val coefficients = coefficients0
+    }
+
+  def collinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): Behavior.Aux[scenario.type] = {
+    val pCoefficients =
+      revKronMatVec(scenario.parties.map(p => p.matrices.matSPfromSG * p.matrices.matSGfromNG), collinsGisinCoefficients)
+    applyUnsafe(scenario, pCoefficients)
+  }
+
+  def correlators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): Behavior.Aux[scenario.type] = {
+    val pCoefficients =
+      revKronMatVec(scenario.parties.map(p => p.matrices.matSPfromSC * p.matrices.matSCfromNC), correlatorsCoefficients)
+    applyUnsafe(scenario, pCoefficients)
+  }
+
+  def uniformlyRandom(scenario: Scenario): Behavior.Aux[scenario.type] = {
+    val coefficients = scenario.tabulateP { (aInd, xInd) =>
       var nOutputs: SafeLong = SafeLong.one
       cforRange(0 until xInd.length) { p =>
         val x = xInd(p)
@@ -115,16 +140,9 @@ object Corr extends BellVecBuilder[Corr] {
       }
       Rational(1, nOutputs)
     }
-
-  def prBox = NCRepresentation.corr(Scenario.CHSH, vec(1, 0, 0, 0, 1, 1, 0, 1, -1).to[Rational].get).value
-
-  /*
-  import Check._
-  implicit val CheckInstance = new VecCheck[Corr] {
-    def checkNormalization(corr: Corr): Checked = Check.failHereOn(!corr.isNormalized, "Corr is not properly normalized")
+    applyUnsafe(scenario, coefficients)
   }
-  */
-  def apply(scenario: Scenario, coefficients: Vec[Rational]): Corr[scenario.type] =
-    new Corr[scenario.type](scenario, coefficients)
+
+  def prBox = correlators(Scenario.CHSH, Vec[Rational](1, 0, 0, 0, 1, 1, 0, 1, -1))
+
 }
-*/

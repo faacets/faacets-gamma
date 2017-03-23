@@ -1,6 +1,6 @@
 package com.faacets
 package core
-/*
+
 sealed trait Select
 
 object Select {
@@ -11,4 +11,3 @@ object Select {
   case object Every extends Select
 
 }
-*/

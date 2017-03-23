@@ -1,10 +1,10 @@
 package com.faacets
 package core
 
-/*
 import scala.util.Random
 
 import spire.algebra.Group
+import spire.math.fact
 import spire.util.Opt
 
 import net.alasc.domains.{Domain, Partition}
@@ -43,16 +43,16 @@ case class ScenarioSubgroups(scenario: Scenario, permuteSingleInputOutputParties
 
   def partyOrder: SafeLong = {
     val fullOrder = GrpFixingPartition.order(partition)
-    if (permuteSingleInputOutputParties) fullOrder else fullOrder / factorial(nSingleInputOutputParties)
+    if (permuteSingleInputOutputParties) fullOrder else fullOrder / fact(nSingleInputOutputParties)
   }
   def partyGenerators: IndexedSeq[Relabeling] = {
-    val fullGenerators = GrpFixingPartition.generators[Perm](partition)
+    val fullGenerators = GrpFixingPartition.generators(partition)
     val generators = if (permuteSingleInputOutputParties) fullGenerators
     else fullGenerators.filterNot(g => isSingleIOParty(g.findMovedPoint.get))
     generators.map(p => Relabeling.PartyComponent(p).get)
   }
   def partyPermGroup: Grp[Perm] = {
-    val fullGroup = GrpFixingPartition[Perm](partition)
+    val fullGroup = GrpFixingPartition(partition)
     if (permuteSingleInputOutputParties) fullGroup else fullGroup.pointwiseStabilizer(singleInputOutputParties)
   }
   def partyGroup: Grp[Relabeling] = Grp.fromGeneratorsAndOrder(partyGenerators, partyOrder)
@@ -88,4 +88,3 @@ case class ScenarioSubgroups(scenario: Scenario, permuteSingleInputOutputParties
     }
   
 }
-*/

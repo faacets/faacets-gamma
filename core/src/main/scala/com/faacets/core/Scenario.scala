@@ -6,12 +6,18 @@ import spire.math.{Rational, SafeLong}
 import spire.syntax.eq._
 import spire.syntax.cfor._
 
+import scalin.immutable.Vec
+
+import net.alasc.finite.Grp
+
 /*
 import net.alasc.algebra._
 import net.alasc.finite.{Grp, Rep}
 import net.alasc.util.Tuple2Int
 import net.alasc.perms.default._
 import util._*/
+
+import net.alasc.perms.default._
 
 import fastparse.noApi._
 
@@ -21,7 +27,9 @@ import com.faacets.data.Textable.syntax._
 import perm._
 import consolidate.Merge
 
-/** Description of a Bell scenario.
+/** TODO: verify doc below
+  *
+  * Description of a Bell scenario.
   * 
   * A `Scenario` object describes a Bell scenario composed of several parties,
   * each having a certain number of measurement settings, each setting having a number
@@ -80,16 +88,24 @@ final class Scenario private (val parties: Seq[Party]) {
   val shape = new Shape(parties)
   val shapeLattice = ShapeLattice(parties)
 
-  /*
-  def primitiveShape(repr: Representation): PrimitiveShape = repr match {
-    case NPRepresentation | SPRepresentation => shapeP
-    case NCRepresentation => shapeNC
-    case NGRepresentation => shapeNG
-    case SCRepresentation => shapeSC
-    case SGRepresentation => shapeSG
-    case TRepresentation => shapeT
-    case WRepresentation => shapeW
-  }*/
+  def tabulateP[A](coefficients: (Array[Int], Array[Int]) => A): Vec[A] = {
+    import scalin.immutable.dense._
+    val n = nParties
+    val subArray = new Array[Int](n)
+    val aArray = new Array[Int](n)
+    val xArray = new Array[Int](n)
+    Vec.tabulate(shapeP.size) { ind =>
+      shapeP.ind2sub(ind, subArray)
+      cforRange(0 until n) { p =>
+        val partyShape = parties(p).shapeP
+        val sub = subArray(p)
+        aArray(p) = partyShape.blockOffset(sub)
+        xArray(p) = partyShape.blockIndices(sub)
+      }
+      coefficients(aArray, xArray)
+    }
+  }
+
 
   def shapeP: PrimitiveShape = shape.primitiveImprimitive
 
@@ -185,36 +201,18 @@ final class Scenario private (val parties: Seq[Party]) {
 
   lazy val strategyAction = shape.PriPriAction
 
-  /*
-
-  lazy val marginalRep = ImprimitiveImprimitiveRelabelingRep[Rational](shapeLattice)
-
-  lazy val probabilityRep = PrimitiveImprimitiveRelabelingRep[Rational](shapeLattice)
-
-  lazy val strategyRep = PrimitivePrimitiveRelabelingRep[Rational](shapeLattice)
-
+  /** The value `group` represents the symmetry group of the current
+    * Bell scenario. This group is actually a wreath product group,
+    * composed of a copy of \\( n \\) party symmetry group and the subgroup of \\( S_n \\)
+    * permuting parties that are compatible, i.e. with the same output structure. */
+  lazy val group: Grp[Relabeling] =
+    GrpLexAnsatz.fromGeneratorsAndOrder(subgroups.generators, subgroups.order, marginalAction)
 
   lazy val subgroups = ScenarioSubgroups(this)
 
   lazy val probabilitySubgroups = ScenarioSubgroups(this, permuteSingleInputOutputParties = false)
 
   lazy val strategySubgroups = ScenarioSubgroups(this, false, false)
-
-  /** The value `group` represents the symmetry group of the current
-    * Bell scenario. This group is actually a wreath product group,
-    * composed of a copy of \\( n \\) party symmetry group and the subgroup of \\( S_n \\)
-    * permuting parties that are compatible, i.e. with the same output structure. */
-  lazy val group: Grp[Relabeling] =
-    GrpLexAnsatz.fromGeneratorsAndOrder(subgroups.generators, subgroups.order, marginalRep)
-
-  lazy val probabilityGroup: Grp[Rep.Of[Relabeling, probabilityRep.type]] = Rep.OfGrp(
-    GrpLexAnsatz.fromGeneratorsAndOrder(probabilitySubgroups.generators, probabilitySubgroups.order, probabilityRep),
-    probabilityRep)
-
-  lazy val strategyGroup: Grp[Rep.Of[Relabeling, strategyRep.type]] = Rep.OfGrp(
-    GrpLexAnsatz.fromGeneratorsAndOrder(strategySubgroups.generators, strategySubgroups.order, strategyRep),
-    strategyRep)
-    */
 
 }
 

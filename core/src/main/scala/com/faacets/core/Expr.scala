@@ -1,7 +1,6 @@
 package com.faacets
 package core
 
-/*
 import spire.math.{Rational, SafeLong}
 import scala.reflect.classTag
 
@@ -11,17 +10,13 @@ import scalin.immutable.Vec
 import spire.syntax.cfor._
 
 import scalin.syntax.all._
-import com.faacets.core.repr.{NCRepresentation, NGRepresentation, Represented, SCRepresentation}
 
-/** Describes a Bell expression. */
-final class Expr[S <: Scenario with Singleton](val scenario: S, val coefficients: Vec[Rational]) extends BellVec[Expr, S] {
+trait DExpr extends PVec {
 
-  override def toString = s"Expr($scenario, $coefficients)"
+  def classTagV = classTag[DExpr]
 
-  def classTagV = classTag[Expr[S]]
-
-  def builder = Expr
-
+  type V = DExpr
+/*
   def isInNonSignalingSubspace: Boolean = {
     val sub = new Array[Int](scenario.nParties)
     val scCoeffs = repr.SCRepresentation.fromExpr(this).coefficients
@@ -31,7 +26,7 @@ final class Expr[S <: Scenario with Singleton](val scenario: S, val coefficients
         return false
     }
     true
-  }
+  }*/
 
   /** Decomposes this expression in the non-signaling and its biorthogonal subspace.
     * A `Expr` in a signaling representation can be projected into the non-signaling subspace.
@@ -39,7 +34,9 @@ final class Expr[S <: Scenario with Singleton](val scenario: S, val coefficients
     * projected `Expr` in a non-signaling representation, and a possibly signaling `Expr`
     * containing only the signaling and proper normalization terms.
     */
-  def toNonSignalingSubspace: (Expr[S], Expr[S]) = {
+  def split: (Expr.Aux[S], DExpr.Aux[S]) = {
+    ???
+    /*
     val sub = new Array[Int](scenario.nParties)
     val scCoeffs = SCRepresentation.fromExpr(this).coefficients
     val nsCoeffs = tabulate(scCoeffs.length) { ind =>
@@ -48,21 +45,80 @@ final class Expr[S <: Scenario with Singleton](val scenario: S, val coefficients
     }
     val sCoeffs = scCoeffs - nsCoeffs
     (SCRepresentation.expr(scenario: S, nsCoeffs).value, SCRepresentation.expr(scenario: S, sCoeffs).value)
+    */
   }
 
   /** Removes signaling/proper normalization terms. */
-  def removingSignalingTerms = toNonSignalingSubspace._1
+  // def removingSignalingTerms = toNonSignalingSubspace._1
 
+}
+
+object DExpr {
+
+  def fullCollinsGisin(scenario0: Scenario, collinsGisinCoefficients: Vec[Rational]) = ???
+
+  def fullCorrelators(scenario0: Scenario, correlatorsCoefficients: Vec[Rational]) = ???
+
+  def apply(scenario0: Scenario, coefficients0: Vec[Rational]): DExpr.Aux[scenario0.type] =
+  new DExpr {
+    type S = scenario0.type
+    val scenario: S = scenario0
+    val coefficients = coefficients0
+  }
+
+  type Aux[S0 <: Scenario with Singleton] = DExpr { type S = S0 }
+
+}
+
+/** Describes a Bell expression. */
+trait Expr extends NDVec {
+
+  type V = Expr
+
+  def classTagV = classTag[Expr]
+
+  def toDExpr: DExpr.Aux[S] = DExpr(scenario: S, coefficients)
   /*
+  type V
+
+  override def toString = s"Expr($scenario, $coefficients)"
+
+  def builder = Expr
+
+
+
     override def toString = {
       import pretty._
       import pretty.syntax.all._
       this.prettyExpression.pretty[String]
     }
 
-    def constant = Vec.inner(this, Corr.one(scenario, representation))*/
+    def constant = Vec.inner(this, Corr.one(scenario, representation))
+*/
+}
+
+object Expr {
+
+  type Aux[S0 <: Scenario with Singleton] = Expr { type S = S0 }
+
+  def apply(scenario0: Scenario, coefficients0: Vec[Rational]): Expr.Aux[scenario0.type] = {
+    ???
+  }
+
+  def applyUnsafe(scenario0: Scenario, coefficients0: Vec[Rational]): Expr.Aux[scenario0.type] =
+  new Expr {
+    type S = scenario0.type
+    val scenario: S = scenario0
+    val coefficients = coefficients0
+  }
+
+  def collinsGisin(scenario0: Scenario, collinsGisinCoefficients: Vec[Rational]) = ???
+
+  def correlators(scenario0: Scenario, correlatorsCoefficients: Vec[Rational]) = ???
 
 }
+
+/*
 
 object Expr extends BellVecBuilder[Expr] {
 

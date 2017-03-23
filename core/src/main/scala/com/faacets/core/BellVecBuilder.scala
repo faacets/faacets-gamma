@@ -22,34 +22,16 @@ import consolidate.std.any._
 
 import net.alasc.finite.Grp
 
-abstract class BellVecBuilder[V[X <: Scenario with Singleton] <: BellVec[V, X]] {
+abstract class BellVecBuilder[V[X <: Scenario with Singleton] <: PVec[V, X]] {
 
   implicit def builder: BellVecBuilder[V] = this
-
-  def tabulate(scenario: Scenario)(coefficients: (Array[Int], Array[Int]) => Rational): V[scenario.type] = {
-    val n = scenario.nParties
-    val subArray = new Array[Int](n)
-    val aArray = new Array[Int](n)
-    val xArray = new Array[Int](n)
-    val coeffVector = scalin.syntax.build.tabulate(scenario.shapeP.size) { ind =>
-      scenario.shapeP.ind2sub(ind, subArray)
-      cforRange(0 until n) { p =>
-        val partyShape = scenario.parties(p).shapeP
-        val sub = subArray(p)
-        aArray(p) = partyShape.blockOffset(sub)
-        xArray(p) = partyShape.blockIndices(sub)
-      }
-      coefficients(aArray, xArray)
-    }
-    apply(scenario, coeffVector)
-  }
 
   def apply(scenario: Scenario, coefficients: Vec[Rational]): V[scenario.type]
 
   def zero(scenario: Scenario): V[scenario.type] = {
     import net.alasc.finite.Rep.convert._
     val res = apply(scenario, zeros[Rational](scenario.probabilityRep.dimension))
-    res._attrUpdate(BellVec.symmetryGroup, scenario.probabilityGroup: Grp[Relabeling])
+    res._attrUpdate(PVec.symmetryGroup, scenario.probabilityGroup: Grp[Relabeling])
     res
   }
 
@@ -75,11 +57,11 @@ abstract class BellVecBuilder[V[X <: Scenario with Singleton] <: BellVec[V, X]] 
     def merge(current: V[S], other: V[S]): Merged[V[S]] = for {
       coefficients <- (current.coefficients merge other.coefficients) withPath "coefficients"
       symmetryGroupOption <- (
-        current.attr.get(BellVec.symmetryGroup).toOption merge
-        other.attr.get(BellVec.symmetryGroup).toOption) withPath "symmetryGroup"
+        current.attr.get(PVec.symmetryGroup).toOption merge
+        other.attr.get(PVec.symmetryGroup).toOption) withPath "symmetryGroup"
     } yield {
       val res = builder(current.scenario: S, coefficients)
-      symmetryGroupOption.foreach { grp => res._attrUpdate(BellVec.symmetryGroup, grp) }
+      symmetryGroupOption.foreach { grp => res._attrUpdate(PVec.symmetryGroup, grp) }
       res
     }
   }

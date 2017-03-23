@@ -2,7 +2,6 @@ package com.faacets
 package core
 package perm
 
-/*
 import scala.annotation.tailrec
 import scala.util.Random
 import scala.reflect.ClassTag
@@ -13,12 +12,12 @@ import spire.syntax.group._
 import spire.syntax.action._
 import spire.util.Opt
 
-import net.alasc.algebra.{Permutation, PermutationAction}
+import net.alasc.algebra.PermutationAction
 import net.alasc.bsgs.{GrpChain, MutableChain, MutableStartOrNode, NodeBuilder, SchreierSims}
 import net.alasc.finite.Grp
 import net.alasc.syntax.permutationAction._
 import net.alasc.bsgs._
-import net.alasc.perms.FaithfulPermRep
+import net.alasc.finite.FaithfulPermutationActionBuilder
 
 object GrpLexAnsatz {
 
@@ -39,20 +38,21 @@ object GrpLexAnsatz {
     }
     rec(mutableChain.start, generators, 0)
     if (mutableChain.start.next.order != order) {
-      mutableChain.completeStrongGenerators
+      SchreierSims.completeStrongGenerators(mutableChain, KernelBuilder.trivial)
       if (mutableChain.start.next.order != order)
         throw new IllegalArgumentException(s"The group was provided a wrong order during construction, got ${mutableChain.start.next.order} instead of $order")
     }
     mutableChain.toChain()
   }
 
-  def fromGeneratorsAndOrder[G:ClassTag:Eq:Group:NodeBuilder, K]
-    (generators: IndexedSeq[G], order: SafeLong, rep: FaithfulPermRep[G, K])
-    (implicit schreierSims: SchreierSims): GrpChainExplicit[G, rep.F] = {
-    implicit def permutationAction: rep.F = rep.permutationAction
-    val chain = chainFromGeneratorsAndOrder[G, rep.F](generators, order)
-    new GrpChainExplicit[G, rep.F](chain, Opt(generators), Opt(rep))
+  def fromGeneratorsAndOrder[G:ClassTag:Eq:Group:NodeBuilder]
+    (generators: IndexedSeq[G], order: SafeLong, faithfulAction: PermutationAction[G])
+    (implicit schreierSims: SchreierSims): GrpChainExplicit[G, faithfulAction.type] = {
+    type F = faithfulAction.type
+    require(faithfulAction.isFaithful)
+    implicit def fa: F = faithfulAction
+    val chain = chainFromGeneratorsAndOrder[G, F](generators, order)
+    new GrpChainExplicit[G, F](chain, Opt(generators), Term.generic[G])
   }
 
 }
-*/

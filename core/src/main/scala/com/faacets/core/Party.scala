@@ -5,7 +5,9 @@ import com.faacets.core.perm._
 import com.faacets.data.Parsable
 import com.faacets.data.Textable.syntax._
 
+import net.alasc.finite.Grp
 import net.alasc.util.Tuple2Int
+import net.alasc.perms.default._
 
 /** Description of a party in a Bell scenario
   * 
@@ -49,9 +51,8 @@ final class Party private (val inputs: Seq[Int]) {
   val shape = new PartyShape(inputs)
 
   val shapeLattice = PartyShapeLattice(inputs)
-/*
+
   lazy val matrices = repr.PartyMatrices(this)
-*/
 
   def shapeP: ImprimitiveShape = shape.imprimitive
   /** Decomposes an index in SP/NP representation into a tuple representing 
@@ -131,16 +132,6 @@ final class Party private (val inputs: Seq[Int]) {
 
   lazy val strategyAction = shape.PrimitiveAction
 
-  /*
-  lazy val subgroups = PartySubgroups(this)
-
-  lazy val strategySubgroups = PartySubgroups(this, false)
-
-  lazy val probabilityRep = ImprimitivePartyRelabelingRep[Rational](shapeLattice)
-
-  lazy val strategyRep = PrimitivePartyRelabelingRep[Rational](shapeLattice)
-
-
   /** Object representing the symmetry group of one party of a Bell scenario.
     *
     * It is actually a inhomogenous wreath product group, composed of a
@@ -149,11 +140,11 @@ final class Party private (val inputs: Seq[Int]) {
     * with the same number of outputs.
     */
   lazy val group: Grp[PartyRelabeling] =
-    GrpLexAnsatz.fromGeneratorsAndOrder(subgroups.generators, subgroups.order, probabilityRep)
+    GrpLexAnsatz.fromGeneratorsAndOrder(subgroups.generators, subgroups.order, probabilityAction)
 
-  lazy val strategyGroup: Grp[Rep.Of[PartyRelabeling, strategyRep.type]] = Rep.OfGrp(
-      GrpLexAnsatz.fromGeneratorsAndOrder(strategySubgroups.generators, strategySubgroups.order, strategyRep),
-      strategyRep)*/
+  lazy val subgroups = PartySubgroups(this)
+
+  lazy val strategySubgroups = PartySubgroups(this, false)
 
 }
 

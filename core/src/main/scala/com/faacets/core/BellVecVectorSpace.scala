@@ -14,7 +14,7 @@ import scalin.immutable.dense._
 import net.alasc.finite.Grp
 import net.alasc.finite.Rep.convert._
 
-trait BellVecVectorSpace[V[X <: Scenario with Singleton] <: BellVec[V, X], S <: Scenario with Singleton]
+trait BellVecVectorSpace[V[X <: Scenario with Singleton] <: PVec[V, X], S <: Scenario with Singleton]
   extends Any with VectorSpace[V[S], Rational] {
 
   def scenario: S
@@ -25,8 +25,8 @@ trait BellVecVectorSpace[V[X <: Scenario with Singleton] <: BellVec[V, X], S <: 
 
   def negate(v: V[S]): V[S] = {
     val res = builder(scenario, -v.coefficients)
-    v.attr.get(BellVec.symmetryGroup) match {
-      case Opt(grp) => res._attrUpdate(BellVec.symmetryGroup, grp)
+    v.attr.get(PVec.symmetryGroup) match {
+      case Opt(grp) => res._attrUpdate(PVec.symmetryGroup, grp)
       case _ =>
     }
     res
@@ -34,15 +34,15 @@ trait BellVecVectorSpace[V[X <: Scenario with Singleton] <: BellVec[V, X], S <: 
 
   def zero: V[S] = {
     val res = builder(scenario, zeros[Rational](scenario.probabilityRep.dimension))
-    res._attrUpdate(BellVec.symmetryGroup, scenario.probabilityGroup: Grp[Relabeling])
+    res._attrUpdate(PVec.symmetryGroup, scenario.probabilityGroup: Grp[Relabeling])
     res
   }
 
   def timesl(lhs: Rational, rhs: V[S]): V[S] =
     if (lhs != 0) {
       val res = builder(scenario, rhs.coefficients * lhs)
-      res.attr.get(BellVec.symmetryGroup) match {
-        case Opt(grp) => res._attrUpdate(BellVec.symmetryGroup, grp)
+      res.attr.get(PVec.symmetryGroup) match {
+        case Opt(grp) => res._attrUpdate(PVec.symmetryGroup, grp)
       }
       res
     } else zero

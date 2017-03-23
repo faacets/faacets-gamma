@@ -10,7 +10,9 @@ import perm.PartyRelabeling
 import net.alasc.syntax.all._
 
 import net.alasc.perms.default._
-/*
+
+import spire.math.fact
+
 import Select._
 
 case class PartySubgroups(party: Party, permuteSingleOutputInputs: Boolean = true) {
@@ -23,7 +25,7 @@ case class PartySubgroups(party: Party, permuteSingleOutputInputs: Boolean = tru
 
   def outputGenerators(x: Int): IndexedSeq[PartyRelabeling] =
     (0 until (party.inputs(x) - 1)).map(a => PartyRelabeling.OutputComponent(x, Perm(a, a + 1)).get)
-  def outputOrder(x: Int): SafeLong = factorial(party.inputs(x))
+  def outputOrder(x: Int): SafeLong = fact(party.inputs(x))
   def outputGroup(x: Int): Grp[PartyRelabeling] =
     Grp.fromGeneratorsAndOrder(outputGenerators(x).toIndexedSeq, outputOrder(x))
 
@@ -35,16 +37,16 @@ case class PartySubgroups(party: Party, permuteSingleOutputInputs: Boolean = tru
 
   def inputOrder: SafeLong = {
     val fullOrder = GrpFixingPartition.order(partition)
-    if (permuteSingleOutputInputs) fullOrder else fullOrder / factorial(nSingleOutputInputs)
+    if (permuteSingleOutputInputs) fullOrder else fullOrder / fact(nSingleOutputInputs)
   }
   def inputGenerators: IndexedSeq[PartyRelabeling] = {
-    val fullGenerators = GrpFixingPartition.generators[Perm](partition)
+    val fullGenerators = GrpFixingPartition.generators(partition)
     val generators = if (permuteSingleOutputInputs) fullGenerators
       else fullGenerators.filterNot(g => party.inputs(g.findMovedPoint.get) == 1)
     generators.map(x => PartyRelabeling.InputComponent(x).get)
   }
   def inputPermGroup: Grp[Perm] = {
-    val fullGroup = GrpFixingPartition[Perm](partition)
+    val fullGroup = GrpFixingPartition(partition)
     if (permuteSingleOutputInputs) fullGroup else fullGroup.pointwiseStabilizer(singleOutputInputs)
   }
   def inputGroup: Grp[PartyRelabeling] = Grp.fromGeneratorsAndOrder(inputGenerators, inputOrder)
@@ -63,4 +65,3 @@ case class PartySubgroups(party: Party, permuteSingleOutputInputs: Boolean = tru
     }
 
 }
-*/
