@@ -7,7 +7,7 @@ import spire.math.Rational
 
 import io.circe._
 
-// import consolidate.Merge
+import consolidate.Merge
 
 trait RationalInstances {
   import Decoder.Result
@@ -38,8 +38,6 @@ trait RationalInstances {
     }
   }
 
-/*
-
   implicit val rationalMerge: Merge[Rational] = Merge.fromEquals[Rational]
- */
+
 }

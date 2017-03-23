@@ -1,0 +1,14 @@
+TODO
+
+This trait is used to construct Faacets objects that hold extra unstructured data, loaded and saved as it is.
+
+package com.faacets.data
+/*
+import argonaut._
+
+trait WithExtra {
+
+  def extra: JsonObject
+
+}
+*/

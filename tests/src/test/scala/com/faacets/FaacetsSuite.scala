@@ -7,7 +7,7 @@ import org.scalacheck.Shrink
 import org.scalatest.exceptions.DiscardedEvaluationException
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
-// import org.typelevel.discipline.scalatest.Discipline not used yet
+import org.typelevel.discipline.scalatest.Discipline
 
 /**
   * An opinionated stack of traits to improve consistency and reduce
@@ -16,7 +16,7 @@ import org.scalatest.{FunSuite, Matchers}
 trait FaacetsSuite extends FunSuite with Matchers
     with PropertyChecks
     with spire.syntax.AllSyntax
-//    with Discipline
+    with Discipline
     with StrictFaacetsEquality {
 
   // disable Eq syntax (by making `eqOps` not implicit), since it collides

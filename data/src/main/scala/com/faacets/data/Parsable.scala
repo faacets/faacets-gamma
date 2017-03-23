@@ -1,6 +1,6 @@
 package com.faacets.data
 
-import cats.data.Validated
+import cats.data.{Validated, ValidatedNel}
 
 import fastparse.noApi._
 
@@ -11,10 +11,16 @@ trait Parsable[T] extends Textable[T] {
 
   def toText(t: T): String
 
-  def fromText(string: String): Validated[String, T] =
+  def fromText(string: String): ValidatedNel[String, T] =
     phrase.parse(string) match {
-      case Parsed.Success(t, _) => Validated.Valid(t)
-      case f => Validated.Invalid(f.toString)
+      case Parsed.Success(t, _) => Validated.valid(t)
+      case f => Validated.invalidNel(f.toString)
     }
+
+}
+
+object Parsable {
+
+  def apply[T](implicit ev: Parsable[T]): Parsable[T] = ev
 
 }

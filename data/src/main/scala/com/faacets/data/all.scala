@@ -5,7 +5,7 @@ trait AllInstances
   extends RationalInstances
     with VecRationalInstances
     with SafeLongInstances
-//    with GrpInstances
-//    with PermInstances
-//    with ListMapInstances
-//    with JsonObjectInstances
+    with GrpInstances
+    with PermInstances
+    with ListMapInstances
+    with JsonObjectInstances

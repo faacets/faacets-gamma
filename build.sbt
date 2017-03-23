@@ -2,15 +2,19 @@
 
 val scala212Version = "2.12.1"
 
+val alascVersion = "0.13.1.1"
 val catsVersion = "0.9.0"
 val circeVersion = "0.7.0"
+val circeYamlVersion = "0.5.0"
 val consolidateVersion = "0.2"
 val fastParseVersion = "0.4.2"
-val scalinVersion = "0.13.1.2"
+val scalinVersion = "0.13.1.3"
+val shapelessVersion = "2.3.2"
 val spireVersion = "0.13.1-SNAPSHOT"
 
 // dependency for tests only
 
+val disciplineVersion = "0.7.2"
 val scalaCheckVersion = "1.13.4"
 val scalaTestVersion = "3.0.1"
 
@@ -94,12 +98,15 @@ lazy val commonSettings = Seq(
     Resolver.sonatypeRepo("releases")
   ),
   libraryDependencies ++= Seq(
-    "com.faacets" %% "consolidate" % consolidateVersion,
-    "org.spire-math" %% "spire" % spireVersion,
-    "net.alasc" %% "scalin-core" % scalinVersion,
+    "net.alasc" %% "alasc-core" % alascVersion,
     "org.typelevel" %% "cats" % catsVersion,
+    "io.circe" %% "circe-core" % circeVersion,
+    "io.circe" %% "circe-yaml" % circeYamlVersion,
+    "com.faacets" %% "consolidate" % consolidateVersion,
     "com.lihaoyi" %% "fastparse" % fastParseVersion,
-    "io.circe" %% "circe-core" % circeVersion
+    "net.alasc" %% "scalin-core" % scalinVersion,
+    "com.chuusai" %% "shapeless" % shapelessVersion,
+    "org.spire-math" %% "spire" % spireVersion
 //    "io.circe" %% "circe-generic" % circeVersion, // do we need them?
 //    "io.circe" %% "circe-parser" % circeVersion
   )
@@ -187,7 +194,9 @@ lazy val warnUnusedImport = Seq(
 lazy val testSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % scalaTestVersion,
-//    "org.typelevel" %% "discipline" % disciplineVersion, // TODO: not used yet
-    "org.scalacheck" %% "scalacheck" % scalaCheckVersion
+    "org.typelevel" %% "discipline" % disciplineVersion,
+    "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
+    "net.alasc" %% "alasc-laws" % alascVersion,
+    "org.spire-math" %% "spire-laws" % spireVersion
   )
 )

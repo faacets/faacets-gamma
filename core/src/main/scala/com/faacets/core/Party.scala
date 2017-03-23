@@ -1,6 +1,8 @@
 package com.faacets
 package core
 
+import net.alasc.util.Tuple2Int
+
 /** Description of a party in a Bell scenario
   * 
   * This part defines a `Party` class which represents a single party in a Bell scenario.

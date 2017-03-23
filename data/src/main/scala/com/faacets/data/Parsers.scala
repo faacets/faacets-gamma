@@ -1,11 +1,13 @@
 package com.faacets.data
-//import spire.algebra.Group
+
 import fastparse.WhitespaceApi
 import fastparse.noApi._
-/*
+
+import spire.algebra.Group
+
 import net.alasc.perms.{Cycle, Cycles, Perm}
 import net.alasc.syntax.all._
- */
+
 object Parsers {
 
   val White = WhitespaceApi.Wrapper {
@@ -25,12 +27,14 @@ object Parsers {
 
   val int: P[Int] = negativeInt | nonNegativeInt
 
-/*  val singleCycle: P[Cycles] = P("(" ~ nonNegativeInt.rep(sep=",") ~ ")").map {
-    seq => if (seq.isEmpty) Cycles.permutationBuilder.id else (Cycle(seq: _*): Cycles)
+  val singleCycle: P[Cycles] = P("(" ~ nonNegativeInt.rep(sep=",") ~ ")").map {
+    seq => if (seq.isEmpty) Cycles.id else (Cycle(seq: _*): Cycles)
   }
 
-  val cycles: P[Cycles] = P( singleCycle.rep(1) ).map( Group[Cycles].combine(_) )
+  val cycles1: P[Cycles] = P( singleCycle.rep(1) ).map( Group[Cycles].combineAll(_) )
 
-  val perm: P[Perm] = cycles.map(_.toPermutation[Perm])
- */
+  val nonIdPerm: P[Perm] = cycles1.map(_.toPerm)
+
+  val perm: P[Perm] = P("id").map(x => Perm.id) | nonIdPerm
+
 }
