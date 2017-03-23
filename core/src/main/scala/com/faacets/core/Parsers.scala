@@ -15,6 +15,6 @@ object Parsers {
 
   val party: P[Party] = P( "(" ~ numberOfOutputs.rep(min=1) ~ ")" ).map( seq => Party(seq) )
 
-//  val scenario: P[Scenario] = P( "[" ~ party.rep(min=1) ~ "]" ).map(Scenario(_)) TODO
+  val scenario: P[Scenario] = P( "[" ~ party.rep(min=1) ~ "]" ).map(Scenario(_))
 
 }
