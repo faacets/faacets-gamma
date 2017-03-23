@@ -1,0 +1,98 @@
+package com.faacets.core
+package repr
+
+/*
+import scala.util.parsing.combinator._
+
+import spire.algebra.{Monoid, VectorSpace}
+import spire.math.{Rational, SafeLong}
+import spire.syntax.vectorSpace._
+import spire.syntax.lattice._
+import spire.util.Nullbox
+
+import polyta.RationalParserTrait
+
+object VecParser extends TermParser with IndexParser0 {
+  def safeLong: Parser[SafeLong] = """0|([1-9]\d*)""".r ^^ { str => SafeLong(str) }
+
+  def rationalFraction: Parser[Rational] =
+    safeLong ~ "/" ~ safeLong ^^ { case num ~ "/" ~ den => Rational(num, den) }
+  def rationalSafeLong: Parser[Rational] = safeLong ^^ { Rational(_) }
+  def rationalNoSign: Parser[Rational] = rationalFraction | rationalSafeLong
+
+  case class VecTerm(coeff: Rational, term: Term[Element]) {
+    def vec[V <: Vec[V]](
+      scenario: Scenario,
+      builder: VecBuilder[V])(
+      implicit vVectorSpace: VectorSpace[V, Rational]
+    ): V = builder(scenario, term) :* coeff
+    def negate: VecTerm = VecTerm(-coeff, term)
+  }
+
+  def vecTerm: Parser[VecTerm] = opt(rationalNoSign <~ opt("*")) ~ term ^^ {
+    case (None ~ term) => VecTerm(Rational.one, term)
+    case (Some(coeff) ~ term) => VecTerm(coeff, term)
+  }
+
+  def headVecTerm: Parser[VecTerm] = opt("-") ~ vecTerm ^^ {
+    case Some("-") ~ vt => vt.negate
+    case None ~ vt => vt
+  }
+
+  def tailVecTerm: Parser[VecTerm] = ("+" | "-") ~ vecTerm ^^ {
+    case "-" ~ vt => vt.negate
+    case "+" ~ vt => vt
+  }
+
+  def vecTerms: Parser[Seq[VecTerm]] = opt(headVecTerm ~ rep(tailVecTerm)) ^^ {
+    case None => Seq.empty[VecTerm]
+    case Some(headTerm ~ tailTerms) => headTerm +: tailTerms
+  }
+
+  def findScenario(vts: Iterable[VecTerm]): Scenario = {
+    import spire.std.map._
+    val advice = Monoid[Map[Int, Map[Int, NOutputs]]].combine(vts.map(_.term.nOutputsAdvice))
+    val nParties = if (advice.isEmpty) 1 else advice.keys.max
+    Scenario((0 until nParties).map { p =>
+      advice.get(p) match {
+        case None => Party(Seq(2))
+        case Some(partyAdvice) =>
+          val nInputs = if (partyAdvice.isEmpty) 1 else partyAdvice.keys.max
+
+          Party((0 until nInputs).map( x => partyAdvice.get(x).fold(2)(_.n) ))
+      }
+    })
+  }
+
+  def findRepresentation(vts: Iterable[VecTerm]): Nullbox[Representation] =
+    if (vts.isEmpty) Nullbox(SPRepresentation) else
+      (Nullbox(vts.head.term.representation) /: vts.tail) {
+        case (prev, vt) => prev join Nullbox(vt.term.representation)
+      }
+
+  def vec[V <: Vec[V]](implicit builder: VecBuilder[V]): Parser[V] =
+    vecTerms.flatMap { vts =>
+      val scenario = findScenario(vts)
+      findRepresentation(vts) match {
+        case Nullbox(representation) =>
+          val coeffs = (builder.zero(scenario, representation).coefficients /: vts) {
+            case (prev, VecTerm(coeff, term)) => prev + coeff *: builder(scenario, term).to(representation).coefficients
+          }
+          success(builder(scenario, representation, coeffs))
+        case _ => failure("Cannot find a common representation for the terms.")
+      }
+    }
+
+  def vec[V <: Vec[V]](scenario: Scenario)(implicit builder: VecBuilder[V]): Parser[V] =
+    vecTerms.flatMap { vts =>
+      findRepresentation(vts) match {
+        case Nullbox(representation) =>
+          val coeffs = (builder.zero(scenario, representation).coefficients /: vts) {
+            case (prev, VecTerm(coeff, term)) => prev + coeff *: builder(scenario, term).to(representation).coefficients
+          }
+          success(builder(scenario, representation, coeffs))
+        case _ => failure("Cannot find a common representation for the terms.")
+      }
+    }
+}
+*/

@@ -1,0 +1,181 @@
+package com.faacets.core
+package text
+
+import spire.math.Rational
+import spire.syntax.order._
+import spire.std.int._
+
+import com.faacets.core.repr.Group
+import com.faacets.data.Parsable
+import fastparse.noApi._
+import net.alasc.util.Tuple2Int
+
+case class NOutputs(val n: Int) extends AnyVal
+
+object NOutputs {
+  implicit object NOutputsSemigroup extends spire.algebra.Semigroup[NOutputs] {
+    def op(x: NOutputs, y: NOutputs): NOutputs = NOutputs(scala.math.max(x.n, y.n))
+  }
+}
+
+sealed trait Element {
+  def isMarginal: Boolean
+  def nOutputsAdvice: Map[Int, NOutputs]
+  def nInputsAdvice: Option[Int] = nOutputsAdvice.map(_._1).reduceOption(math.max)
+}
+
+case class PElement(a: Int, x: Int) extends Element {
+  def isMarginal = false
+  def nOutputsAdvice: Map[Int, NOutputs] = Map(x -> NOutputs(a + 1))
+}
+
+trait ElementCompanion[E <: Element] {
+  def all(party: Party): IndexedSeq[E]
+  def find(party: Party, element: E): Int
+}
+
+object PElement extends ElementCompanion[PElement] {
+  def all(party: Party): IndexedSeq[PElement] = new IndexedSeq[PElement] {
+    def length = party.shapeP.size
+    def apply(ind: Int) = {
+      val Tuple2Int(a, x) = party.ind2subP(ind)
+      PElement(a, x)
+    }
+  }
+  def find(party: Party, element: PElement): Int =
+    if (element.x < party.inputs.size && element.a < party.inputs(element.x))
+      party.sub2indP(element.a, element.x)
+    else throw new IllegalArgumentException(s"Element $element is outside the shape of party $party")
+}
+
+sealed trait SGElement extends Element {
+  def stringElements: (String, String)
+}
+
+object SGElement extends ElementCompanion[SGElement] {
+  def all(party: Party): IndexedSeq[SGElement] = new IndexedSeq[SGElement] {
+    def length = party.shapeSG.size
+    def apply(ind: Int) = {
+      val Tuple2Int(a, x) = party.ind2subSG(ind)
+      if (x == -1) {
+        if (a == -1) GMarginalElement else GInputElement(Group.fromIndex(party.inputs.size, a + 1))
+      } else GOutputElement(a, x)
+    }
+  }
+  def find(party: Party, element: SGElement): Int = element match {
+    case GMarginalElement => party.sub2indSG(-1, -1)
+    case GOutputElement(a, x) => party.sub2indSG(a, x)
+    case GInputElement(g) => party.sub2indSG(g.index - 1, -1)
+  }
+}
+
+sealed trait NGElement extends SGElement
+
+object NGElement extends ElementCompanion[NGElement] {
+  def all(party: Party): IndexedSeq[NGElement] = new IndexedSeq[NGElement] {
+    def length = party.shapeNG.size
+    def apply(ind: Int) = {
+      val Tuple2Int(a, x) = party.ind2subNG(ind)
+      if (x == -1 && a == -1) GMarginalElement else GOutputElement(a, x)
+    }
+  }
+  def find(party: Party, element: NGElement): Int = element match {
+    case GMarginalElement => party.sub2indNG(-1, -1)
+    case GOutputElement(a, x) => party.sub2indNG(a, x)
+  }
+}
+
+case object GMarginalElement extends NGElement {
+  def isMarginal = true
+  def stringElements = ("", "")
+  def nOutputsAdvice = Map.empty[Int, NOutputs]
+}
+
+case class GOutputElement(a: Int, x: Int) extends NGElement {
+  def isMarginal = false
+  def stringElements = (a.toString, x.toString)
+  def nOutputsAdvice = Map(x -> NOutputs(a + 2))
+}
+
+case class GInputElement(g: Group) extends SGElement {
+  require(!g.isMarginal)
+  def isMarginal = false
+  def stringElements = ("_", s"[$g]")
+  def nOutputsAdvice = Map(g.n -> NOutputs(2))
+}
+
+sealed trait SCElement extends Element {
+  def stringElement: String
+}
+
+sealed trait NCElement extends SCElement
+
+final class SCElementParsable extends Parsable[SCElement] {
+
+  import com.faacets.data.Parsers._
+  import White._
+
+  def toText(e: SCElement): String = e match {
+    case CMarginalElement => ""
+    case COutputElement(g, x) if g.isBinary => x.toString
+    case COutputElement(g, x) => s"$x^($g)"
+    case CInputElement(g) => s"[$g]"
+  }
+
+  def phrase = Parsers.cElement ~ End
+
+}
+
+object SCElement extends ElementCompanion[SCElement] {
+  implicit val Parsable: Parsable[SCElement] = new SCElementParsable
+
+  def all(party: Party): IndexedSeq[SCElement] = new IndexedSeq[SCElement] {
+    def length = party.shapeSC.size
+    def apply(ind: Int) = {
+      val Tuple2Int(k, x) = party.ind2subSC(ind)
+      if (x == -1) {
+        if (k == -1) CMarginalElement else CInputElement(Group.fromIndex(party.inputs.size, k + 1))
+      } else COutputElement(Group.fromIndex(party.inputs(x), k + 1), x)
+    }
+  }
+  def find(party: Party, element: SCElement): Int = element match {
+    case CMarginalElement => party.sub2indSC(-1, -1)
+    case COutputElement(g, x) => party.sub2indSC(g.index - 1, x)
+    case CInputElement(g) => party.sub2indSC(g.index - 1, -1)
+  }
+}
+
+object NCElement extends ElementCompanion[NCElement] {
+  def all(party: Party): IndexedSeq[NCElement] = new IndexedSeq[NCElement] {
+    def length = party.shapeNC.size
+    def apply(ind: Int) = {
+      val Tuple2Int(k, x) = party.ind2subNC(ind)
+      if (x == -1 && k == -1) CMarginalElement
+      else COutputElement(Group.fromIndex(party.inputs(x), k + 1), x)
+    }
+  }
+  def find(party: Party, element: NCElement): Int = element match {
+    case CMarginalElement => party.sub2indNC(-1, -1)
+    case COutputElement(group, x) => party.sub2indNC(group.index - 1, x)
+  }
+}
+
+case object CMarginalElement extends NCElement {
+  def isMarginal = true
+  def stringElement = ""
+  def nOutputsAdvice = Map.empty[Int, NOutputs]
+}
+
+case class COutputElement(g: Group, x: Int) extends NCElement {
+  require(!g.isMarginal)
+  def isMarginal = false
+  def stringElement = "" + x + (if (!g.isBinary) "^(" + g.toString + ")" else "")
+  def nOutputsAdvice = Map(x -> NOutputs(g.n))
+}
+
+case class CInputElement(g: Group) extends SCElement {
+  require(!g.isMarginal)
+  def isMarginal = false
+  def stringElement = "[" + g.toString + "]"
+  def nOutputsAdvice = Map(g.n -> NOutputs(2))
+}
