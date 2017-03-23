@@ -1,21 +1,19 @@
-package com.faacets.data
-
-import org.typelevel.discipline.Laws
-
-import org.scalacheck.{Arbitrary, Prop}
-import org.scalacheck.Prop._
+package com.faacets.laws
 
 import spire.algebra.Eq
 import spire.syntax.eq._
 
-import cats.data.{NonEmptyList => Nel, Validated}
-
+import cats.data.{Validated, NonEmptyList => Nel}
+import com.faacets.data.Textable
 import io.circe._
 import io.circe.yaml.parser
 import io.circe.yaml.syntax._
-
-import Textable.syntax._
-import AccumulatingSyntax._
+import org.scalacheck.Arbitrary
+import org.scalacheck.Prop._
+import org.typelevel.discipline.Laws
+import com.faacets.data.RichValidatedNel
+import com.faacets.data.Textable.syntax._
+import com.faacets.data.AccumulatingSyntax._
 
 object DataLaws {
 
@@ -40,8 +38,7 @@ trait DataLaws[A] extends Laws {
       ),
 
       "through YAML" → forAll { (a: A) =>
-        import cats.syntax.all._
-        import cats.instances.all._
+
 
         val yml = Encoder[A].apply(a).asYaml.spaces2
         val res = Validated.fromEither(parser.parse(yml))

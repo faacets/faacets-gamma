@@ -1,7 +1,16 @@
 package com.faacets
 package core
 
+import com.faacets.laws.DataLaws
+
+import net.alasc.laws.AnyRefLaws
+
 class PartySuite extends FaacetsSuite {
+
+  import com.faacets.laws.Parties.{partyCloner, partyInstances}
+  import com.faacets.laws.Parties.Huge._
+  checkAll("Party", DataLaws[Party].textable)
+  checkAll("Party", AnyRefLaws[Party]._eq)
 
   test("Homogenous") {
     Party.mk(2, 3).isHomogenous shouldBe true

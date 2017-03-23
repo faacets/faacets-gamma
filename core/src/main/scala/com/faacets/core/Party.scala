@@ -3,6 +3,9 @@ package core
 
 import net.alasc.util.Tuple2Int
 
+import com.faacets.data.Parsable
+import com.faacets.data.Textable.syntax._
+
 /** Description of a party in a Bell scenario
   * 
   * This part defines a `Party` class which represents a single party in a Bell scenario.
@@ -33,7 +36,7 @@ final class Party private (val inputs: Seq[Int]) {
 
   def nOutputs(x: Int) = inputs(x)
 
-//  override def toString: String = this.toText TODO
+  override def toString: String = this.toText
 
   override def hashCode = inputs.hashCode
 
@@ -166,14 +169,13 @@ object Party extends UniquenessCacheEq[Seq[Int], Party] {
   def prefix(p: Int): String = ('A' + p).toChar.toString
   val prefixes = (0 until 26).map(prefix)
 
-//  implicit val parsable: Parsable[Party] = new PartyParsable
+  implicit val parsable: Parsable[Party] = new PartyParsable
 
 }
 
-/*
-
 final class PartyParsable extends Parsable[Party] {
 
+  import fastparse.noApi._
   import com.faacets.data.Parsers._
   import Parsers._
   import White._
@@ -183,4 +185,3 @@ final class PartyParsable extends Parsable[Party] {
   def toText(p: Party): String = p.inputs.mkString("(", " ", ")")
 
 }
- */

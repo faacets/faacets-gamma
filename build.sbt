@@ -22,11 +22,18 @@ lazy val faacets = (project in file("."))
   .settings(moduleName := "faacets")
   .settings(faacetsSettings)
   .settings(noPublishSettings)
-  .aggregate(core, data, tests)
-  .dependsOn(core, data, tests)
+  .aggregate(core, data, laws, tests)
+  .dependsOn(core, data, laws, tests)
 
 lazy val data = (project in file("data"))
   .settings(faacetsSettings: _*)
+
+lazy val laws = (project in file("laws"))
+  .settings(moduleName := "faacets-laws")
+  .settings(faacetsSettings: _*)
+  .settings(lawsSettings:_*)
+  .settings(commonJvmSettings: _*)
+  .dependsOn(core, data)
 
 lazy val core = (project in file("core"))
   .settings(moduleName := "faacets-core")
@@ -40,6 +47,14 @@ lazy val docs = (project in file("docs"))
   .settings(faacetsSettings)
   .settings(docsSettings)
   .dependsOn(core)
+
+lazy val tests = (project in file("tests"))
+  .settings(moduleName := "faacets-tests")
+  .settings(faacetsSettings: _*)
+  .settings(testSettings:_*)
+  .settings(noPublishSettings:_*)
+  .settings(commonJvmSettings: _*)
+  .dependsOn(core, data, laws)
 
 lazy val docsSettings = Seq(
   micrositeName := "Faacets",
@@ -68,14 +83,6 @@ lazy val docsSettings = Seq(
   ),
   fork in tut := true
 )
-
-lazy val tests = (project in file("tests"))
-  .settings(moduleName := "faacets-tests")
-  .settings(faacetsSettings: _*)
-  .settings(testSettings:_*)
-  .settings(noPublishSettings:_*)
-  .settings(commonJvmSettings: _*)
-  .dependsOn(core, data)
 
 
 lazy val faacetsSettings = buildSettings ++ commonSettings ++ publishSettings
@@ -194,6 +201,15 @@ lazy val warnUnusedImport = Seq(
 lazy val testSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % scalaTestVersion,
+    "org.typelevel" %% "discipline" % disciplineVersion,
+    "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
+    "net.alasc" %% "alasc-laws" % alascVersion,
+    "org.spire-math" %% "spire-laws" % spireVersion
+  )
+)
+
+lazy val lawsSettings = Seq(
+  libraryDependencies ++= Seq(
     "org.typelevel" %% "discipline" % disciplineVersion,
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
     "net.alasc" %% "alasc-laws" % alascVersion,
