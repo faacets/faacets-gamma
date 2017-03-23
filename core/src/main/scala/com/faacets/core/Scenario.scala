@@ -179,6 +179,12 @@ final class Scenario private (val parties: Seq[Party]) {
     hasSignaling && hasNormalization
   }
 
+  lazy val marginalAction = shape.ImpImpAction
+
+  lazy val probabilityAction = shape.PriImpAction
+
+  lazy val strategyAction = shape.PriPriAction
+
   /*
 
   lazy val marginalRep = ImprimitiveImprimitiveRelabelingRep[Rational](shapeLattice)
@@ -187,11 +193,6 @@ final class Scenario private (val parties: Seq[Party]) {
 
   lazy val strategyRep = PrimitivePrimitiveRelabelingRep[Rational](shapeLattice)
 
-  lazy val marginalAction = marginalRep.permutationAction
-
-  lazy val probabilityAction = probabilityRep.permutationAction
-
-  lazy val strategyAction = strategyRep.permutationAction
 
   lazy val subgroups = ScenarioSubgroups(this)
 

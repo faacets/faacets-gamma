@@ -8,6 +8,7 @@ import com.faacets.laws._
 import org.scalacheck.{Arbitrary, Gen}
 import org.typelevel.discipline.Laws
 
+import net.alasc.algebra.PermutationAction
 import net.alasc.laws.{AnyRefLaws, Dom, PermutationActionLaws}
 
 class RelabelingSuite extends FaacetsSuite {
@@ -21,6 +22,44 @@ class RelabelingSuite extends FaacetsSuite {
     checkAll("Relabeling", DataLaws[Relabeling].textable)
     checkAll("Relabeling", GroupLaws[Relabeling].group)
   }
+
+  {
+
+    val scenario = Scenario.nmk(3, 3, 3)
+
+    implicit val ff: PermutationAction[Relabeling] = scenario.marginalAction
+
+    implicit val pr: Arbitrary[Relabeling] = Relabelings.arbRelabelingInScenario(scenario)
+
+    checkAll("PermutationAction[Relabeling] (marginal)", PermutationActionLaws[Relabeling].faithfulPermutationAction)
+
+  }
+
+  {
+
+    val scenario = Scenario.nmk(3, 3, 3)
+
+    implicit val ff: PermutationAction[Relabeling] = scenario.probabilityAction
+
+    implicit val pr: Arbitrary[Relabeling] = Relabelings.arbRelabelingInScenario(scenario)
+
+    checkAll("PermutationAction[Relabeling] (probability)", PermutationActionLaws[Relabeling].permutationAction)
+
+  }
+
+
+  {
+
+    val scenario = Scenario.nmk(3, 3, 3)
+
+    implicit val ff: PermutationAction[Relabeling] = scenario.strategyAction
+
+    implicit val pr: Arbitrary[Relabeling] = Relabelings.arbRelabelingInScenario(scenario)
+
+    checkAll("PermutationAction[Relabeling] (strategy)", PermutationActionLaws[Relabeling].permutationAction)
+
+  }
+
 
   /*
   def relabelingLaws(rep: Scenario => PermRep[Relabeling, _])(implicit scenario: Scenario): Laws#RuleSet = {

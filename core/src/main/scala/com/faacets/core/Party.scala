@@ -127,6 +127,10 @@ final class Party private (val inputs: Seq[Int]) {
   def ind2subT(ind: Int): Array[Int] = ind2subW(ind)
   def sub2indT(sub: Array[Int]): Int = sub2indW(sub)
 
+  lazy val probabilityAction = shape.ImprimitiveAction
+
+  lazy val strategyAction = shape.PrimitiveAction
+
   /*
   lazy val subgroups = PartySubgroups(this)
 
@@ -136,9 +140,6 @@ final class Party private (val inputs: Seq[Int]) {
 
   lazy val strategyRep = PrimitivePartyRelabelingRep[Rational](shapeLattice)
 
-  lazy val probabilityAction = probabilityRep.permutationAction
-
-  lazy val strategyAction = strategyRep.permutationAction
 
   /** Object representing the symmetry group of one party of a Bell scenario.
     *
