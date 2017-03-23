@@ -1,12 +1,13 @@
 package com.faacets.core
 package syntax
 
-import perm.Relabeling
-
+import perm.{PartyRelabeling, Relabeling}
 import com.faacets.data.Textable.syntax._
 
 class Literals(val sc: StringContext) extends AnyVal {
 
   def rel(): Relabeling = sc.parts.mkString.parseUnsafe[Relabeling]
+
+  def prel(): PartyRelabeling = sc.parts.mkString.parseUnsafe[PartyRelabeling]
 
 }
