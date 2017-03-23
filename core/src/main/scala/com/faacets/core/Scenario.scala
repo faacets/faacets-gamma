@@ -91,8 +91,6 @@ final class Scenario private (val parties: Seq[Party]) {
     case WRepresentation => shapeW
   }*/
 
-  /*
-
   def shapeP: PrimitiveShape = shape.primitiveImprimitive
 
   def ind2subP(ind: Int, aArray: Array[Int], xArray: Array[Int]): Unit = {
@@ -180,6 +178,8 @@ final class Scenario private (val parties: Seq[Party]) {
     }
     hasSignaling && hasNormalization
   }
+
+  /*
 
   lazy val marginalRep = ImprimitiveImprimitiveRelabelingRep[Rational](shapeLattice)
 

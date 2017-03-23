@@ -1,10 +1,11 @@
 package com.faacets
 package core
 
-import com.faacets.core.perm.{PartyShape, PartyShapeLattice}
-
+import com.faacets.core.perm._
 import com.faacets.data.Parsable
 import com.faacets.data.Textable.syntax._
+
+import net.alasc.util.Tuple2Int
 
 /** Description of a party in a Bell scenario
   * 
@@ -50,6 +51,7 @@ final class Party private (val inputs: Seq[Int]) {
   val shapeLattice = PartyShapeLattice(inputs)
 /*
   lazy val matrices = repr.PartyMatrices(this)
+*/
 
   def shapeP: ImprimitiveShape = shape.imprimitive
   /** Decomposes an index in SP/NP representation into a tuple representing 
@@ -125,6 +127,7 @@ final class Party private (val inputs: Seq[Int]) {
   def ind2subT(ind: Int): Array[Int] = ind2subW(ind)
   def sub2indT(sub: Array[Int]): Int = sub2indW(sub)
 
+  /*
   lazy val subgroups = PartySubgroups(this)
 
   lazy val strategySubgroups = PartySubgroups(this, false)
