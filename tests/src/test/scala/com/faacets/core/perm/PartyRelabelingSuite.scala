@@ -31,8 +31,22 @@ class PartyRelabelingSuite extends FaacetsSuite {
 
     implicit val pr: Arbitrary[PartyRelabeling] = PartyRelabelings.arbPartyRelabelingInParty(party)
 
-    checkAll("PermutationAction[PartyRelabeling]", PermutationActionLaws[PartyRelabeling].faithfulPermutationAction)
+    checkAll("PermutationAction[PartyRelabeling] (probability)", PermutationActionLaws[PartyRelabeling].faithfulPermutationAction)
 
   }
+
+
+  {
+
+    val party = Party.mk(4, 4)
+
+    implicit val ff: PermutationAction[PartyRelabeling] = party.strategyAction
+
+    implicit val pr: Arbitrary[PartyRelabeling] = PartyRelabelings.arbPartyRelabelingInParty(party)
+
+    checkAll("PermutationAction[PartyRelabeling] (strategy)", PermutationActionLaws[PartyRelabeling].permutationAction)
+
+  }
+
 
 }
