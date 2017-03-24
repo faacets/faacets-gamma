@@ -1,0 +1,13 @@
+# TODO to improve the documention
+
+## Formatting
+ - Improve the table style to allow for cells spanning two lines (lines are put in distinct `<tbody></tbody>` in the html, but styling inserts a separator for each `<tr></tr>` section).
+
+ - The formatting of text using \``` ... ``` does not seem to work at the moment.
+
+## Content
+ - Add a picture in scenario.md to describe a general Bell test. Caption could be "Bell experiment: the measurement settings and outcomes can be seen as the inputs and outputs of n boxes". The figure could be a modifiction of setup.svg.
+ 
+ - Add the q representation of probabilities in representations.md once this is supported by the website
+ 
+ - Add an example of use for the Scala code: `Scenario.CHSH`, `Behavior....`
