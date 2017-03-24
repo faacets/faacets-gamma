@@ -7,6 +7,8 @@ import io.circe._
 
 import shapeless._
 
+import syntax.validatedNel._
+
 object AutoAccumulatingDecoder extends LabelledTypeClassCompanion[AccumulatingDecoder] {
 
   class Want[T](val u: Unit) {
@@ -60,7 +62,7 @@ object AutoAccumulatingDecoder extends LabelledTypeClassCompanion[AccumulatingDe
   }
 
 }
-/*
+/* TODO
 object AutoEncoder extends LabelledTypeClassCompanion[Encoder] {
 
 }

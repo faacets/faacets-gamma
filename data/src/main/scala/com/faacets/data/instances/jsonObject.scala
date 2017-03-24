@@ -1,17 +1,9 @@
-package com.faacets
-package data
-
-import consolidate._
-
-import io.circe._
-
-import com.faacets.consolidate._
-
-import Merge.syntax._
+package com.faacets.data.instances
 
 import scala.collection.immutable.ListMap
 
-import instances.listMap._
+import com.faacets.consolidate._
+import io.circe._
 
 final class JsonObjectMerge extends Merge[JsonObject] {
 

@@ -1,17 +1,16 @@
-package com.faacets
-package data
+package com.faacets.data.instances
 
 import scala.util.Try
 
 import spire.math.Rational
 
+import com.faacets.consolidate.Merge
 import io.circe._
 
-import consolidate.Merge
-
 trait RationalInstances {
-  import Decoder.Result
   import scala.util.{Left, Right}
+
+  import Decoder.Result
 
   implicit val rationalEncoder: Encoder[Rational] = new Encoder[Rational] {
     def apply(r: Rational) =

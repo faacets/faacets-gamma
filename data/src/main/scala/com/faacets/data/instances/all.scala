@@ -1,5 +1,4 @@
-package com.faacets
-package data
+package com.faacets.data.instances
 
 trait AllInstances
   extends RationalInstances
@@ -7,5 +6,4 @@ trait AllInstances
     with SafeLongInstances
     with GrpInstances
     with PermInstances
-    with ListMapInstances
     with JsonObjectInstances

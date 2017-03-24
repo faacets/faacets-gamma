@@ -11,12 +11,13 @@ import spire.syntax.action._
 import spire.syntax.cfor._
 import spire.syntax.lattice._
 
+import com.faacets.data.instances.NiceGenerators
+
 import net.alasc.algebra._
 import net.alasc.finite.{FaithfulPermutationActionBuilder, Grp}
 import net.alasc.perms._
 import net.alasc.syntax.all._
 import net.alasc.util._
-import data.NiceGenerators
 
 abstract class Relabeling {
   def pPerm: Perm

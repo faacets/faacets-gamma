@@ -3,6 +3,9 @@ package com.faacets.data
 import cats.data.{NonEmptyList => Nel, Validated, ValidatedNel}
 import io.circe._
 
+import syntax.validatedNel._
+
+/** Defines an object that serializes using a string representation. */
 trait Textable[T] {
 
   def toText(t: T): String
@@ -23,32 +26,6 @@ object Textable {
     }
   }
 
-  class TextableParseException(val errors: Nel[String]) extends IllegalArgumentException(errors.toList.mkString(","))
-
-  final class TextableStringOps(val lhs: String) extends AnyVal {
-
-    /** Parses the string as `T`, and throws an exception if it fails. */
-    def parseUnsafe[T:Textable]: T = parse match {
-      case Validated.Invalid(errors) => throw new TextableParseException(errors)
-      case Validated.Valid(t) => t
-    }
-
-    def parse[T:Textable]: ValidatedNel[String, T] = Textable[T].fromText(lhs)
-
-  }
-
-  final class TextableOps[T](val lhs: T) extends AnyVal {
-
-    def toText(implicit T:Textable[T]): String = T.toText(lhs)
-
-  }
-
-  object syntax {
-
-    implicit def textableStringOps(lhs: String): TextableStringOps = new TextableStringOps(lhs)
-
-    implicit def textableOps[T](lhs: T): TextableOps[T] = new TextableOps[T](lhs)
-
-  }
+  class ParseException(val errors: Nel[String]) extends IllegalArgumentException(errors.toList.mkString(","))
 
 }

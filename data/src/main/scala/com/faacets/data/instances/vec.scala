@@ -1,17 +1,12 @@
-package com.faacets
-package data
-
-import io.circe._
+package com.faacets.data.instances
 
 import spire.math.Rational
 
-import consolidate.Merge
-
+import com.faacets.consolidate.Merge
+import io.circe._
 import scalin.immutable.Vec
 
-import instances.rational._
-
-trait VecRationalInstances {
+trait VecInstances {
 
   implicit val vecRationalEncoder: Encoder[Vec[Rational]] =
     Encoder[IndexedSeq[Rational]].contramap[Vec[Rational]](_.toIndexedSeq.toVector)

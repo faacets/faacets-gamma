@@ -4,6 +4,7 @@ import cats.data.{Validated, ValidatedNel}
 
 import fastparse.noApi._
 
+/** Defines an object whose string serialization can be parsed using a fastparse parser. */
 trait Parsable[T] extends Textable[T] {
 
   /** Parser for the represented type `T`, consuming the end of input. */

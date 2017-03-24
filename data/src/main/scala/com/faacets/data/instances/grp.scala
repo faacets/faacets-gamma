@@ -1,15 +1,10 @@
-package com.faacets
-package data
+package com.faacets.data.instances
 
-import spire.algebra.Group
+import com.faacets.consolidate.Merge
 
 import net.alasc.finite.Grp
 
 // import net.alasc.finite.{Grp, GrpBuilder}
-
-import instances.safeLong._
-
-import consolidate.Merge
 
 /** Type-class to find "nice" generators for a given group. */
 trait NiceGenerators[G] {

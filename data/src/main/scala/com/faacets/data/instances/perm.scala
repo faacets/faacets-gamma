@@ -1,14 +1,10 @@
-package com.faacets
-package data
+package com.faacets.data.instances
 
-import spire.algebra.Group
-import spire.syntax.group._
-
-import net.alasc.perms.{Cycle, Cycles, Perm}
-import net.alasc.syntax.permutationAction._
-import consolidate.Merge
-import fastparse.WhitespaceApi
+import com.faacets.consolidate.Merge
+import com.faacets.data.{Parsable, Parsers}
 import fastparse.noApi._
+
+import net.alasc.perms.Perm
 
 final class PermParsable extends Parsable[Perm] {
 
