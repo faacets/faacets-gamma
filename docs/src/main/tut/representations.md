@@ -5,106 +5,54 @@ section: "Overview of Bell inequalities"
 position: 1
 ---
 
-# Representations
+Representations
+===============
 
-Two different spaces can be used to represent joint probability
-distributions:
+A Bell expression is defined as a direction in the space of conditional probabilities $$P(a,b,\ldots\vert x,y,\ldots)$$, where $$a,b,\ldots$$ are the parties' individual outcomes and $$x,y,\ldots$$ their measurement settings (see [Bell scenario](scenario.html)). The description of a Bell inequality, i.e. of a Bell expression with given direction and local bound, thus relies on a choice of parametrization for the space of conditional probability distributions. A natural parametrization of this space is given by the list of all probabilities $$P(a,b,\ldots\vert x,y,\ldots)\ \forall a,b,x,y,\ldots$$ themselves. A vectorization of these parameters then gives rise to a vector-representation of a Bell expression.
 
--   joint probability distributions of the form $$P(ab...|xy...)$$ are
-    contained in the correlation space,
--   local decompositions of the form $$q_{\alpha \beta ...}$$ are
-    contained in the space of strategy weights.
-
-The correlation space contains signaling and non-properly normalized
-joint probability distributions. As such, we defined in
-[FaacetsPaper](http://www.arxiv.org) the no-signaling subspace and its
-canonical projection. Because the no-signaling subspace is not fully
-dimensional, several of its parametrizations are used in the literature
-and have been implemented in Faacets: the `Collins-Gisin` notation (see
-[CollinsGisin](http://dx.doi.org/10.1088/0305-4470/37/5/021)), and the
-binary `Correlators` notation (see e.g.
-[Sliwa](http://dx.doi.org/10.1016/S0375-9601(03)01115-0)). We extended
-the Correlators notation in [FaacetsPaper](https://arxiv.org/abs/1404.1306) to
-non-binary outputs. We also extended both the Collins-Gisin and the
-Correlators notations to include signaling terms, such that there is a
-bijection between signaling probabilities \\(P(ab...|xy...)\\), the
-`Signaling` `Collins-Gisin` and `Correlators` notation. The
-transformation between the `Non-signaling` `probabilities`,
-`Collins-Gisin` and `Correlators` notations is also bijective.
-
-As described in [FaacetsPaper](https://arxiv.org/abs/1404.1306) , Bell expressions
-can be projected in the non-signaling subspace by setting the signaling
-terms to 0 in the `Collins-Gisin` or `Correlators` notations.
-
-Local decompositions can be specified using either weights corresponding
-to deterministic points, or using `strategy correlators` as specified in
-the [BilocalityPaper](http://dx.doi.org/10.1103/PhysRevA.85.032119).
-
-In summary, we distinguish:
-
-|-------------------------------|-----------|-----------|-------------------|-------------------|
-|Representation name            |Shorthand  | Bijection |    To             | Used for          |
-|                               |           |   with    | represent         |                   |
-|===============================|===========|===========|===================|===================|
-|Signaling probabilities        |SP         |SC, SG     |Probability        |Permutation        |
-|                               |           |           |distributions      |group              |
-|-------------------------------|-----------|-----------|-------------------|algorithms,        |
-|Non-signaling probabilities    |NP         |NC, NG     |Prob. dist.        |Canonical          |
-|                               |           |           |                   |expresions         |
-|-------------------------------|-----------|-----------|-------------------|-------------------|
-|Signaling Collins-Gisin        |SG         |SP, SC     |Prob. dist.        |                   |
-|-------------------------------|-----------|-----------|-------------------|-------------------|
-|Non-signaling Collins-Gisin    |NG         |NP, NC     |Prob. dist.        |                   |
-|-------------------------------|-----------|-----------|-------------------|-------------------|
-|Signaling Correlators          |SC         |SP, SG     |Prob. dist.        |Product            |
-|-------------------------------|-----------|-----------|-------------------|decompositions     |
-|Non-signaling Correlators      |NC         |NP, NG     |Prob. dist.        |and projection     |
-|                               |           |           |                   |in                 |
-|                               |           |           |                   |non-signaling      |
-|                               |           |           |                   |subspace           |
-|-------------------------------|-----------|-----------|-------------------|-------------------|
-|Strategy Correlators           |T          |W          |Local              |                   |
-|                               |           |           |decompositions     |                   |
-|-------------------------------|-----------|-----------|-------------------|-------------------|
-|Strategy Weights               |W          |T          |Local dec.         |                   |
-|-------------------------------|-----------|-----------|-------------------|-------------------|
+However, due to the normalization of probabilities (i.e. the fact that $$\sum_{a,b}P(a,b\vert x,y)=1\ \forall x,y$$ ), as well as the no-signalling condition, this straightforward parametrization of the probability space is overcomplete. This results in a degeneracy of the Bell expression coefficients (See [FaacetsPaper](https://arxiv.org/abs/1404.1306) for more details). In order to guarantee a unique description of every Bell inequality, we rely on parametrizations of the normalized nosignaling suspace.
 
 
-Probabilites representations
-----------------------------
-
-In this representation, we simply write enumerate the coefficients of
-the joint probability distribution $$P(ab...|xy...)$$ (or the coefficients
-of a Bell expression acting on such distributions) in the following
-order: we increment first Alice's outcome $$a$$, then increment Alice's
-setting $$x$$, then increment Bob's outcome $$b$$, then increment Bob's
-setting $$y$$, and so on.
-
-There is no difference in the order of terms between `Signaling` and
-`Non-signaling Probabilities`, except that distributions or expressions
-in the `Non-signaling Probabilities` representation are non-signaling or
-have been projected.
-
-For the CHSH scenario with two parties and binary measurement
-settings/outcomes, the order of terms is:
-`P(11|11), P(21|11), P(11|21), P(21|21), P(12|11), P(22|11), P(12|21), P(22|21), P(11|12), P(21|12), P(11|22), P(21|22), P(12|12), P(22|12), P(12|22), P(22|22)`.
-
-Correlators representations
+Non-Signaling probabilities
 ---------------------------
+This parametrization uses the whole set of conditional probabilities $$P(a,b,\ldots\vert x,y,\ldots)$$, but removes the degeneracy in the Bell coefficients by requiring them to satisfy a set of constraints. These constraints are uniquely defined and preserve the symmetry under [relabelings](relabelings.html) of the inequality (see [here](https://arxiv.org/abs/1610.01833) for more details on this projection). A Bell expression is then described in terms of these coefficients.
 
-To be described.
+Concretely, the Bell expression
+<p align="center">
+$$B=\sum_{a,b,x,y,\ldots} \alpha_{a,b,\ldots\vert x,y,\ldots}P(a,b,\ldots\vert x,y,\ldots)$$
+</p>
+is expressed in vector form by enumerating the coefficients $$\alpha_{a,b,\ldots\vert x,y,\ldots}$$. The enumeration of the coefficients increment first Alice's outcome $$a$$, then increment Alice's setting $$x$$, then increment Bob's outcome $$b$$, then increment Bob's setting $$y$$, and so on.
 
-Collins-Gisin representations
------------------------------
+In the CHSH scenario with two parties and binary measurement settings/outcomes, for instance, the order of terms is: $$\alpha_{1,1\vert 1,1}$$ , $$\alpha_{2,1\vert 1,1}$$ , $$\alpha_{1,1\vert 2,1}$$ , $$\alpha_{2,1\vert 2,1}$$ , $$\alpha_{1,2\vert 1,1}$$ , $$\alpha_{2,2\vert 1,1}$$ , $$\alpha_{1,2\vert 2,1}$$ , $$\alpha_{2,2\vert 2,1}$$ , $$\alpha_{1,1\vert 1,2}$$ , $$\alpha_{2,1\vert 1,2}$$ , $$\alpha_{1,1\vert 2,2}$$ , $$\alpha_{2,1\vert 2,2}$$ , $$\alpha_{1,2\vert 1,2}$$ , $$\alpha_{2,2\vert 1,2}$$ , $$\alpha_{1,2\vert 2,2}$$ , $$\alpha_{2,2\vert 2,2}$$ .
 
-To be described.
+This ordering is obtained equivalently by listing all the columns of the following table:
 
-Strategy Correlators representation
------------------------------------
+| $$\alpha_{1,1\vert 1,1}$$ | $$\alpha_{1,2\vert 1,1}$$ | $$\alpha_{1,1\vert 1,2}$$ | $$\alpha_{1,2\vert 1,2}$$ | 
+| $$\alpha_{2,1\vert 1,1}$$ | $$\alpha_{2,2\vert 1,1}$$ | $$\alpha_{2,1\vert 1,2}$$ | $$\alpha_{2,2\vert 1,2}$$ | 
+| $$\alpha_{1,1\vert 2,1}$$ | $$\alpha_{1,2\vert 2,1}$$ | $$\alpha_{1,1\vert 2,2}$$ | $$\alpha_{1,2\vert 2,2}$$ | 
+| $$\alpha_{2,1\vert 2,1}$$ | $$\alpha_{2,2\vert 2,1}$$ | $$\alpha_{2,1\vert 2,2}$$ | $$\alpha_{2,2\vert 2,2}$$ | 
 
-To be described.
+Any bipartite inequality can be represented in a similar table form. Each table dimension can be identified with a given party, Alice or Bob, and to each choice of settings $$(x,y)$$ corresponds a 2x2 block of coefficients.
 
-Strategy Weights representation
--------------------------------
 
-To be described.
+Collins-Gisin representation
+----------------------------
+This parametrization removes the degeneracy of the Bell coefficients by relying on a non-redundant basis of the normalized no-signaling space. This basis is defined by considering all probability terms (including marginals) which do not involve the last possible outcome of any party (see [CollinsGisin](http://dx.doi.org/10.1088/0305-4470/37/5/021)).
+
+In the CHSH scenario, for instance, any Bell expression written in this representation takes the form
+
+<p align="center">
+$$B=\gamma + \sum_{x=1}^2 \alpha^B_{1\vert x} P_A(1\vert x) + \sum_{y=1}^2 \alpha^B_{1\vert x} P_A(1\vert x) + \sum_{x,y=1}^2 \alpha^{AB}_{1,1\vert x,y} P_{AB}(1,1\vert x,y).$$
+</p>
+
+Here $$P^{AB}(a,b\vert x,y)$$ stands for the joint probability distribution (denoted $$P(a,b\vert x,y)$$ above), and $$P^A(a\vert x)=\sum_b P^{AB}(a,b\vert x,y)$$ is Alice's marginal distribution.
+
+A table-like description of such a bipartite Bell expression is then obtained in a similar fashion:
+
+| $$\gamma$$ | $$\alpha^B_{1\vert 1}$$ | $$\alpha^B_{1\vert 2}$$ |
+| $$\alpha^A_{1\vert 1}$$ | $$\alpha^{AB}_{1,1\vert 1,1}$$ | $$\alpha^{AB}_{1,1\vert 1,2}$$ |
+| $$\alpha^A_{1\vert 2}$$ | $$\alpha^{AB}_{1,1\vert 2,1}$$ | $$\alpha^{AB}_{1,1\vert 2,2}$$ |
+
+Listing each column gives rise to the vector form of the Collins-Gisin representation, taking successive elements: $$\gamma$$ , $$\alpha^A_{1\vert 1}$$ , $$\alpha^A_{1\vert 2}$$ , $$\alpha^B_{1\vert 1}$$ , $$\alpha^{AB}_{1,1\vert 1,1}$$ , $$\alpha^{AB}_{1,1\vert 2,1}$$ , $$\alpha^B_{1\vert 2}$$ , $$\alpha^{AB}_{1,1\vert 1,2}$$ , $$\alpha^{AB}_{1,1\vert 2,2}$$ .
+
+
