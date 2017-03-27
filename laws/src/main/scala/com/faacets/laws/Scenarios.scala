@@ -4,7 +4,6 @@ package laws
 import org.scalacheck._
 import net.alasc.laws._
 import core._
-import data._
 
 object Scenarios {
 

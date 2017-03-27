@@ -2,7 +2,7 @@ package com.faacets.core
 package syntax
 
 import perm.{PartyRelabeling, Relabeling}
-import com.faacets.data.Textable.syntax._
+import com.faacets.data.syntax.textable._
 
 class Literals(val sc: StringContext) extends AnyVal {
 

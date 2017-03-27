@@ -6,7 +6,6 @@ import scala.annotation.tailrec
 import scalin.immutable.{Mat, Vec}
 import scalin.immutable.dense._
 import spire.math.Rational
-import scalin.syntax.all._
 
 /** Helper for matrix-vector products, when the matrix is a Kronecker product
   * 

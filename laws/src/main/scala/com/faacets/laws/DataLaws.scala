@@ -11,9 +11,7 @@ import io.circe.yaml.syntax._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Prop._
 import org.typelevel.discipline.Laws
-import com.faacets.data.RichValidatedNel
-import com.faacets.data.Textable.syntax._
-import com.faacets.data.AccumulatingSyntax._
+import com.faacets.data.syntax.all._
 
 object DataLaws {
 

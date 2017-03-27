@@ -4,7 +4,6 @@ package repr
 
 import scalin.immutable.Mat
 import scalin.immutable.dense._
-import spire.algebra.Order
 import scalin.syntax.all._
 import spire.syntax.cfor._
 

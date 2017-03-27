@@ -95,7 +95,7 @@ lazy val buildSettings = Seq(
 
 lazy val commonSettings = Seq(
   scalacOptions ++= commonScalacOptions.diff(Seq(
-    "-Xfatal-warnings"
+    "-Xfatal-warnings", "-Ywarn-numeric-widen"
   )),
   resolvers ++= Seq(
     Resolver.url("spirejars", url(file("spirejars").toURI.toASCIIString))(Resolver.ivyStylePatterns), // TODO: remove use of Spire prerelease

@@ -208,8 +208,10 @@ object Relabeling extends RelabelingCompanion {
       RelabelingImplGen(prMap, pPerm)
   }
 
-/* TODO  implicit val niceGenerators: NiceGenerators[Relabeling] = new NiceGenerators[Relabeling] {
-    def niceGenerators(grp: Grp[Relabeling]) = RelabelingSubgroups(grp).niceGenerators
-  }*/
+
+
+  /* TODO  implicit val niceGenerators: NiceGenerators[Relabeling] = new NiceGenerators[Relabeling] {
+      def niceGenerators(grp: Grp[Relabeling]) = RelabelingSubgroups(grp).niceGenerators
+    }*/
 
 }

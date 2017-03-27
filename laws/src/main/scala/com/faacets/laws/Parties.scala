@@ -3,7 +3,6 @@ package laws
 
 import org.scalacheck._
 import net.alasc.laws._
-import data._
 import core._
 
 object Parties {

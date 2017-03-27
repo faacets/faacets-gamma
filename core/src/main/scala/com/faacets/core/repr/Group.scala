@@ -32,7 +32,7 @@ object Group {
 
   implicit val equ: Eq[Group] = spire.optional.genericEq.generic[Group]
 
-/*  implicit val parsable: Parsable[Group] = new Parsable[Group] {
+  implicit val parsable: Parsable[Group] = new Parsable[Group] {
 
     import com.faacets.data.Parsers._
     import White._
@@ -41,6 +41,6 @@ object Group {
 
     def phrase = Parsers.group ~ End
 
-  }*/
+  }
 
 }

@@ -34,6 +34,11 @@ object PartyShapeLattice {
 
   implicit val partitionMapIntPartialOrder = PartitionMap.partialOrder[Int]
 
+  def fromPartyRelabelings(partyRelabelings: Iterable[PartyRelabeling]): PartyShapeLattice =
+    partyRelabelings.foldLeft(PartyShapeLattice.algebra.zero) {
+      case (lattice, pr) => PartyShapeLattice.algebra.join(lattice, PartyShapeLattice(pr))
+    }
+
   def apply(pr: PartyRelabeling): PartyShapeLattice =
     PartyShapeLattice(
       PartitionMap.tabulate(

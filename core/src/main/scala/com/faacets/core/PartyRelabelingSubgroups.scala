@@ -1,34 +1,30 @@
 package com.faacets
 package core
 
-/*
-import scala.reflect.ClassTag
-import scala.util.Random
+import com.faacets.core.perm.{PartyRelabeling, PartyShapeLattice}
 
-import spire.algebra._
-import spire.math.{Rational, SafeLong}
-import spire.syntax.group._
-import spire.util.Opt
-import spire.syntax.cfor._
-
-import net.alasc.finite.{Grp, GrpChainBuilder, Rep}
-import net.alasc.perms.{FaithfulPermRep, Perm}
+import net.alasc.algebra.PermutationAction
+import net.alasc.bsgs.{GrpChain, GrpChainPermutationAction, SubgroupDefinition}
+import net.alasc.finite.Grp
+import net.alasc.perms.Perm
 import net.alasc.perms.default._
 import net.alasc.syntax.all._
-import perm.{ImprimitivePartyRelabelingRep, _}
-
-import Rep.algebra._
-import Rep.convert._
-import net.alasc.algebra.{Permutation, PermutationAction}
-import net.alasc.bsgs.{BuildMutableChain, Chain, GrpChain}
 
 case class PartyRelabelingSubgroups(val group: Grp[PartyRelabeling]) {
 
-  val impRep = ImprimitivePartyRelabelingRep[Rational](group.generators)
+  val shapeLattice = PartyShapeLattice.fromPartyRelabelings(group.generators)
 
-  val impShape = impRep.lattice.shape.imprimitive
+  val impShape = shapeLattice.shape.imprimitive
 
-  val groupInRep: Grp[Rep.Of[PartyRelabeling, impRep.type]] = Rep.OfGrp(group, impRep)
+  implicit val action: PermutationAction[PartyRelabeling] = shapeLattice.shape.ImprimitiveAction
+
+  def subgroupFor(test: (Int, Int) => Boolean, predicate: PartyRelabeling => Boolean): GrpChain[PartyRelabeling, action.type] = {
+    val definition = SubgroupDefinition[PartyRelabeling, action.type](test, predicate)(action)
+    GrpChainPermutationAction[PartyRelabeling].subgroupFor[action.type](groupInRep, action, definition)
+  }
+
+  val groupInRep: GrpChain[PartyRelabeling, action.type] =
+    GrpChainPermutationAction[PartyRelabeling].fromGrp(group, action)
 
   def inputsPermSubgroup: Grp[Perm] = {
     val subgrp = inputsSubgroup
@@ -42,7 +38,7 @@ case class PartyRelabelingSubgroups(val group: Grp[PartyRelabeling]) {
       val imageIndex = image - impShape.offsets(impShape.blockIndices(image))
       preimageIndex == imageIndex
     }
-    groupInRep.subgroupFor(test, predicate)
+    subgroupFor(test, predicate)
   }
 
   def nInputs = (1 /: group.generators.map(_.nInputs))(_.max(_))
@@ -64,7 +60,7 @@ case class PartyRelabelingSubgroups(val group: Grp[PartyRelabeling]) {
       val preimageInput = impShape.blockIndices(preimage)
       preimageInput == x || preimage == image
     }
-    groupInRep.subgroupFor(test, predicate)
+    subgroupFor(test, predicate)
   }
 
   def outputsSubgroup: Grp[PartyRelabeling] = {
@@ -74,8 +70,7 @@ case class PartyRelabelingSubgroups(val group: Grp[PartyRelabeling]) {
       val imageInput = impShape.offsets(impShape.blockIndices(image))
       preimageInput == imageInput
     }
-    groupInRep.subgroupFor(test, predicate)
+    subgroupFor(test, predicate)
   }
 
 }
-*/

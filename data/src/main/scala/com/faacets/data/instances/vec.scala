@@ -5,6 +5,7 @@ import spire.math.Rational
 import com.faacets.consolidate.Merge
 import io.circe._
 import scalin.immutable.Vec
+import com.faacets.data.instances.rational._
 
 trait VecInstances {
 

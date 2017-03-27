@@ -1,15 +1,10 @@
 package com.faacets
 package core
 
-import com.faacets.core.perm.Relabeling
 import com.faacets.laws.DataLaws
 
 import net.alasc.laws.AnyRefLaws
-import com.faacets.data.Textable.syntax._
-import org.scalacheck.Arbitrary
-
-import com.faacets.laws.Relabelings
-import net.alasc.algebra.PermutationAction
+import com.faacets.data.syntax.textable._
 
 class ScenarioSuite extends FaacetsSuite {
 

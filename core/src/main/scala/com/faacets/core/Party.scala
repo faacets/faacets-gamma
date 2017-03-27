@@ -3,7 +3,7 @@ package core
 
 import com.faacets.core.perm._
 import com.faacets.data.Parsable
-import com.faacets.data.Textable.syntax._
+import com.faacets.data.syntax.textable._
 
 import net.alasc.finite.Grp
 import net.alasc.util.Tuple2Int

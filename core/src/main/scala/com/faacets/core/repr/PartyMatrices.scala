@@ -3,7 +3,6 @@ package core
 package repr
 
 import spire.math.Rational
-import spire.syntax.vectorSpace._
 
 import scalin.immutable.{Mat, Vec}
 
@@ -12,10 +11,6 @@ import scalin.immutable.dense._
 import scalin.syntax.all._
 
 import spire.syntax.cfor._
-import spire.syntax.field._
-
-import metal._
-import metal.syntax._
 
 /** Party representations methods */
 case class PartyMatrices(party: Party) {
@@ -178,6 +173,12 @@ case class PartyMatrices(party: Party) {
   def matSCfromNC: Mat[Rational] = matSGfromNG
 
   def matNCfromSC: Mat[Rational] = matNGfromSG
+
+  lazy val matProjectionInSG: Mat[Rational] = matSGfromNG * matNGfromSG
+
+  def matProjectionInSC: Mat[Rational] = matProjectionInSG
+
+  lazy val matProjectionInSP: Mat[Rational] = matSPfromSG * matProjectionInSG * matSGfromSP
 
   lazy val matNCfromT: Mat[Rational] = {
     val n = inputs.length

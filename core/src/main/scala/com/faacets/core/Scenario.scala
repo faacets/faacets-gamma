@@ -10,19 +10,12 @@ import scalin.immutable.Vec
 
 import net.alasc.finite.Grp
 
-/*
-import net.alasc.algebra._
-import net.alasc.finite.{Grp, Rep}
-import net.alasc.util.Tuple2Int
-import net.alasc.perms.default._
-import util._*/
-
 import net.alasc.perms.default._
 
 import fastparse.noApi._
 
 import com.faacets.data.Parsable
-import com.faacets.data.Textable.syntax._
+import com.faacets.data.syntax.textable._
 
 import perm._
 import consolidate.Merge
@@ -106,6 +99,26 @@ final class Scenario private (val parties: Seq[Party]) {
     }
   }
 
+  def tabulateNG[A](coefficients: (Array[Int], Array[Int]) => A): Vec[A] =
+    tabulateNC(coefficients)
+
+
+  def tabulateNC[A](coefficients: (Array[Int], Array[Int]) => A): Vec[A] = {
+    import scalin.immutable.dense._
+    val subArray = new Array[Int](nParties)
+    val kArray = new Array[Int](nParties)
+    val xArray = new Array[Int](nParties)
+    Vec.tabulate(shapeNC.size) { ind =>
+      shapeNC.ind2sub(ind, subArray)
+      cforRange(0 until nParties) { p =>
+        val sub = subArray(p)
+        val partyShape = parties(p).shapeNC
+        kArray(p) = partyShape.blockOffset(sub)
+        xArray(p) = partyShape.blockIndices(sub) - 1
+      }
+      coefficients(kArray, xArray)
+    }
+  }
 
   def shapeP: PrimitiveShape = shape.primitiveImprimitive
 

@@ -37,6 +37,10 @@ import net.alasc.finite.Grp
   */
 abstract class PVec extends Attributable { lhs =>
 
+  def prefix: String
+
+  override def toString = s"$prefix($scenario, $coefficients)"
+
   type S <: Scenario with Singleton
 
   val scenario: S
@@ -67,6 +71,12 @@ abstract class PVec extends Attributable { lhs =>
 
 }
 
+trait PVecEq[V <: PVec] extends Eq[V] {
+
+  def eqv(lhs: V, rhs: V): Boolean = ((lhs.scenario:Scenario) === (rhs.scenario:Scenario)) && (lhs.coefficients == rhs.coefficients) // TODO Eq[Vec[Rational]]
+
+}
+
 abstract class NDVec extends PVec {
 
   def symmetryGroup: Grp[Relabeling] = NDVec.attributes.symmetryGroup(this) {
@@ -87,59 +97,3 @@ object NDVec {
   }
 
 }
-/*
-  def isInNonSignalingSubspace: Boolean
-
-  def toNonSignalingSubspace: (V[S], V[S])
-
-*/
-
-object PVec {
-  /*
-
-
-  implicit val exprSymmetryGroupCompute: PVec.symmetryGroup.Compute[Expr[_ <: Scenario with Singleton]] =
-    PVec.symmetryGroup.computeFor[Expr[_ <: Scenario with Singleton]] { bv =>
-      val partition = Partition.fromSeq(bv.coefficients.toIndexedSeq)
-      bv.scenario.probabilityGroup.fixingPartition(partition)
-    }
-
-  implicit val corrSymmetryGroupCompute: PVec.symmetryGroup.Compute[Corr[_ <: Scenario with Singleton]] =
-    PVec.symmetryGroup.computeFor[Corr[_ <: Scenario with Singleton]] { bv =>
-      val partition = Partition.fromSeq(bv.coefficients.toIndexedSeq)
-      bv.scenario.probabilityGroup.fixingPartition(partition)
-    }
-
-  /** Computes the inner product between Expr and Corr.
-    *
-    * The product of betwen signaling and non-signaling objects is defined by computing
-    * the product in the non-signaling subspace.
-    */
-  def inner[S <: Scenario with Singleton](expr: Expr[S], corr: Corr[S]): Rational =
-    expr.coefficients.dot(corr.coefficients)
-*/
-}
-
-
-/*
-  implicit def VecEq[A:Eq]: Eq[Vec[A]] = new Eq[Vec[A]] {
-
-    def eqv(lhs: Vec[A], rhs: Vec[A]): Boolean = (lhs.length == rhs.length) && {
-      cforRange(0 until lhs.length) { k =>
-        if (lhs(k) =!= rhs(k)) return false
-      }
-      true
-    }
-
-  }
-
-abstract class Vec[V <: Vec[V]: ClassTag] {
-
-  def constant: Rational
-
-  def terms: IndexedSeq[Term[Element]] = repr.Term.all(scenario, representation)
-
-  def prettyExpression: pretty.Expression[Term[Element], Rational] =
-    pretty.Expression((terms.toSeq zip coefficients.toIndexedSeq).filterNot(_._2 === 0))
-}
-*/

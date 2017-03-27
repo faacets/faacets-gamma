@@ -1,6 +1,6 @@
 package com.faacets.data
 
-import cats.data.{NonEmptyList => Nel, Validated, ValidatedNel}
+import cats.data.{NonEmptyList => Nel, ValidatedNel}
 import io.circe._
 
 import syntax.validatedNel._

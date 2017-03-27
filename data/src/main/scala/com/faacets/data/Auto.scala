@@ -1,6 +1,6 @@
 package com.faacets.data
 
-import cats.data.{NonEmptyList => NEL, Validated, ValidatedNel}
+import cats.data.{Validated, ValidatedNel}
 import cats.syntax.all._
 
 import io.circe._
@@ -24,7 +24,7 @@ object AutoAccumulatingDecoder extends LabelledTypeClassCompanion[AccumulatingDe
       lwclkv: Lazy[Wrap.Aux[LKV, V]]
     ): AccumulatingDecoder[T] = {
 
-      import lwclkv.value.{label, unlabel, unwrap}
+      import lwclkv.value.unwrap
 
       AccumulatingDecoder.instance { c =>
         unwrap(c) andThen (v => validate(gen.from(v)).toAccumulatingDecoderResult)

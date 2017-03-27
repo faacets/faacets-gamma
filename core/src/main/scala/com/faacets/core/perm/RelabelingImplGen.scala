@@ -2,18 +2,11 @@ package com.faacets
 package core
 package perm
 
-import scala.reflect.classTag
-
 import spire.algebra._
-import spire.syntax.eq._
-import spire.syntax.group._
-import spire.syntax.action._
 import spire.syntax.cfor._
 
-import net.alasc.algebra._
 import net.alasc.perms._
 import net.alasc.syntax.all._
-import net.alasc.util._
 
 /** Implementation of a Relabeling using an array for output relabelings (concatenated) and an array for input relabelings.
   * 

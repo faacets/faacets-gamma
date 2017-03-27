@@ -2,8 +2,6 @@ package com.faacets
 package core
 package perm
 
-import spire.syntax.group._
-
 import data._
 import fastparse.noApi._
 
