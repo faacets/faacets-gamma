@@ -159,6 +159,8 @@ object Party extends UniquenessCacheEq[Seq[Int], Party] {
   protected def valueFromKey(inputs: Seq[Int]): Party = new Party(inputs)
   protected def keyFromValue(party: Party): Option[Seq[Int]] = Some(party.inputs)
 
+  val binaryIO: Party = Party.mk(2, 2)
+
  // Factory methods
   def mk(m: Int, k: Int): Party = Party(Seq.fill(m)(k))
   def prefix(p: Int): String = ('A' + p).toChar.toString

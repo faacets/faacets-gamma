@@ -3,8 +3,9 @@ package com.faacets.core
 import spire.laws.GroupLaws
 
 import com.faacets.FaacetsSuite
-import com.faacets.laws.{DataLaws, Parties, PartyRelabelings}
+import com.faacets.laws._
 import org.scalacheck.Arbitrary
+import org.typelevel.discipline.Laws
 
 import net.alasc.algebra.PermutationAction
 import net.alasc.laws.{AnyRefLaws, PermutationActionLaws}
@@ -20,25 +21,21 @@ class PartyRelabelingSuite extends FaacetsSuite {
     checkAll("PartyRelabeling", GroupLaws[PartyRelabeling].group)
   }
 
-  {
-    val party = Party.mk(4, 4)
-
-    implicit val ff: PermutationAction[PartyRelabeling] = party.probabilityAction
-
-    implicit val pr: Arbitrary[PartyRelabeling] = PartyRelabelings.arbPartyRelabelingInParty(party)
-
-    checkAll("PermutationAction[PartyRelabeling] (probability)", PermutationActionLaws[PartyRelabeling].faithfulPermutationAction)
+  def partyRelabelingLaws(rep: Party => PermutationAction[PartyRelabeling])(implicit party: Party): Laws#RuleSet = {
+    import PartyRelabelings.arbPartyRelabelingInParty
+    implicit def action = rep(party)
+    PermutationActionLaws[PartyRelabeling].faithfulPermutationAction
   }
 
-
   {
-    val party = Party.mk(4, 4)
+    import Parties.Small._
 
-    implicit val ff: PermutationAction[PartyRelabeling] = party.strategyAction
+    nestedCheckAll[Party]("Relabeling.Probability", Party.binaryIO)(
+      partyRelabelingLaws(_.probabilityAction)(_))
 
-    implicit val pr: Arbitrary[PartyRelabeling] = PartyRelabelings.arbPartyRelabelingInParty(party)
+    nestedCheckAll[Party]("Relabeling.Strategy", Party.binaryIO)(
+      partyRelabelingLaws(_.strategyAction)(_))
 
-    checkAll("PermutationAction[PartyRelabeling] (strategy)", PermutationActionLaws[PartyRelabeling].permutationAction)
   }
 
 }
