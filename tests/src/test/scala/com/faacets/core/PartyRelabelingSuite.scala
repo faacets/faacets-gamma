@@ -1,11 +1,9 @@
-package com.faacets
-package core.perm
+package com.faacets.core
 
 import spire.laws.GroupLaws
 
-import com.faacets.core.{Party, PartyRelabeling}
-import com.faacets.laws.PartyRelabelings.genPartyRelabeling
-import laws._
+import com.faacets.FaacetsSuite
+import com.faacets.laws.{DataLaws, Parties, PartyRelabelings}
 import org.scalacheck.Arbitrary
 
 import net.alasc.algebra.PermutationAction

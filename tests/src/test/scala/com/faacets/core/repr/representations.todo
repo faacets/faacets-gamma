@@ -1,0 +1,42 @@
+package com.faacets.core.repr
+/*
+import com.faacets.core.{Expr, OperationGenerator}
+import org.scalacheck._
+
+import net.alasc.laws.{Cloner, _}
+
+object Representations {
+  val genSignaling: Gen[Representation] = Gen.oneOf(
+    SPRepresentation, SCRepresentation, SGRepresentation
+  )
+  val genNonSignaling: Gen[Representation] = Gen.oneOf(
+    NPRepresentation, NCRepresentation, NGRepresentation
+  )
+  val genProbability: Gen[Representation] = Gen.oneOf(
+    SPRepresentation, SCRepresentation, SGRepresentation,
+    NPRepresentation, NCRepresentation, NGRepresentation
+  )
+  val genStrategy: Gen[Representation] = Gen.oneOf(
+    TRepresentation, WRepresentation
+  )
+  val genRepresentation: Gen[Representation] = Gen.oneOf(
+    SPRepresentation, NPRepresentation,
+    SGRepresentation, NGRepresentation,
+    SCRepresentation, NCRepresentation,
+    TRepresentation, WRepresentation)
+
+  def genRepresentation(expr: Expr): Gen[Representation] =
+    if (expr.isInNonSignalingSubspace) genNonSignaling else genProbability
+
+  implicit val generator: OperationGenerator[Expr, Representation] = OperationGenerator(genRepresentation)
+
+  implicit val arbRepresentation: Arbitrary[Representation] =
+    Arbitrary(genRepresentation)
+
+  implicit val representationInstances: Instances[Representation] =
+    Instances(Representation.representations)
+
+  implicit val representationCloner: Cloner[Representation] =
+    Cloner((r: Representation) => r.toText.fromText[Representation])
+}
+*/

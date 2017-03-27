@@ -14,12 +14,12 @@ object Scenarios {
     implicit def arbScenario: Arbitrary[Scenario] = Arbitrary(genScenario)
 
   }
-/* TODO
+
   object Tiny extends ScenarioGenerators {
 
-    def genScenario = Small.genScenario.filter(_.strategyRep.dimension < 30)
+    def genScenario = Small.genScenario.filter(_.shapeW.size < 30)
 
-  }*/
+  }
 
   object Small extends ScenarioGenerators {
 

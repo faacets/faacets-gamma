@@ -9,6 +9,8 @@ import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
 import org.typelevel.discipline.scalatest.Discipline
 
+import net.alasc.laws.NestedDiscipline
+
 /**
   * An opinionated stack of traits to improve consistency and reduce
   * boilerplate in Faacets tests (inspired by Cats).
@@ -22,6 +24,7 @@ trait FaacetsSuite extends FunSuite with Matchers
     with consolidate.syntax.AllSyntax
     with net.alasc.syntax.AllSyntax
     with Discipline
+    with NestedDiscipline
     with StrictFaacetsEquality {
 
   // disable Eq syntax (by making `eqOps` not implicit), since it collides
