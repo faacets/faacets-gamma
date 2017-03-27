@@ -4,7 +4,6 @@ package core
 import com.faacets.laws.DataLaws
 
 import net.alasc.laws.AnyRefLaws
-import com.faacets.data.syntax.textable._
 
 class ScenarioSuite extends FaacetsSuite {
 

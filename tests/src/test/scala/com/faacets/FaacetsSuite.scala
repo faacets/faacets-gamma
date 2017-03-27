@@ -16,6 +16,11 @@ import org.typelevel.discipline.scalatest.Discipline
 trait FaacetsSuite extends FunSuite with Matchers
     with PropertyChecks
     with spire.syntax.AllSyntax
+    with data.syntax.AllSyntax
+    with core.syntax.AllSyntax
+    with scalin.syntax.AllSyntax
+    with consolidate.syntax.AllSyntax
+    with net.alasc.syntax.AllSyntax
     with Discipline
     with StrictFaacetsEquality {
 
