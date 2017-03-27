@@ -2,8 +2,9 @@ package com.faacets
 package core
 
 import spire.algebra._
-
+import spire.math.SafeLong
 import spire.syntax.cfor._
+import spire.util.Opt
 
 import com.faacets.core.perm.{PartyRelabeling, Relabeling, ShapeLattice}
 
@@ -108,7 +109,6 @@ case class RelabelingSubgroups(val group: Grp[Relabeling]) {
     subgroupFor(test, predicate)
   }
 
-  /*
   def niceGenerators: Iterable[Relabeling] = {
     val partiesGrp = partiesSubgroup
     val partiesGen = partiesGrp.generators
@@ -126,6 +126,6 @@ case class RelabelingSubgroups(val group: Grp[Relabeling]) {
     val togetherGrp = Grp.fromGeneratorsAndOrder(partiesGrp.generators ++ inputsOutputsGrp.generators, togetherOrder)
     val restAddGen = GrpHelpers.additionalGeneratorsFor(group, togetherGrp, Opt(partiesGrp))
     partiesGen ++ liftingsGen ++ outputsAddGen ++ inputsOutputsAddGen ++ restAddGen
-  }*/
+  }
 
 }

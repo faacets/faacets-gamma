@@ -12,9 +12,6 @@ import scalin.immutable.{Mat, Vec}
 
 import scala.reflect.classTag
 
-import com.faacets.core.DExpr.Aux
-import scalin.syntax.all._
-
 trait GenExpr extends PVec { expr =>
 
   /** Computes the inner product between this expression and the given behavior. */

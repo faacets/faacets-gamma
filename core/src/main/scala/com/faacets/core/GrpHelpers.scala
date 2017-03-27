@@ -1,50 +1,44 @@
 package com.faacets
 package core
 
-/*
+
 import scala.reflect.ClassTag
 import scala.util.Random
 
 import spire.algebra._
-import spire.math.{Rational, SafeLong}
 import spire.syntax.group._
 import spire.util.Opt
-import spire.syntax.cfor._
 
-import net.alasc.finite.{Grp, GrpChainBuilder, Rep}
-import net.alasc.perms.{FaithfulPermRep, Perm}
+import net.alasc.algebra.PermutationAction
+import net.alasc.finite.{FaithfulPermutationActionBuilder, Grp}
 import net.alasc.perms.default._
-import net.alasc.syntax.all._
-import perm.{ImprimitivePartyRelabelingRep, _}
-
-import Rep.algebra._
-import Rep.convert._
-import net.alasc.algebra.{Permutation, PermutationAction}
-import net.alasc.bsgs.{BuildMutableChain, Chain, GrpChain}
+import net.alasc.bsgs.{BuildMutableChain, Chain, GrpChainPermutationAction, KernelBuilder, SchreierSims, SiftResult, Term}
 
 object GrpHelpers {
 
   def additionalGeneratorsFor[G]
   (grp: Grp[G], subgrp: Grp[G], conjugatedBy: Opt[Grp[G]] = Opt.empty[Grp[G]], rng: Random = scala.util.Random)
-  (implicit builder: GrpChainBuilder[G]): Iterable[G] = {
+  (implicit builder: GrpChainPermutationAction[G], fpab: FaithfulPermutationActionBuilder[G]): Iterable[G] = {
+    val action = fpab(grp)
+    val grp0 = builder.fromGrp(grp, action)
+    val subgrp0 = builder.fromGrp(subgrp, action)
     import builder.{equ, group, classTag}
-    val GrpChain.AndAction(pair) = builder.fromGrp(grp)
-    type F = pair.Action
-    implicit def F: F = pair.action
-    val grpChain: Chain[G, F] = pair.grp.chain
-    val subgrpChain: Chain[G, F] = builder.convertGrp[F](subgrp, pair.grp.repOpt).chain
+    type F = action.type
+    implicit def F: F = action
+    val grpChain: Chain[G, F] = grp0.chain
+    val subgrpChain: Chain[G, F] = subgrp0.chain
     additionalGeneratorsForChain(grpChain, subgrpChain, conjugatedBy, rng)
   }
 
   def additionalGeneratorsForChain[G:ClassTag:Eq:Group, F <: PermutationAction[G] with Singleton]
   (groupChain: Chain[G, F], subgroupChain: Chain[G, F], conjugatedBy: Opt[Grp[G]] = Opt.empty[Grp[G]], rng: Random = scala.util.Random)
   (implicit permutationAction: F): Iterable[G] = {
-    val mutableChain = BuildMutableChain.fromChain[G, F, F](subgroupChain)
+    val mutableChain = BuildMutableChain.fromChain[G, F, F](subgroupChain, Term.apply[G, F], KernelBuilder.trivial[G])
     var additionalGenerators = List.empty[G]
     val groupOrder = groupChain.order
     while (mutableChain.start.next.order < groupOrder) {
-      def addToChainIfNew(g: G): Boolean = mutableChain.siftAndUpdateBaseFrom(mutableChain.start, g) match {
-        case Opt((nodeForGenerator, generator)) =>
+      def addToChainIfNew(g: G): Boolean = SchreierSims.siftAndUpdateBaseFrom(mutableChain, mutableChain.start, g) match {
+        case SiftResult.Stop(generator, nodeForGenerator) =>
           mutableChain.addStrongGeneratorHere(nodeForGenerator, generator, generator.inverse)
           true
         case _ => false
@@ -62,4 +56,3 @@ object GrpHelpers {
   }
 
 }
-*/

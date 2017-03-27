@@ -5,14 +5,11 @@ import scala.reflect.classTag
 
 import spire.math.{Rational, SafeLong}
 import spire.syntax.cfor._
-import spire.util.Opt
 
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import scalin.immutable.dense._
 
-import net.alasc.algebra._
 import scalin.immutable.{Vec, Mat}
-import scalin.syntax.all._
 
 /** Describes a behavior in a causal scenario. */
 trait Behavior extends NDVec {
