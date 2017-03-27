@@ -1,23 +1,14 @@
-package com.faacets
-package core
-package perm
-
-import scala.reflect.classTag
+package com.faacets.core
 
 import spire.algebra._
-import spire.syntax.eq._
-import spire.syntax.group._
-import spire.syntax.action._
 import spire.syntax.cfor._
-import spire.syntax.lattice._
 
+import com.faacets.core.perm._
 import com.faacets.data.instances.NiceGenerators
 
-import net.alasc.algebra._
 import net.alasc.finite.{FaithfulPermutationActionBuilder, Grp}
 import net.alasc.perms._
 import net.alasc.syntax.all._
-import net.alasc.util._
 
 abstract class Relabeling {
   def pPerm: Perm
@@ -208,10 +199,8 @@ object Relabeling extends RelabelingCompanion {
       RelabelingImplGen(prMap, pPerm)
   }
 
-
-
-  /* TODO  implicit val niceGenerators: NiceGenerators[Relabeling] = new NiceGenerators[Relabeling] {
-      def niceGenerators(grp: Grp[Relabeling]) = RelabelingSubgroups(grp).niceGenerators
-    }*/
+  implicit val niceGenerators: NiceGenerators[Relabeling] = new NiceGenerators[Relabeling] {
+    def niceGenerators(grp: Grp[Relabeling]) = RelabelingSubgroups(grp).niceGenerators
+  }
 
 }

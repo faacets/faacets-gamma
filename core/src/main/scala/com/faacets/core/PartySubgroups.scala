@@ -6,11 +6,8 @@ import spire.math.SafeLong
 import net.alasc.domains.{Domain, Partition}
 import net.alasc.finite.Grp
 import net.alasc.perms.{GrpFixingPartition, Perm}
-import perm.PartyRelabeling
 import net.alasc.syntax.all._
-
 import net.alasc.perms.default._
-
 import spire.math.fact
 
 import Select._

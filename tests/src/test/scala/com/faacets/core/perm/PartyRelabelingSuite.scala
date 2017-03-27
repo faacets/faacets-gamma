@@ -3,7 +3,7 @@ package core.perm
 
 import spire.laws.GroupLaws
 
-import com.faacets.core.Party
+import com.faacets.core.{Party, PartyRelabeling}
 import com.faacets.laws.PartyRelabelings.genPartyRelabeling
 import laws._
 import org.scalacheck.Arbitrary

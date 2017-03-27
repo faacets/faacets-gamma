@@ -1,7 +1,7 @@
 package com.faacets
 package core
 
-import com.faacets.core.perm.{PartyRelabeling, PartyShapeLattice}
+import com.faacets.core.perm.PartyShapeLattice
 
 import net.alasc.algebra.PermutationAction
 import net.alasc.bsgs.{GrpChain, GrpChainPermutationAction, SubgroupDefinition}

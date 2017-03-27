@@ -12,7 +12,6 @@ import spire.syntax.cfor._
 import spire.math.Rational
 
 import net.alasc.perms.default._
-import com.faacets.core.perm.Relabeling
 import scalin.immutable.dense._
 import scalin.immutable.Vec
 

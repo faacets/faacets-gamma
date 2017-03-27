@@ -6,7 +6,7 @@ import spire.math.SafeLong
 import spire.syntax.cfor._
 import spire.util.Opt
 
-import com.faacets.core.perm.{PartyRelabeling, Relabeling, ShapeLattice}
+import com.faacets.core.perm.ShapeLattice
 
 import net.alasc.algebra.PermutationAction
 import net.alasc.finite.Grp

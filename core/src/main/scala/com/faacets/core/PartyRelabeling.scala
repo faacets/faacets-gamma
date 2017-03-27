@@ -1,9 +1,9 @@
-package com.faacets
-package core
-package perm
+package com.faacets.core
 
 import spire.algebra._
 import spire.syntax.cfor._
+
+import com.faacets.core.perm._
 
 import net.alasc.finite.FaithfulPermutationActionBuilder
 import net.alasc.perms.{Cycles, Perm}

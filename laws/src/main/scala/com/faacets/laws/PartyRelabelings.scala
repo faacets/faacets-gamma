@@ -1,7 +1,6 @@
 package com.faacets.laws
 
-import com.faacets.core.Party
-import com.faacets.core.perm.PartyRelabeling
+import com.faacets.core.{Party, PartyRelabeling}
 import org.scalacheck._
 
 import net.alasc.laws._
