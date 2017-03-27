@@ -8,8 +8,6 @@ import spire.math.SafeLong
 package object core {
 
   /*
-  @tailrec def factorial(n: Int, mul: SafeLong = 1): SafeLong =
-    if (n > 1) factorial(n - 1, mul * n) else mul
 
   /* Cartesian product of traversable. */
   def combine[A](xs: Traversable[Traversable[A]]): Seq[Seq[A]] =
