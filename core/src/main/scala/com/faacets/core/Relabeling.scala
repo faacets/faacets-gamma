@@ -4,7 +4,7 @@ import spire.algebra._
 import spire.syntax.cfor._
 
 import com.faacets.core.perm._
-import com.faacets.data.instances.NiceGenerators
+import com.faacets.data.NiceGenerators
 
 import net.alasc.finite.{FaithfulPermutationActionBuilder, Grp}
 import net.alasc.perms._

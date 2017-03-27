@@ -1,9 +1,5 @@
 package com.faacets
 
-import scala.annotation.tailrec
-
-import spire.math.SafeLong
-
 /** Package dealing with Bell scenarios and associated objects (inequalities, correlations...). */
 package object core {
 

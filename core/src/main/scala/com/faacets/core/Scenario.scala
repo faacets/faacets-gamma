@@ -1,9 +1,7 @@
 package com.faacets
 package core
 
-import spire.algebra.{Eq, VectorSpace}
 import spire.math.{Rational, SafeLong}
-import spire.syntax.eq._
 import spire.syntax.cfor._
 
 import scalin.immutable.Vec

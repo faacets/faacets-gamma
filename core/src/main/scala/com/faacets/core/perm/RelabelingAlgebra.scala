@@ -2,18 +2,13 @@ package com.faacets
 package core
 package perm
 
-import scala.reflect.classTag
-
 import spire.algebra._
 import spire.syntax.eq._
 import spire.syntax.group._
 import spire.syntax.action._
 import spire.syntax.cfor._
-import spire.syntax.lattice._
 
-import net.alasc.algebra._
 import net.alasc.perms.Perm
-import net.alasc.util._
 
 final class RelabelingEq extends Eq[Relabeling] {
 

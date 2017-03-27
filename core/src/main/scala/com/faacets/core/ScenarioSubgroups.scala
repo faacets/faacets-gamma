@@ -1,19 +1,14 @@
 package com.faacets
 package core
 
-import scala.util.Random
-
 import spire.algebra.Group
 import spire.math.fact
-import spire.util.Opt
 
 import net.alasc.domains.{Domain, Partition}
 import net.alasc.finite.Grp
 import net.alasc.perms.{GrpFixingPartition, Perm}
 import net.alasc.perms.default._
-import perm._
 import net.alasc.syntax.all._
-import util._
 
 import Select._
 

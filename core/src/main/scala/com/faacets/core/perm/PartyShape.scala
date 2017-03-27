@@ -2,15 +2,11 @@ package com.faacets
 package core
 package perm
 
-import spire.algebra.Group
-import spire.syntax.eq._
 import spire.syntax.action._
 import spire.syntax.cfor._
 import spire.syntax.group._
 
 import net.alasc.algebra._
-import net.alasc.wreath.Divisor
-import net.alasc.syntax.all._
 import net.alasc.util._
 
 final class PartyShape protected[core] (val inputs: Seq[Int]) {

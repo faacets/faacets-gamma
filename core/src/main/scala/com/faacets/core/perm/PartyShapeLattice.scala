@@ -4,15 +4,10 @@ package perm
 
 import spire.algebra.PartialOrder
 import spire.algebra.lattice._
-import spire.syntax.eq._
-import spire.syntax.action._
 import spire.syntax.lattice._
 import spire.syntax.partialOrder._
 
-import net.alasc.algebra._
 import net.alasc.domains._
-import net.alasc.wreath.Divisor
-import net.alasc.syntax.all._
 
 case class PartyShapeLattice(pm: PartitionMap[Int]) {
   def n = pm.size

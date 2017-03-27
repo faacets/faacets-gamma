@@ -2,8 +2,6 @@ package com.faacets
 package core
 package perm
 
-import scala.annotation.tailrec
-import scala.util.Random
 import scala.reflect.ClassTag
 
 import spire.algebra.{Eq, Group}
@@ -13,11 +11,8 @@ import spire.syntax.action._
 import spire.util.Opt
 
 import net.alasc.algebra.PermutationAction
-import net.alasc.bsgs.{GrpChain, MutableChain, MutableStartOrNode, NodeBuilder, SchreierSims}
-import net.alasc.finite.Grp
-import net.alasc.syntax.permutationAction._
+import net.alasc.bsgs.{ MutableChain, MutableStartOrNode, NodeBuilder, SchreierSims}
 import net.alasc.bsgs._
-import net.alasc.finite.FaithfulPermutationActionBuilder
 
 object GrpLexAnsatz {
 

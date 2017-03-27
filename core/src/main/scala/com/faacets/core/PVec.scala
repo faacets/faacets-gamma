@@ -1,21 +1,16 @@
 package com.faacets
 package core
 
-import scala.util.{Failure, Success, Try}
-import scala.reflect.{ClassTag, classTag}
+import scala.reflect.ClassTag
 
 import spire.algebra._
 import spire.syntax.eq._
-import spire.syntax.innerProductSpace._
-import spire.syntax.monoid._
 import spire.syntax.cfor._
 import spire.math.Rational
 
 import net.alasc.perms.default._
-import scalin.immutable.dense._
 import scalin.immutable.Vec
 
-import net.alasc.algebra._
 import net.alasc.attributes.{Attributable, Attributes}
 import net.alasc.domains.Partition
 import net.alasc.finite.Grp

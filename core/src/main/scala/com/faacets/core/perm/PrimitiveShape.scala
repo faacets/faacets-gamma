@@ -2,9 +2,7 @@ package com.faacets
 package core
 package perm
 
-import net.alasc.algebra._
 import net.alasc.wreath.Divisor
-import net.alasc.syntax.all._
 
 final class PrimitiveShape private (val sizes: Array[Int]) {
   @inline def n = sizes.length

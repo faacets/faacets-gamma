@@ -2,10 +2,6 @@ package com.faacets
 package core
 package perm
 
-import spire.syntax.group._
-
-import net.alasc.syntax.permutationAction._
-
 import data._
 import fastparse.noApi._
 
