@@ -1,8 +1,8 @@
 package com.faacets.data
 
 import cats.data.{Validated, ValidatedNel}
-
 import fastparse.noApi._
+import io.circe.{AccumulatingDecoder, Encoder}
 
 /** Defines an object whose string serialization can be parsed using a fastparse parser. */
 trait Parsable[T] extends Textable[T] {

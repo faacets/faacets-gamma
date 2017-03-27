@@ -38,7 +38,14 @@ trait Behavior extends NDVec {
 
 }
 
-object Behavior {
+object Behavior extends NDVecBuilder[Behavior, NDVecBuilder.BehaviorAux] {
+
+  def inNonSignalingSubspace(scenario: Scenario, coefficients: Vec[Rational]): Boolean = {
+    val pCoefficients = changeBasis(scenario,
+      p => p.matrices.matSPfromSG * p.matrices.matSGfromNG * p.matrices.matNGfromSG * p.matrices.matSGfromSP,
+      coefficients)
+    coefficients == pCoefficients // TODO: Vec[Rational] should use Eq
+  }
 
   type Aux[S0 <: Scenario with Singleton] = Behavior { type S = S0 }
 
@@ -46,10 +53,7 @@ object Behavior {
     revKronMatVec(scenario.parties.map(matChoice), coefficients)
 
   def apply(scenario0: Scenario, coefficients0: Vec[Rational]): Behavior.Aux[scenario0.type] = {
-    val pCoefficients = changeBasis(scenario0,
-      p => p.matrices.matSPfromSG * p.matrices.matSGfromNG * p.matrices.matNGfromSG * p.matrices.matSGfromSP,
-      coefficients0)
-    require(coefficients0 == pCoefficients) // TODO: Vec[Rational] should use Eq
+    require(inNonSignalingSubspace(scenario0, coefficients0))
     applyUnsafe(scenario0, coefficients0)
   }
 

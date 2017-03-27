@@ -151,7 +151,7 @@ trait Expr extends NDVec with GenExpr {
 
 }
 
-object Expr {
+object Expr extends NDVecBuilder[Expr, NDVecBuilder.ExprAux] {
 
   import DExpr.changeBasis
 
@@ -197,9 +197,14 @@ object Expr {
 
   }
 
+
+  def inNonSignalingSubspace(scenario: Scenario, coefficients: Vec[Rational]): Boolean = {
+    val pCoefficients = changeBasis(scenario, p => p.matrices.matProjectionInSP, coefficients)
+    coefficients == pCoefficients // TODO: Eq[Vec[Rational]]
+  }
+
   def apply(scenario0: Scenario, coefficients0: Vec[Rational]): Expr.Aux[scenario0.type] = {
-    val pCoefficients = changeBasis(scenario0, p => p.matrices.matProjectionInSP, coefficients0)
-    require(coefficients0 == pCoefficients) // TODO: Eq[Vec[Rational]]
+    require(inNonSignalingSubspace(scenario0, coefficients0))
     applyUnsafe(scenario0, coefficients0)
   }
 

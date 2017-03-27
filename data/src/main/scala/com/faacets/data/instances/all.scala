@@ -1,9 +1,10 @@
 package com.faacets.data.instances
 
 trait AllInstances
-  extends RationalInstances
-    with VecInstances
-    with SafeLongInstances
-    with GrpInstances
-    with PermInstances
+  extends GrpInstances
     with JsonObjectInstances
+    with PermInstances
+    with RationalInstances
+    with SafeLongInstances
+    with TextableInstances
+    with VecInstances

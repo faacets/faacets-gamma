@@ -5,3 +5,4 @@ trait AllSyntax
   extends JsonSyntax
   with TextableSyntax
   with ValidatedNelSyntax
+  with YamlSyntax

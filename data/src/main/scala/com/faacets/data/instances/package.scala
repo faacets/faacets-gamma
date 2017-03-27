@@ -14,6 +14,8 @@ package object instances {
 
   object safeLong extends SafeLongInstances
 
+  object textable extends TextableInstances
+
   object vec extends VecInstances
 
 }

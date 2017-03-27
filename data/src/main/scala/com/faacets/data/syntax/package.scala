@@ -7,5 +7,6 @@ package object syntax {
   object json extends JsonSyntax
   object textable extends TextableSyntax
   object validatedNel extends ValidatedNelSyntax
+  object asYaml extends YamlSyntax
 
 }
