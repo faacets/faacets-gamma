@@ -1,0 +1,44 @@
+// always put this first
+import com.faacets.core._
+import com.faacets.defaults._
+
+// let us look at CHSH in the correlators form
+// 0 | 0  0
+// --+-----
+// 0 | 1  1
+// 0 | 1 -1
+// to be read column-major (and Alice has the row indices)
+Expr.correlators(Scenario.CHSH, Vec[Rational](0,0,0,0,1,1,0,1,-1))
+
+// you can construct CHSH directly in the P(ab|xy) basis
+val chsh = Expr(Scenario.CHSH, Vec[Rational](1, -1, 1, -1, -1, 1, -1, 1, 1, -1, -1, 1, -1, 1, 1, -1))
+
+// but you have to be in the nonsignaling subspace, otherwise there is a problem
+Expr(Scenario.CHSH, Vec[Rational](1, -1, 1, -1, -1, 1, -1, 1, 1, -1, -1, 1, -1, 1, 1, 0))
+
+// or you use the DExpr which can have signaling terms
+val de = DExpr(Scenario.CHSH, Vec[Rational](1, -1, 1, -1, -1, 1, -1, 1, 1, -1, -1, 1, -1, 1, 1, 0))
+
+// and you can project a DExpr
+
+de.split
+
+// where the first part is the nonsignaling projection
+
+val deProj = de.split._1
+
+// you cannot obtain the symmetry group of an expression in the full space (incl. signaling)
+
+de.symmetryGroup
+
+// but you can compute it when the expression is projected
+
+deProj.symmetryGroup
+
+// here, for the genuine CHSH inequality
+
+chsh.symmetryGroup
+
+// when serializing as YAML, the generators are written in a "nice" form
+
+chsh.symmetryGroup.asYaml
