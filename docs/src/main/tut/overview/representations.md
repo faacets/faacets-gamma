@@ -1,8 +1,7 @@
 ---
 layout: docs
 title:  "Representations"
-section: "Overview of Bell inequalities"
-position: 1
+section: "overview"
 ---
 
 Representations
