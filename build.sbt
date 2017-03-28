@@ -26,6 +26,7 @@ lazy val faacets = (project in file("."))
   .dependsOn(core, data, laws, tests)
 
 lazy val data = (project in file("data"))
+  .settings(moduleName := "faacets-data")
   .settings(faacetsSettings: _*)
   .settings(commonJvmSettings: _*)
 
