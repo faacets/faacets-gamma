@@ -1,16 +1,23 @@
 package com.faacets
 package core
 
-import spire.math.Rational
-
+import spire.math.{Rational, SafeLong}
 import spire.algebra.VectorSpace
 
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
-
 import scalin.immutable.dense._
 import scalin.immutable.{Mat, Vec}
-
 import scala.reflect.classTag
+
+import cats.data.{Validated, ValidatedNel}
+
+import spire.syntax.cfor._
+
+import scalin.syntax.all._
+
+import net.alasc.bsgs.FixingPartition
+import net.alasc.domains.Partition
+import net.alasc.finite.Grp
 
 trait GenExpr extends PVec { expr =>
 
@@ -74,64 +81,64 @@ object DExpr {
       override def minus(x: DExpr.Aux[S], y: DExpr.Aux[S]): DExpr.Aux[S] = DExpr(scenario, x.coefficients - y.coefficients)
 
     }
-/*
 
-def isInNonSignalingSubspace: Boolean = {
-  val sub = new Array[Int](scenario.nParties)
-  val scCoeffs = repr.SCRepresentation.fromCorr(this).coefficients
-  cforRange(0 until scCoeffs.length) { ind =>
-    scenario.shapeSC.ind2sub(ind, sub)
-    if (scenario.isCSignalingIndex(sub) && !scCoeffs(ind).isZero)
-      return false
+  def properNormalizationTest(scenario: Scenario): DExpr.Aux[scenario.type] = {
+    val ratio = Rational(SafeLong.one, scenario.nInputTuples)
+    val pCoefficients = Vec.fillConstant(scenario.shapeP.size)(ratio)
+    apply(scenario, pCoefficients)
   }
-  true
-}
 
-def isProperlyNormalized: Boolean = {
-  val sub = new Array[Int](scenario.nParties)
-  val scCoeffs = repr.SCRepresentation.fromCorr(this).coefficients
-  if (!scCoeffs(0).isOne) return false
-  cforRange(1 until scCoeffs.length) { ind =>
-    scenario.shapeSC.ind2sub(ind, sub)
-    if (scenario.isCProperNormalizationIndex(sub) && !scCoeffs(ind).isZero)
-      return false
-  }
-  true
-}
-*/
-
-  /*
-
-    override def as(toRepresentation: Representation): Try[Corr] = {
-      super.as(toRepresentation).map { newCorr =>
-        if (representation.isStrategy && toRepresentation.isCorrelation)
-          // when converting from strategies to correlations, symmetries cannot be restored
-          builder(newCorr.scenario, newCorr.representation, newCorr.coefficients, None)
-        else
-          newCorr
+  def normalizedSubspaceTests(scenario: Scenario): Iterable[DExpr.Aux[scenario.type]] = {
+    val sub = new Array[Int](scenario.nParties)
+    val buffer = collection.mutable.ArrayBuffer.newBuilder[DExpr.Aux[scenario.type]]
+    cforRange(1 until scenario.shapeSC.size) { ind =>
+      scenario.shapeSC.ind2sub(ind, sub)
+      if (scenario.isCNormalizationIndex(sub)) {
+        val scCoeffs = Vec.fromMutable[Rational](scenario.shapeSC.size, 0) { vec => vec(ind) := Rational.one }
+        buffer += DExpr.fullCorrelators(scenario, scCoeffs)
       }
     }
+    buffer.result()
+  }
 
-    /** Tests that the correlations have no proper normalization terms, and that
-      * the corresponding probability distribution is normalized to 1.
-      */
-    def isNormalized: Boolean = (constant == 1 && !hasProperNormalizationTerms)
+  def nonSignalingSubspaceTests(scenario: Scenario): Iterable[DExpr.Aux[scenario.type]] = {
+    val sub = new Array[Int](scenario.nParties)
+    val buffer = collection.mutable.ArrayBuffer.newBuilder[DExpr.Aux[scenario.type]]
+    cforRange(1 until scenario.shapeSC.size) { ind =>
+      scenario.shapeSC.ind2sub(ind, sub)
+      if (scenario.isCSignalingIndex(sub)) {
+        val scCoeffs = Vec.fromMutable[Rational](scenario.shapeSC.size, 0) { vec => vec(ind) := Rational.one }
+        buffer += DExpr.fullCorrelators(scenario, scCoeffs)
+      }
+    }
+    buffer.result()
+  }
 
-    /** Tests if the correlations are signaling. */
-    def isSignaling: Boolean = hasSignalingTerms
+  def fullCollinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): DExpr.Aux[scenario.type] = {
+    val pCoefficients = changeBasis(scenario, _.matrices.matSGfromSP, collinsGisinCoefficients)
+    apply(scenario, pCoefficients)
+  }
 
-*/
+  def fullCorrelators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): DExpr.Aux[scenario.type] = {
+    val pCoefficients = changeBasis(scenario, _.matrices.matSCfromSP, correlatorsCoefficients)
+    apply(scenario, pCoefficients)
+  }
 
+  def validateInScenario[S <: Scenario with Singleton](scenario: S): Vec[Rational] => ValidatedNel[String, DExpr.Aux[S]] = {
+    coefficients =>
+      val correctLength = scenario.shapeP.size
+      val coeffLength = coefficients.length
+      if (coeffLength != correctLength) Validated.invalidNel(s"Invalid coefficients length, is $coeffLength, should be $correctLength")
+      else Validated.Valid(apply(scenario: S, coefficients))
+  }
 
-  def fullCollinsGisin(scenario0: Scenario, collinsGisinCoefficients: Vec[Rational]) = ???
-
-  def fullCorrelators(scenario0: Scenario, correlatorsCoefficients: Vec[Rational]) = ???
-
-  def apply(scenario0: Scenario, coefficients0: Vec[Rational]): DExpr.Aux[scenario0.type] =
-  new DExpr {
-    type S = scenario0.type
-    val scenario: S = scenario0
-    val coefficients = coefficients0
+  def apply(scenario0: Scenario, coefficients0: Vec[Rational]): DExpr.Aux[scenario0.type] = {
+    require(coefficients0.length == scenario0.shapeP.size)
+    new DExpr {
+      type S = scenario0.type
+      val scenario: S = scenario0
+      val coefficients = coefficients0
+    }
   }
 
   type Aux[S0 <: Scenario with Singleton] = DExpr { type S = S0 }
@@ -208,11 +215,13 @@ object Expr extends NDVecBuilder[Expr, NDVecBuilder.ExprAux] {
     applyUnsafe(scenario0, coefficients0)
   }
 
-  def applyUnsafe(scenario0: Scenario, coefficients0: Vec[Rational]): Expr.Aux[scenario0.type] =
-  new Expr {
-    type S = scenario0.type
-    val scenario: S = scenario0
-    val coefficients = coefficients0
+  def applyUnsafe(scenario0: Scenario, coefficients0: Vec[Rational]): Expr.Aux[scenario0.type] = {
+    require(coefficients0.length == scenario0.shapeP.size)
+    new Expr {
+      type S = scenario0.type
+      val scenario: S = scenario0
+      val coefficients = coefficients0
+    }
   }
 
   def collinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]) = {

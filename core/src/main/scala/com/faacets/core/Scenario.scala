@@ -196,14 +196,16 @@ final class Scenario private (val parties: Seq[Party]) {
     false
   }
 
-  def isCProperNormalizationIndex(sub: Array[Int]): Boolean = {
+  def isCNormalizationIndex(sub: Array[Int]): Boolean = {
     var hasSignaling = false
     var hasNormalization = false
+    var hasContent = false
     cforRange(0 until nParties) { p =>
-      if (sub(p) == 0) hasSignaling = true
-      else if (sub(p) > parties(p).shapeP.size - parties(p).nInputs) hasNormalization = true
+      if (sub(p) == 0) hasNormalization = true
+      else if (sub(p) <= parties(p).shapeP.size - parties(p).nInputs) hasContent = true
+      else hasSignaling = true
     }
-    hasSignaling && hasNormalization
+    !hasContent
   }
 
   lazy val marginalAction = shape.ImpImpAction

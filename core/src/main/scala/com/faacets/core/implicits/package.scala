@@ -10,4 +10,11 @@ package object implicits
   with com.faacets.consolidate.instances.AllInstances
   with com.faacets.core.syntax.AllSyntax
   with com.faacets.data.instances.AllInstances
-  with com.faacets.data.syntax.AllSyntax
+  with com.faacets.data.syntax.AllSyntax {
+
+  // scalin.immutable.dense
+  // net.alasc.perms.default._
+
+  // Grp Mat Vec Rational SafeLong
+
+}

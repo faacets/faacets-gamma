@@ -107,7 +107,7 @@ trait NDVecBuilder[V <: NDVec, VS[X <: Scenario with Singleton] <: V with NDVec.
 
   def validateInScenario[S <: Scenario with Singleton](scenario: S): (Vec[Rational], Option[Grp[Relabeling]]) => ValidatedNel[String, VS[S]] = {
     (coefficients: Vec[Rational], symGroup: Option[Grp[Relabeling]]) =>
-    val correctLength =scenario.shapeP.size
+    val correctLength = scenario.shapeP.size
     val coeffLength = coefficients.length
     if (coeffLength != correctLength) Validated.invalidNel(s"Invalid coefficients length, is $coeffLength, should be $correctLength")
     else if (!inNonSignalingSubspace(scenario, coefficients)) Validated.invalidNel("Coefficients are not in the nonsignaling subspace")
