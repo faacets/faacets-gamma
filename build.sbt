@@ -27,6 +27,7 @@ lazy val faacets = (project in file("."))
 
 lazy val data = (project in file("data"))
   .settings(faacetsSettings: _*)
+  .settings(commonJvmSettings: _*)
 
 lazy val laws = (project in file("laws"))
   .settings(moduleName := "faacets-laws")
