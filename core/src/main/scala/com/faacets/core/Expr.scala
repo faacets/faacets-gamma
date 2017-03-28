@@ -28,6 +28,13 @@ trait GenExpr extends PVec { expr =>
 
 trait DExpr extends GenExpr {
 
+  def inBasis(matChoice: Party => Mat[Rational]): Vec[Rational] =
+    revKronMatVec(scenario.parties.map(p => matChoice(p).t), coefficients)
+
+  def correlators: Vec[Rational] = inBasis(_.matrices.matSPfromSC)
+
+  def collinsGisin: Vec[Rational] = inBasis(_.matrices.matSPfromSG)
+
   def prefix = "DExpr"
 
   def classTagV = classTag[DExpr]
@@ -155,6 +162,13 @@ trait Expr extends NDVec with GenExpr {
   def classTagV = classTag[Expr]
 
   def toDExpr: DExpr.Aux[S] = DExpr(scenario: S, coefficients)
+
+  def inBasis(matChoice: Party => Mat[Rational]): Vec[Rational] =
+    revKronMatVec(scenario.parties.map(p => matChoice(p).t), coefficients)
+
+  def correlators: Vec[Rational] = inBasis(p => p.matrices.matSPfromSC * p.matrices.matSCfromNC)
+
+  def collinsGisin: Vec[Rational] = inBasis(p => p.matrices.matSPfromSG * p.matrices.matSGfromNG)
 
 }
 

@@ -36,6 +36,13 @@ trait Behavior extends NDVec {
     res
   }
 
+  protected def inBasis(matChoice: Party => Mat[Rational]): Vec[Rational] =
+    revKronMatVec(scenario.parties.map(p => matChoice(p)), coefficients)
+
+  def correlators: Vec[Rational] = inBasis(p => p.matrices.matNCfromSC * p.matrices.matSCfromSP)
+
+  def collinsGisin: Vec[Rational] = inBasis(p => p.matrices.matNGfromSG * p.matrices.matSGfromSP)
+
 }
 
 object Behavior extends NDVecBuilder[Behavior, NDVecBuilder.BehaviorAux] {
