@@ -133,7 +133,7 @@ object DExpr {
   }
 
   def apply(scenario0: Scenario, coefficients0: Vec[Rational]): DExpr.Aux[scenario0.type] = {
-    require(coefficients0.length == scenario0.shapeP.size)
+    require(coefficients0.length == scenario0.shapeP.size, "Incorrect coefficient vector length")
     new DExpr {
       type S = scenario0.type
       val scenario: S = scenario0
@@ -211,12 +211,12 @@ object Expr extends NDVecBuilder[Expr, NDVecBuilder.ExprAux] {
   }
 
   def apply(scenario0: Scenario, coefficients0: Vec[Rational]): Expr.Aux[scenario0.type] = {
-    require(inNonSignalingSubspace(scenario0, coefficients0))
+    require(inNonSignalingSubspace(scenario0, coefficients0), "Coefficients are not in nonsignaling subspace")
     applyUnsafe(scenario0, coefficients0)
   }
 
   def applyUnsafe(scenario0: Scenario, coefficients0: Vec[Rational]): Expr.Aux[scenario0.type] = {
-    require(coefficients0.length == scenario0.shapeP.size)
+    require(coefficients0.length == scenario0.shapeP.size, "Coefficients vector length is incorrect")
     new Expr {
       type S = scenario0.type
       val scenario: S = scenario0
