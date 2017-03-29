@@ -3,30 +3,27 @@ package core
 
 import spire.math.{Rational, SafeLong}
 import spire.algebra.VectorSpace
-
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import scalin.immutable.dense._
 import scalin.immutable.{Mat, Vec}
+
 import scala.reflect.classTag
-
 import cats.data.{Validated, ValidatedNel}
-
+import com.faacets.core.NDVec.attributes.symmetryGroup
 import spire.syntax.cfor._
-
+import spire.syntax.eq._
 import scalin.syntax.all._
-
-import net.alasc.bsgs.FixingPartition
-import net.alasc.domains.Partition
-import net.alasc.finite.Grp
 
 trait GenExpr extends PVec { expr =>
 
   /** Computes the inner product between this expression and the given behavior. */
-  def inner(corr: Behavior.Aux[S]): Rational = expr.coefficients.dot(corr.coefficients)
+  def inner(corr: Behavior): Rational = expr.coefficients.dot(corr.coefficients)
 
 }
 
-trait DExpr extends GenExpr {
+class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends GenExpr { lhs =>
+
+  type V = DExpr
 
   def inBasis(matChoice: Party => Mat[Rational]): Vec[Rational] =
     revKronMatVec(scenario.parties.map(p => matChoice(p).t), coefficients)
@@ -39,27 +36,36 @@ trait DExpr extends GenExpr {
 
   def classTagV = classTag[DExpr]
 
-  type V = DExpr
-
   /** Decomposes this expression in the nonsignaling and its biorthogonal subspace.
     * A `Expr` in a signaling representation can be projected into the non-signaling subspace.
     * The method `toNonSignaling` can be used to that effect: it returns the non-signaling
     * projected `Expr` in a non-signaling representation, and a possibly signaling `Expr`
     * containing only the signaling and proper normalization terms.
     */
-  def split: (Expr.Aux[S], DExpr.Aux[S]) = {
+  def split: (Expr, DExpr) = {
     val nsCoeffs = DExpr.changeBasis(scenario, p => p.matrices.matProjectionInSP, coefficients)
     val sCoeffs = coefficients - nsCoeffs
-    val nsExpr = Expr.applyUnsafe(scenario: S, nsCoeffs)
-    val sDExpr = DExpr.apply(scenario: S, sCoeffs)
+    val nsExpr = Expr.applyUnsafe(scenario, nsCoeffs)
+    val sDExpr = DExpr.apply(scenario, sCoeffs)
     (nsExpr, sDExpr)
   }
 
   /** Projection in the nonsignaling subspace, commuting with relabelings. */
-  def projected: Expr.Aux[S] = {
+  def projected: Expr = {
     val nsCoeffs = DExpr.changeBasis(scenario, p => p.matrices.matProjectionInSP, coefficients)
-    Expr.applyUnsafe(scenario: S, nsCoeffs)
+    Expr.applyUnsafe(scenario, nsCoeffs)
   }
+
+  def unary_- : DExpr = new DExpr(scenario, -coefficients)
+
+  def +(rhs: DExpr): DExpr = {
+    require(lhs.scenario === rhs.scenario)
+    new DExpr(scenario, lhs.coefficients + rhs.coefficients)
+  }
+
+  def *:(r: Rational): DExpr =
+    if (r.isZero) DExpr.zero(scenario)
+    else new DExpr(scenario, coefficients * r)
 
 }
 
@@ -68,36 +74,41 @@ object DExpr {
   def changeBasis(scenario: Scenario, matChoice: Party => Mat[Rational], coefficients: Vec[Rational]): Vec[Rational] =
     revKronMatVec(scenario.parties.map(p => matChoice(p).t), coefficients)
 
-  implicit def vectorSpace[S <: Scenario with Singleton](implicit witness: shapeless.Witness.Aux[S]): VectorSpace[DExpr.Aux[S], Rational] =
-    new VectorSpace[DExpr.Aux[S], Rational] {
+  def zero(scenario: Scenario): DExpr = DExpr(scenario, Vec.fillConstant(scenario.shapeP.size)(Rational.zero))
 
-      def scenario: S = witness.value
+  def vectorSpaceForScenario(scenario: Scenario): VectorSpace[DExpr, Rational] = new VectorSpace[DExpr, Rational] {
 
       def scalar = spire.math.Rational.RationalAlgebra
 
-      def timesl(r: Rational, v: DExpr.Aux[S]): DExpr.Aux[S] =
-        if (r.isZero) zero
-        else DExpr(scenario, v.coefficients * r)
+      def timesl(r: Rational, v: DExpr): DExpr = {
+        require(v.scenario === scenario)
+        r *: v
+      }
 
-      def negate(x: DExpr.Aux[S]): DExpr.Aux[S] = apply(scenario, -x.coefficients)
+      def negate(x: DExpr): DExpr = {
+        require(x.scenario === scenario)
+        -x
+      }
 
-      def zero: DExpr.Aux[S] = DExpr(scenario, Vec.fillConstant(scenario.shapeP.size)(Rational.zero))
+      def zero: DExpr = DExpr.zero(scenario)
 
-      def plus(x: DExpr.Aux[S], y: DExpr.Aux[S]): DExpr.Aux[S] = DExpr(scenario, x.coefficients + y.coefficients)
-
-      override def minus(x: DExpr.Aux[S], y: DExpr.Aux[S]): DExpr.Aux[S] = DExpr(scenario, x.coefficients - y.coefficients)
+      def plus(x: DExpr, y: DExpr): DExpr = {
+        require(x.scenario === scenario)
+        require(y.scenario === scenario)
+        x + y
+      }
 
     }
 
-  def properNormalizationTest(scenario: Scenario): DExpr.Aux[scenario.type] = {
+  def properNormalizationTest(scenario: Scenario): DExpr = {
     val ratio = Rational(SafeLong.one, scenario.nInputTuples)
     val pCoefficients = Vec.fillConstant(scenario.shapeP.size)(ratio)
     apply(scenario, pCoefficients)
   }
 
-  def normalizedSubspaceTests(scenario: Scenario): Iterable[DExpr.Aux[scenario.type]] = {
+  def normalizedSubspaceTests(scenario: Scenario): Iterable[DExpr] = {
     val sub = new Array[Int](scenario.nParties)
-    val buffer = collection.mutable.ArrayBuffer.newBuilder[DExpr.Aux[scenario.type]]
+    val buffer = collection.mutable.ArrayBuffer.newBuilder[DExpr]
     cforRange(1 until scenario.shapeSC.size) { ind =>
       scenario.shapeSC.ind2sub(ind, sub)
       if (scenario.isCNormalizationIndex(sub)) {
@@ -108,9 +119,9 @@ object DExpr {
     buffer.result()
   }
 
-  def nonSignalingSubspaceTests(scenario: Scenario): Iterable[DExpr.Aux[scenario.type]] = {
+  def nonSignalingSubspaceTests(scenario: Scenario): Iterable[DExpr] = {
     val sub = new Array[Int](scenario.nParties)
-    val buffer = collection.mutable.ArrayBuffer.newBuilder[DExpr.Aux[scenario.type]]
+    val buffer = collection.mutable.ArrayBuffer.newBuilder[DExpr]
     cforRange(1 until scenario.shapeSC.size) { ind =>
       scenario.shapeSC.ind2sub(ind, sub)
       if (scenario.isCSignalingIndex(sub)) {
@@ -121,47 +132,40 @@ object DExpr {
     buffer.result()
   }
 
-  def fullCollinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): DExpr.Aux[scenario.type] = {
+  def fullCollinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): DExpr = {
     val pCoefficients = changeBasis(scenario, _.matrices.matSGfromSP, collinsGisinCoefficients)
     apply(scenario, pCoefficients)
   }
 
-  def fullCorrelators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): DExpr.Aux[scenario.type] = {
+  def fullCorrelators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): DExpr = {
     val pCoefficients = changeBasis(scenario, _.matrices.matSCfromSP, correlatorsCoefficients)
     apply(scenario, pCoefficients)
   }
 
-  def validateInScenario[S <: Scenario with Singleton](scenario: S): Vec[Rational] => ValidatedNel[String, DExpr.Aux[S]] = {
-    coefficients =>
+  def validate(scenario: Scenario, coefficients: Vec[Rational]): ValidatedNel[String, DExpr] = {
       val correctLength = scenario.shapeP.size
       val coeffLength = coefficients.length
       if (coeffLength != correctLength) Validated.invalidNel(s"Invalid coefficients length, is $coeffLength, should be $correctLength")
-      else Validated.Valid(apply(scenario: S, coefficients))
+      else Validated.Valid(apply(scenario, coefficients))
   }
 
-  def apply(scenario0: Scenario, coefficients0: Vec[Rational]): DExpr.Aux[scenario0.type] = {
-    require(coefficients0.length == scenario0.shapeP.size, "Incorrect coefficient vector length")
-    new DExpr {
-      type S = scenario0.type
-      val scenario: S = scenario0
-      val coefficients = coefficients0
-    }
+  def apply(scenario: Scenario, coefficients: Vec[Rational]): DExpr = {
+    require(coefficients.length == scenario.shapeP.size, "Incorrect coefficient vector length")
+    new DExpr(scenario, coefficients)
   }
-
-  type Aux[S0 <: Scenario with Singleton] = DExpr { type S = S0 }
 
 }
 
 /** Describes a Bell expression. */
-trait Expr extends NDVec with GenExpr {
-
-  def prefix = "Expr"
+class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends NDVec with GenExpr { lhs =>
 
   type V = Expr
 
+  def prefix = "Expr"
+
   def classTagV = classTag[Expr]
 
-  def toDExpr: DExpr.Aux[S] = DExpr(scenario: S, coefficients)
+  def toDExpr: DExpr = DExpr(scenario, coefficients)
 
   def inBasis(matChoice: Party => Mat[Rational]): Vec[Rational] =
     revKronMatVec(scenario.parties.map(p => matChoice(p).t), coefficients)
@@ -170,52 +174,49 @@ trait Expr extends NDVec with GenExpr {
 
   def collinsGisin: Vec[Rational] = inBasis(p => p.matrices.matSPfromSG * p.matrices.matSGfromNG)
 
-}
-
-object Expr extends NDVecBuilder[Expr, NDVecBuilder.ExprAux] {
-
-  import DExpr.changeBasis
-
-  type Aux[S0 <: Scenario with Singleton] = Expr { type S = S0 }
-
-  implicit def vectorSpace[S <: Scenario with Singleton](implicit witness: shapeless.Witness.Aux[S]): VectorSpace[Expr.Aux[S], Rational] =
-    new VectorSpace[Expr.Aux[S], Rational] {
-
-    import NDVec.attributes.symmetryGroup
-
-    def scenario: S = witness.value
-
-    def scalar = spire.math.Rational.RationalAlgebra
-
-    def timesl(r: Rational, v: Expr.Aux[S]): Expr.Aux[S] =
-      if (r.isZero) zero else {
-        val res = applyUnsafe(scenario, v.coefficients * r)
-        symmetryGroup.get(v)(symmetryGroup.forNDVec) match {
-          case Some(grp) => symmetryGroup(res)(grp)
-          case None =>
-        }
-        res
-      }
-
-    def negate(x: Expr.Aux[S]): Expr.Aux[S] = {
-      val res = applyUnsafe(scenario, -x.coefficients)
-      symmetryGroup.get(x) match {
-        case Some(grp) => symmetryGroup(res)(grp)
+  def *:(r: Rational): Expr = {
+    if (r.isZero) Expr.zero(scenario) else {
+      val res = Expr.applyUnsafe(scenario, coefficients * r)
+      NDVec.attributes.symmetryGroup.get(lhs)(NDVec.attributes.symmetryGroup.forNDVec) match {
+        case Some(grp) => NDVec.attributes.symmetryGroup(res)(grp)
         case None =>
       }
       res
     }
+  }
 
-    def zero: Expr.Aux[S] = {
-      val res = applyUnsafe(scenario, Vec.fillConstant(scenario.shapeP.size)(Rational.zero))
-      symmetryGroup(res)(scenario.group)
-      res
+  def unary_- : Expr = {
+    val res = Expr.applyUnsafe(scenario, -coefficients)
+    NDVec.attributes.symmetryGroup.get(lhs) match {
+      case Some(grp) => NDVec.attributes.symmetryGroup(res)(grp)
+      case None =>
     }
+    res
+  }
 
-    def plus(x: Expr.Aux[S], y: Expr.Aux[S]): Expr.Aux[S] = applyUnsafe(scenario, x.coefficients + y.coefficients)
+  def +(rhs: Expr): Expr = {
+    require(lhs.scenario === rhs.scenario)
+    Expr.applyUnsafe(scenario, lhs.coefficients + rhs.coefficients)
+  }
 
-    override def minus(x: Expr.Aux[S], y: Expr.Aux[S]): Expr.Aux[S] = applyUnsafe(scenario, x.coefficients - y.coefficients)
+}
 
+object Expr extends NDVecBuilder[Expr] {
+
+  import DExpr.changeBasis
+
+  def zero(scenario: Scenario): Expr = {
+    val res = applyUnsafe(scenario, Vec.fillConstant(scenario.shapeP.size)(Rational.zero))
+    symmetryGroup(res)(scenario.group)
+    res
+  }
+
+  def vectorSpace(scenario: Scenario): VectorSpace[Expr, Rational] = new VectorSpace[Expr, Rational] {
+    def scalar = spire.math.Rational.RationalAlgebra
+    def timesl(r: Rational, v: Expr): Expr = r *: v
+    def negate(x: Expr): Expr = -x
+    def zero: Expr = Expr.zero(scenario)
+    def plus(x: Expr, y: Expr): Expr = (x + y)
   }
 
 
@@ -224,31 +225,27 @@ object Expr extends NDVecBuilder[Expr, NDVecBuilder.ExprAux] {
     coefficients == pCoefficients // TODO: Eq[Vec[Rational]]
   }
 
-  def apply(scenario0: Scenario, coefficients0: Vec[Rational]): Expr.Aux[scenario0.type] = {
+  def apply(scenario0: Scenario, coefficients0: Vec[Rational]): Expr = {
     require(inNonSignalingSubspace(scenario0, coefficients0), "Coefficients are not in nonsignaling subspace")
     applyUnsafe(scenario0, coefficients0)
   }
 
-  def applyUnsafe(scenario0: Scenario, coefficients0: Vec[Rational]): Expr.Aux[scenario0.type] = {
-    require(coefficients0.length == scenario0.shapeP.size, "Coefficients vector length is incorrect")
-    new Expr {
-      type S = scenario0.type
-      val scenario: S = scenario0
-      val coefficients = coefficients0
-    }
+  def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): Expr = {
+    require(coefficients.length == scenario.shapeP.size, "Coefficients vector length is incorrect")
+    new Expr(scenario, coefficients)
   }
 
-  def collinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]) = {
+  def collinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): Expr = {
     val pCoefficients = changeBasis(scenario, p => p.matrices.matNGfromSG * p.matrices.matSGfromSP, collinsGisinCoefficients)
     applyUnsafe(scenario, pCoefficients)
   }
 
-  def correlators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]) = {
+  def correlators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): Expr = {
     val pCoefficients = changeBasis(scenario, p => p.matrices.matNCfromSC * p.matrices.matSCfromSP, correlatorsCoefficients)
     applyUnsafe(scenario, pCoefficients)
   }
 
-  def averageNormalization(scenario: Scenario): Expr.Aux[scenario.type] = {
+  def averageNormalization(scenario: Scenario): Expr = {
     val pCoefficients =  Vec.fillConstant(scenario.shapeP.size)(Rational(1, scenario.nInputTuples))
     applyUnsafe(scenario, pCoefficients)
   }

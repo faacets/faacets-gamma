@@ -24,10 +24,10 @@ trait Behavior extends NDVec {
 
   /** Returns these correlations with the given visibility, mixed with the uniformly
     * random correlations. */
-  def withVisibility(v: Rational): Behavior.Aux[S] = {
+  def withVisibility(v: Rational): Behavior = {
     val corr0 = Behavior.uniformlyRandom(scenario)
     val newCoefficients = (coefficients * v) + (corr0.coefficients * (1 - v))
-    val res = Behavior(scenario: S, newCoefficients)
+    val res = Behavior(scenario, newCoefficients)
     NDVec.attributes.symmetryGroup.get(this) match {
       case Some(grp) if !v.isZero =>
         NDVec.attributes.symmetryGroup(res) { grp }
@@ -45,7 +45,7 @@ trait Behavior extends NDVec {
 
 }
 
-object Behavior extends NDVecBuilder[Behavior, NDVecBuilder.BehaviorAux] {
+object Behavior extends NDVecBuilder[Behavior] {
 
   def inNonSignalingSubspace(scenario: Scenario, coefficients: Vec[Rational]): Boolean = {
     val pCoefficients = changeBasis(scenario,
@@ -54,34 +54,32 @@ object Behavior extends NDVecBuilder[Behavior, NDVecBuilder.BehaviorAux] {
     coefficients == pCoefficients // TODO: Vec[Rational] should use Eq
   }
 
-  type Aux[S0 <: Scenario with Singleton] = Behavior { type S = S0 }
-
   def changeBasis(scenario: Scenario, matChoice: Party => Mat[Rational], coefficients: Vec[Rational]): Vec[Rational] =
     revKronMatVec(scenario.parties.map(matChoice), coefficients)
 
-  def apply(scenario0: Scenario, coefficients0: Vec[Rational]): Behavior.Aux[scenario0.type] = {
+  def apply(scenario0: Scenario, coefficients0: Vec[Rational]): Behavior = {
     require(inNonSignalingSubspace(scenario0, coefficients0))
     applyUnsafe(scenario0, coefficients0)
   }
 
-  def applyUnsafe(scenario0: Scenario, coefficients0: Vec[Rational]): Behavior.Aux[scenario0.type] =
+  def applyUnsafe(scenario0: Scenario, coefficients0: Vec[Rational]): Behavior =
     new Behavior {
       type S = scenario0.type
       val scenario: S = scenario0
       val coefficients = coefficients0
     }
 
-  def collinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): Behavior.Aux[scenario.type] = {
+  def collinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): Behavior = {
     val pCoefficients = changeBasis(scenario, p => p.matrices.matSPfromSG * p.matrices.matSGfromNG, collinsGisinCoefficients)
     applyUnsafe(scenario, pCoefficients)
   }
 
-  def correlators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): Behavior.Aux[scenario.type] = {
+  def correlators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): Behavior = {
     val pCoefficients = changeBasis(scenario, p => p.matrices.matSPfromSC * p.matrices.matSCfromNC, correlatorsCoefficients)
     applyUnsafe(scenario, pCoefficients)
   }
 
-  def uniformlyRandom(scenario: Scenario): Behavior.Aux[scenario.type] = {
+  def uniformlyRandom(scenario: Scenario): Behavior = {
     val coefficients = scenario.tabulateP { (aInd, xInd) =>
       var nOutputs: SafeLong = SafeLong.one
       cforRange(0 until xInd.length) { p =>
