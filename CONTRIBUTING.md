@@ -1,0 +1,1 @@
+Please refer to the [documentation](http://www.faacets.com/doc/contributing.html).

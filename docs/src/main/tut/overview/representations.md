@@ -22,14 +22,19 @@ $$B=\sum_{a,b,x,y,\ldots} \alpha_{a,b,\ldots\vert x,y,\ldots}P(a,b,\ldots\vert x
 </p>
 is expressed in vector form by enumerating the coefficients $$\alpha_{a,b,\ldots\vert x,y,\ldots}$$. The enumeration of the coefficients increment first Alice's outcome $$a$$, then increment Alice's setting $$x$$, then increment Bob's outcome $$b$$, then increment Bob's setting $$y$$, and so on.
 
-In the CHSH scenario with two parties and binary measurement settings/outcomes, for instance, the order of terms is: $$\alpha_{1,1\vert 1,1}$$ , $$\alpha_{2,1\vert 1,1}$$ , $$\alpha_{1,1\vert 2,1}$$ , $$\alpha_{2,1\vert 2,1}$$ , $$\alpha_{1,2\vert 1,1}$$ , $$\alpha_{2,2\vert 1,1}$$ , $$\alpha_{1,2\vert 2,1}$$ , $$\alpha_{2,2\vert 2,1}$$ , $$\alpha_{1,1\vert 1,2}$$ , $$\alpha_{2,1\vert 1,2}$$ , $$\alpha_{1,1\vert 2,2}$$ , $$\alpha_{2,1\vert 2,2}$$ , $$\alpha_{1,2\vert 1,2}$$ , $$\alpha_{2,2\vert 1,2}$$ , $$\alpha_{1,2\vert 2,2}$$ , $$\alpha_{2,2\vert 2,2}$$ .
+In the CHSH scenario with two parties and binary measurement settings/outcomes, for instance, the order of terms is: $$\alpha_{0,0\vert 0,0}$$ , $$\alpha_{1,0\vert 0,0}$$ , $$\alpha_{0,0\vert 1,0}$$ , $$\alpha_{1,0\vert 1,0}$$ , $$\alpha_{0,1\vert 0,0}$$ , $$\alpha_{1,1\vert 0,0}$$ , $$\alpha_{0,1\vert 1,0}$$ , $$\alpha_{1,1\vert 1,0}$$ , $$\alpha_{0,0\vert 0,1}$$ , $$\alpha_{1,0\vert 0,1}$$ , $$\alpha_{0,0\vert 1,1}$$ , $$\alpha_{1,0\vert 1,1}$$ , $$\alpha_{0,1\vert 0,1}$$ , $$\alpha_{1,1\vert 0,1}$$ , $$\alpha_{0,1\vert 1,1}$$ , $$\alpha_{1,1\vert 1,1}$$ .
 
 This ordering is obtained equivalently by listing all the columns of the following table:
 
-| $$\alpha_{1,1\vert 1,1}$$ | $$\alpha_{1,2\vert 1,1}$$ | $$\alpha_{1,1\vert 1,2}$$ | $$\alpha_{1,2\vert 1,2}$$ | 
-| $$\alpha_{2,1\vert 1,1}$$ | $$\alpha_{2,2\vert 1,1}$$ | $$\alpha_{2,1\vert 1,2}$$ | $$\alpha_{2,2\vert 1,2}$$ | 
-| $$\alpha_{1,1\vert 2,1}$$ | $$\alpha_{1,2\vert 2,1}$$ | $$\alpha_{1,1\vert 2,2}$$ | $$\alpha_{1,2\vert 2,2}$$ | 
-| $$\alpha_{2,1\vert 2,1}$$ | $$\alpha_{2,2\vert 2,1}$$ | $$\alpha_{2,1\vert 2,2}$$ | $$\alpha_{2,2\vert 2,2}$$ | 
+$$
+\begin{array}{cc|cc}
+\alpha_{0,0|0,0} & \alpha_{0,1|0,0} & \alpha_{0,0|0,1} & \alpha_{0,1|0,1}\\
+\alpha_{1,0|0,0} & \alpha_{1,1|0,0} & \alpha_{1,0|0,1} & \alpha_{1,1|0,1}\\
+\hline
+\alpha_{0,0|1,0} & \alpha_{0,1|1,0} & \alpha_{0,0|1,1} & \alpha_{0,1|1,1}\\
+\alpha_{1,0|1,0} & \alpha_{1,1|1,0} & \alpha_{1,0|1,1} & \alpha_{1,1|1,1}\\
+\end{array}
+$$
 
 Any bipartite inequality can be represented in a similar table form. Each table dimension can be identified with a given party, Alice or Bob, and to each choice of settings $$(x,y)$$ corresponds a 2x2 block of coefficients.
 
@@ -41,17 +46,22 @@ This parametrization removes the degeneracy of the Bell coefficients by relying 
 In the CHSH scenario, for instance, any Bell expression written in this representation takes the form
 
 <p align="center">
-$$B=\gamma + \sum_{x=1}^2 \alpha^B_{1\vert x} P_A(1\vert x) + \sum_{y=1}^2 \alpha^B_{1\vert x} P_A(1\vert x) + \sum_{x,y=1}^2 \alpha^{AB}_{1,1\vert x,y} P_{AB}(1,1\vert x,y).$$
+$$B=\gamma + \sum_{x=0}^1 \alpha^B_{1\vert x} P_A(1\vert x) + \sum_{y=0}^1 \alpha^B_{1\vert x} P_A(1\vert x) + \sum_{x,y=0}^1 \alpha^{AB}_{1,1\vert x,y} P_{AB}(1,1\vert x,y).$$
 </p>
 
 Here $$P^{AB}(a,b\vert x,y)$$ stands for the joint probability distribution (denoted $$P(a,b\vert x,y)$$ above), and $$P^A(a\vert x)=\sum_b P^{AB}(a,b\vert x,y)$$ is Alice's marginal distribution.
 
 A table-like description of such a bipartite Bell expression is then obtained in a similar fashion:
 
-| $$\gamma$$ | $$\alpha^B_{1\vert 1}$$ | $$\alpha^B_{1\vert 2}$$ |
-| $$\alpha^A_{1\vert 1}$$ | $$\alpha^{AB}_{1,1\vert 1,1}$$ | $$\alpha^{AB}_{1,1\vert 1,2}$$ |
-| $$\alpha^A_{1\vert 2}$$ | $$\alpha^{AB}_{1,1\vert 2,1}$$ | $$\alpha^{AB}_{1,1\vert 2,2}$$ |
+$$
+\begin{array}{c|cc}
+\gamma & \alpha^B_{0|0} & \alpha^B_{0|1} \\
+\hline
+\alpha^A_{0|0} & \alpha^{AB}_{0,0|0,0} & \alpha^{AB}_{0,0|0,1} \\
+\alpha^A_{0|1} & \alpha^{AB}_{0,0|1,0} & \alpha^{AB}_{0,0|1,1}
+\end{array}
+$$
 
-Listing each column gives rise to the vector form of the Collins-Gisin representation, taking successive elements: $$\gamma$$ , $$\alpha^A_{1\vert 1}$$ , $$\alpha^A_{1\vert 2}$$ , $$\alpha^B_{1\vert 1}$$ , $$\alpha^{AB}_{1,1\vert 1,1}$$ , $$\alpha^{AB}_{1,1\vert 2,1}$$ , $$\alpha^B_{1\vert 2}$$ , $$\alpha^{AB}_{1,1\vert 1,2}$$ , $$\alpha^{AB}_{1,1\vert 2,2}$$ .
+Listing each column gives rise to the vector form of the Collins-Gisin representation, taking successive elements: $$\gamma$$ , $$\alpha^A_{0\vert 0}$$ , $$\alpha^A_{0\vert 1}$$ , $$\alpha^B_{0\vert 0}$$ , $$\alpha^{AB}_{0,0\vert 0,0}$$ , $$\alpha^{AB}_{0,0\vert 1,0}$$ , $$\alpha^B_{0\vert 1}$$ , $$\alpha^{AB}_{0,0\vert 0,1}$$ , $$\alpha^{AB}_{0,0\vert 1,1}$$ .
 
 

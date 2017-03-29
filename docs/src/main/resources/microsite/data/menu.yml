@@ -20,4 +20,55 @@ options:
     url: overview/relabelings.html
     menu_type: overview
 
+  - title: Affine transformations
+    url: overview/affine.html
+    menu_type: overview
+
+  - title: Liftings
+    url: overview/liftings.html
+    menu_type: overview
+
+  - title: Products
+    url: overview/products.html
+    menu_type: overview
+
+  #################################
+  # Yaml File Format Menu Options #
+  #################################
+
+  - title: Yaml file format
+    url: fileFormat.html
+    menu_type: fileFormat
+
+  - title: Minimal keys for Bell Expressions
+    url: fileFormat/minimal.html
+    menu_type: fileFormat
+
+  - title: Lower and upper bounds
+    url: fileFormat/bounds.html
+    menu_type: fileFormat
+
+  - title: Keywords
+    url: fileFormat/keywords.html
+    menu_type: fileFormat
+
+  - title: Decomposition and remarkable forms
+    url: fileFormat/decomposition.html
+    menu_type: fileFormat
+
+  - title: Transforms
+    url: fileFormat/transform.html
+    menu_type: fileFormat
+
+  - title: Bell expression symmetries
+    url: fileFormat/symmetries.html
+    menu_type: fileFormat
+
+  - title: File Metadata
+    url: fileFormat/metadata.html
+    menu_type: fileFormat
+
+  - title: Canonical Bell Expressions
+    url: fileFormat/canonical.html
+    menu_type: fileFormat
 

@@ -10,4 +10,7 @@ position: 2
 - [Bell scenarios](overview/scenario.html)
 - [Representations](overview/representations.html)
 - [Relabelings](overview/relabelings.html)
+- [Affine transformations](overview/affine.html)
+- [Liftings](overview/liftings.html)
+- [Composition of Bell expressions](overview/products.html)
 

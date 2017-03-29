@@ -8,9 +8,9 @@ position: 1
 # Getting started with the Faacets tools
 
 This page describes how to use faacets beyond the main website. In particular, it explains how to:
- - [run the Faacets library console](#how-to-run-the-faacets-console)
- - [run Faacets in matlab](#how-to-use-faacets-in-matlab)
- - [run a local copy of the website](#how-to-run-a-local-copy-of-the-website)
+ - [Run the Faacets library console](#how-to-run-the-faacets-console)
+ - [Run Faacets in matlab](#how-to-use-faacets-in-matlab)
+ - [Run a local copy of the website](#how-to-run-a-local-copy-of-the-website)
  
 Check [this page](contributing.html) for ways to contribute to this project.
 
@@ -45,14 +45,16 @@ The first time the `sbt` command is called, several softare modules will be down
 This launches the Faacets console.
 
 ### Using the Faacets console
-See [here](here) for an example of Faacets console usage.
+See [here](console/example.html) for an example of Faacets console usage.
 
 
 ## How to use Faacets in matlab
 
+[TODO]
 
 ## How to run a local copy of the website
 
+[TODO]
 
 
 
