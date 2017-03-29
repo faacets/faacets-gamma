@@ -1,9 +1,8 @@
-package com.faacets.data.instances
+package com.faacets.data
+package instances
 
 import scala.util.Try
-
 import spire.math.SafeLong
-
 import com.faacets.consolidate.Merge
 import io.circe._
 
@@ -38,5 +37,7 @@ trait SafeLongInstances {
   }
 
   implicit val safeLongMerge: Merge[SafeLong] = Merge.fromEquals[SafeLong]
+
+  implicit val safeLongTextable: Textable[SafeLong] = Textable.fromParser[SafeLong](Parsers.safeLong, _.toString)
 
 }

@@ -18,10 +18,10 @@ import scalin.immutable.Vec
 import net.alasc.attributes.{Attributable, Attributes}
 import net.alasc.domains.Partition
 import net.alasc.finite.Grp
-import com.faacets.data.instances.textable._
 import com.faacets.data.instances.vec._
 import com.faacets.data.instances.grp._
 import com.faacets.consolidate.instances.all._
+import com.faacets.data.instances.textable._
 import io.circe.Encoder
 
 import net.alasc.bsgs.FixingPartition
@@ -158,10 +158,9 @@ trait NDVecBuilder[V <: NDVec, VS[X <: Scenario with Singleton] <: V with NDVec.
 
   }
 
-  import com.faacets.data.instances.textable._
-
   lazy val encodeWithGroup: Encoder[(V, Grp[Relabeling])] =
     Encoder.forProduct3[Scenario, Vec[Rational], Grp[Relabeling], (V, Grp[Relabeling])]("scenario", "coefficients", "symmetryGroup")( pair => (pair._1.scenario, pair._1.coefficients, pair._2) )
+
   lazy val encodeWithoutGroup: Encoder[V] =
     Encoder.forProduct2("scenario", "coefficients")( (v: V) => (v.scenario: Scenario, v.coefficients) )
 

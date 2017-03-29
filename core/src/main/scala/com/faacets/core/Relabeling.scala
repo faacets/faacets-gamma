@@ -2,10 +2,8 @@ package com.faacets.core
 
 import spire.algebra._
 import spire.syntax.cfor._
-
 import com.faacets.core.perm._
-import com.faacets.data.NiceGenerators
-
+import com.faacets.data.{NiceGenerators, Textable}
 import net.alasc.finite.{FaithfulPermutationActionBuilder, Grp}
 import net.alasc.perms._
 import net.alasc.syntax.all._
@@ -184,7 +182,7 @@ object Relabeling extends RelabelingCompanion {
   implicit val imprimitiveImprimitiveRelabelingRepBuilder: FaithfulPermutationActionBuilder[Relabeling] =
     new ImprimitiveImprimitiveRelabelingRepBuilder
 
-  implicit val parsable = new RelabelingParsable
+  implicit val textable: Textable[Relabeling] = Textable.fromParser[Relabeling](perm.Parsers.relabeling, _.toString)
 
   def unapply(r: Relabeling): Option[(Map[Int, PartyRelabeling], Perm)] =
     Some((r.partyRelabelingMap, r.pPerm))

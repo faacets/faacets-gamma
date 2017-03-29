@@ -1,22 +1,15 @@
 package com.faacets
 package core
 
-import spire.math.{Rational, SafeLong}
+import com.faacets.data.Textable
+import spire.math.SafeLong
 import spire.syntax.cfor._
-
 import scalin.immutable.Vec
-
 import net.alasc.finite.Grp
-
 import net.alasc.perms.default._
-
-import fastparse.noApi._
-
-import com.faacets.data.Parsable
-import com.faacets.data.syntax.textable._
-
 import perm._
 import consolidate.Merge
+import com.faacets.data.syntax.textable._
 
 /** TODO: verify doc below
   *
@@ -53,7 +46,9 @@ import consolidate.Merge
 final class Scenario private (val parties: Seq[Party]) {
 
   override def hashCode = parties.hashCode
-  override def toString = this.toText
+
+  override def toString = parties.map(_.toText).mkString("[", " ", "]")
+
   override def equals(any: Any) = any match {
     case that: Scenario => this eq that
     case _ => false
@@ -254,21 +249,8 @@ object Scenario extends UniquenessCacheEq[Seq[Party], Scenario] {
 
   val CHSH = nmk(2, 2, 2)
 
-  implicit val parsable: Parsable[Scenario] = new ScenarioParsable
+  implicit val textable: Textable[Scenario] = Textable.fromParser[Scenario](Parsers.scenario, _.toString)
 
   implicit val merge: Merge[Scenario] = consolidate.Merge.fromEquals[Scenario]
 
 }
-
-final class ScenarioParsable extends Parsable[Scenario] {
-
-  import com.faacets.data.Parsers._
-  import Parsers._
-  import White._
-
-  def toText(s: Scenario): String = s.parties.map(_.toText).mkString("[", " ", "]")
-
-  val phrase = scenario ~ End
-
-}
-
