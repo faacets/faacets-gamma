@@ -2,15 +2,15 @@
 
 val scala212Version = "2.12.1"
 
-val alascVersion = "0.13.1.1"
+val alascVersion = "0.14.1.0"
 val catsVersion = "0.9.0"
 val circeVersion = "0.7.0"
 val circeYamlVersion = "0.5.0"
 val consolidateVersion = "0.3"
 val fastParseVersion = "0.4.2"
-val scalinVersion = "0.13.1.3"
+val scalinVersion = "0.14.1.0"
 val shapelessVersion = "2.3.2"
-val spireVersion = "0.13.1-SNAPSHOT"
+val spireVersion = "0.14.1"
 
 // dependency for tests only
 
@@ -100,8 +100,6 @@ lazy val commonSettings = Seq(
     "-Xfatal-warnings", "-Ywarn-numeric-widen"
   )),
   resolvers ++= Seq(
-    Resolver.url("spirejars", url(file("spirejars").toURI.toASCIIString))(Resolver.ivyStylePatterns), // TODO: remove use of Spire prerelease
-    "bintray/non" at "http://dl.bintray.com/non/maven",
     "bintray/denisrosset/maven" at "https://dl.bintray.com/denisrosset/maven",
     Resolver.sonatypeRepo("snapshots"),
     Resolver.sonatypeRepo("releases")
@@ -115,7 +113,7 @@ lazy val commonSettings = Seq(
     "com.lihaoyi" %% "fastparse" % fastParseVersion,
     "net.alasc" %% "scalin-core" % scalinVersion,
     "com.chuusai" %% "shapeless" % shapelessVersion,
-    "org.spire-math" %% "spire" % spireVersion
+    "org.typelevel" %% "spire" % spireVersion
 //    "io.circe" %% "circe-generic" % circeVersion, // do we need them?
 //    "io.circe" %% "circe-parser" % circeVersion
   )
@@ -206,7 +204,7 @@ lazy val testSettings = Seq(
     "org.typelevel" %% "discipline" % disciplineVersion,
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
     "net.alasc" %% "alasc-laws" % alascVersion,
-    "org.spire-math" %% "spire-laws" % spireVersion
+    "org.typelevel" %% "spire-laws" % spireVersion
   )
 )
 
@@ -215,6 +213,6 @@ lazy val lawsSettings = Seq(
     "org.typelevel" %% "discipline" % disciplineVersion,
     "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
     "net.alasc" %% "alasc-laws" % alascVersion,
-    "org.spire-math" %% "spire-laws" % spireVersion
+    "org.typelevel" %% "spire-laws" % spireVersion
   )
 )
