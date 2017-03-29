@@ -71,6 +71,15 @@ class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) 
 
 object DExpr {
 
+  def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, (DExpr, Rational)] = {
+    import fastparse.noApi._
+    import com.faacets.data.Parsers.White._
+    (com.faacets.core.text.Parsers.expr ~ End).parse(expression) match {
+      case Parsed.Success(t, _) => Validated.valid((DExpr.zero(Scenario.CHSH), Rational.zero))
+      case f => Validated.invalidNel(f.toString)
+    }
+  }
+
   def changeBasis(scenario: Scenario, matChoice: Party => Mat[Rational], coefficients: Vec[Rational]): Vec[Rational] =
     revKronMatVec(scenario.parties.map(p => matChoice(p).t), coefficients)
 

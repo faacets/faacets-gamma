@@ -3,14 +3,51 @@ package text
 
 import com.faacets.core.repr.Group
 import fastparse.noApi._
+import spire.math.Rational
 
 object Parsers {
 
+
   import com.faacets.data.Parsers._
   import com.faacets.core.Parsers._
-  import com.faacets.core.repr.Parsers.group
+  /*import com.faacets.core.repr.Parsers.group*/
   import White._
 
+
+  val probabilityString: P[String] = P("P" ~ CharIn('A'to'Z').rep ~ "(" ~ CharIn(('0'to'9')++Seq(',','|')).rep ~ ")").!
+
+  val correlatorString: P[String] = P("<" ~ CharIn(('A'to'Z')++('0'to'9')).rep ~ ">").!
+
+  val termString: P[String] = P(probabilityString | correlatorString)
+
+  case class Term(coeff: Rational, element: Option[String]) {
+    def unary_- : Term = Term(-coeff, element)
+  }
+
+  val nonNegativeCoeffString: P[Term] = P( (nonNegativeRational ~ "*".?).? ~ termString ).map {
+    case (None, str) => Term(Rational.one, Some(str))
+    case (Some(r), str) => Term(r, Some(str))
+  }
+
+  val nonNegativeConstant: P[Term] = P( nonNegativeRational ).map( r => Term(r, None) )
+
+  val nonNegativeTerm = P( nonNegativeCoeffString | nonNegativeConstant )
+
+  val firstTerm: P[Term] = P( ("+" | "-" | "").!.? ~ nonNegativeTerm ).map {
+    case (Some("-"), term) => -term
+    case (_, term) => term
+  }
+
+  val nextTerm: P[Term] = P( ("+" | "-").! ~ nonNegativeTerm ).map {
+    case ("-", term) => -term
+    case (_, term) => term
+  }
+
+  val expr: P[Seq[Term]] = P( firstTerm ~ nextTerm.rep ).map {
+    case (first, next) => first +: next
+  }
+
+  /*
   val index = nonNegativeInt
 
   val pTerm: P[PTerm] = P( "P" ~ "(" ~ index.rep(min=1,sep=",") ~ "|" ~ index.rep(min=1,sep=",") ~ ")" )
@@ -77,6 +114,6 @@ object Parsers {
       SCTerm(map)
     }
 
-  val term: P[Term[Element]] = cTerm | gTerm | pTerm
+  val term: P[Term[Element]] = cTerm | gTerm | pTerm*/
 
 }
