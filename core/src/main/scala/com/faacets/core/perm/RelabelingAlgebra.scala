@@ -268,7 +268,7 @@ final class RelabelingGroup extends Group[Relabeling] {
     new RelabelingImplGen(nB, bLength, bOffset, bArray, nY, yArray, _Q)
   }
   def inverseImpl16(f: RelabelingImpl16): Relabeling = {
-    import net.alasc.perms.internal.Perm16Encoding.{op => op16, inverse => inverse16, image => image16, largestMovedPoint => largestMovedPoint16}
+    import net.alasc.perms.internal.Perm16Encoding.{inverse => inverse16, image => image16, largestMovedPoint => largestMovedPoint16}
     /* We want to compute g = B Y Q such that h = f g = identity. We have (see above) :
      * 
      * - C(p,x) = A(p,x) |+| B(p <|+| P, x <|+| X(p))

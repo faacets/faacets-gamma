@@ -1,6 +1,5 @@
 package com.faacets.core
 
-import fastparse.WhitespaceApi
 import fastparse.noApi._
 
 object Parsers {

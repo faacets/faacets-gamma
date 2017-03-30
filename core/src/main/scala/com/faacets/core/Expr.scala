@@ -13,6 +13,9 @@ import com.faacets.core.NDVec.attributes.symmetryGroup
 import spire.syntax.cfor._
 import spire.syntax.eq._
 import scalin.syntax.all._
+import cats.syntax.traverse._
+import cats.instances.vector._
+
 
 trait GenExpr extends PVec { expr =>
 
@@ -71,11 +74,21 @@ class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) 
 
 object DExpr {
 
-  def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, (DExpr, Rational)] = {
+  def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, DExpr] = {
     import fastparse.noApi._
     import com.faacets.data.Parsers.White._
-    (com.faacets.core.text.Parsers.expr ~ End).parse(expression) match {
-      case Parsed.Success(t, _) => Validated.valid((DExpr.zero(Scenario.CHSH), Rational.zero))
+    import com.faacets.core.text._
+    (CoeffString.expr ~ End).parse(expression) match {
+      case Parsed.Success(csSeq, _) =>
+        val allCoeffs = csSeq.toVector.map {
+          case CoeffString(coeff, None) => Validated.valid( coeff *: Expr.constant(scenario).toDExpr )
+          case CoeffString(coeff, Some(termString)) =>
+            (CoeffString.term ~ End).parse(termString) match {
+              case Parsed.Success(term, _) => term.validate(scenario).map( coeff *: _ )
+              case f => Validated.invalidNel(f.toString)
+            }
+        }
+        allCoeffs.sequenceU.map(_.fold(DExpr.zero(scenario))(_+_))
       case f => Validated.invalidNel(f.toString)
     }
   }
@@ -109,11 +122,7 @@ object DExpr {
 
     }
 
-  def properNormalizationTest(scenario: Scenario): DExpr = {
-    val ratio = Rational(SafeLong.one, scenario.nInputTuples)
-    val pCoefficients = Vec.fillConstant(scenario.shapeP.size)(ratio)
-    apply(scenario, pCoefficients)
-  }
+  def properNormalizationTest(scenario: Scenario): DExpr = Expr.constant(scenario).toDExpr
 
   def normalizedSubspaceTests(scenario: Scenario): Iterable[DExpr] = {
     val sub = new Array[Int](scenario.nParties)
@@ -228,6 +237,11 @@ object Expr extends NDVecBuilder[Expr] {
     def plus(x: Expr, y: Expr): Expr = (x + y)
   }
 
+  def constant(scenario: Scenario): Expr = {
+    val ratio = Rational(SafeLong.one, scenario.nInputTuples)
+    val pCoefficients = Vec.fillConstant(scenario.shapeP.size)(ratio)
+    apply(scenario, pCoefficients) // TODO use applyUnsafe
+  }
 
   def inNonSignalingSubspace(scenario: Scenario, coefficients: Vec[Rational]): Boolean = {
     val pCoefficients = changeBasis(scenario, p => p.matrices.matProjectionInSP, coefficients)
