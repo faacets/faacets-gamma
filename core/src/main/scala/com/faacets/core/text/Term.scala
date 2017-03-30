@@ -10,7 +10,16 @@ import spire.math.Rational
 import cats.syntax.traverse._
 import cats.instances.vector._
 
-sealed trait Term {
+sealed case class TermType(name: String)
+
+object TermType {
+  def constant: TermType = TermType("Constant")
+  def full: TermType = TermType("Full probabilities")
+  def collinsGisin: TermType = TermType("Collins-Gisin")
+  def correlators: TermType = TermType("Correlators")
+}
+
+abstract class Term(val termType: TermType) { self =>
 
   def validate(scenario: Scenario): ValidatedNel[String, DExpr]
 
@@ -23,8 +32,14 @@ object Term {
 
 }
 
+case object ConstantTerm extends Term(TermType.constant) {
+
+  def validate(scenario: Scenario): ValidatedNel[String, DExpr] = Validated.valid(Expr.constant(scenario).toDExpr)
+
+}
+
 /** */
-case class FullTerm(outputs: Seq[Int], inputs: Seq[Int]) extends Term {
+case class FullTerm(outputs: Seq[Int], inputs: Seq[Int]) extends Term(TermType.full) {
   import scalin.immutable.dense._
 
   def nOutputs: Int = outputs.size
@@ -50,7 +65,7 @@ case class FullTerm(outputs: Seq[Int], inputs: Seq[Int]) extends Term {
 
 }
 
-case class CGTerm(parties: Seq[Int], outputs: Seq[Int], inputs: Seq[Int]) extends Term {
+case class CGTerm(parties: Seq[Int], outputs: Seq[Int], inputs: Seq[Int]) extends Term(TermType.collinsGisin) {
   import scalin.immutable.dense._
 
   def nOutputs: Int = outputs.size
@@ -96,7 +111,7 @@ case class CGTerm(parties: Seq[Int], outputs: Seq[Int], inputs: Seq[Int]) extend
 
 }
 
-case class CorrelatorTerm(elements: Seq[(Int, Int)]) extends Term {
+case class CorrelatorsTerm(elements: Seq[(Int, Int)]) extends Term(TermType.correlators) {
   import scalin.immutable.dense._
 
   def validate(scenario: Scenario): ValidatedNel[String, DExpr] =
@@ -124,4 +139,3 @@ case class CorrelatorTerm(elements: Seq[(Int, Int)]) extends Term {
   }
 
 }
-

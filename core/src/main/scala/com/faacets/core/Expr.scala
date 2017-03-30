@@ -80,15 +80,23 @@ object DExpr {
     import com.faacets.core.text._
     (CoeffString.expr ~ End).parse(expression) match {
       case Parsed.Success(csSeq, _) =>
-        val allCoeffs = csSeq.toVector.map {
-          case CoeffString(coeff, None) => Validated.valid( coeff *: Expr.constant(scenario).toDExpr )
+        val allCoeffTerms = csSeq.toVector.map {
+          case CoeffString(coeff, None) => Validated.valid( (coeff, "", ConstantTerm) )
           case CoeffString(coeff, Some(termString)) =>
             (CoeffString.term ~ End).parse(termString) match {
-              case Parsed.Success(term, _) => term.validate(scenario).map( coeff *: _ ).leftMap(_.map(s"Term '${termString}' : " + _))
+              case Parsed.Success(term, _) => Validated.valid( (coeff, termString, term) )
               case f => Validated.invalidNel(f.toString)
             }
         }
-        allCoeffs.sequenceU.map(_.fold(DExpr.zero(scenario))(_+_))
+        allCoeffTerms.sequenceU.andThen { coeffTerms =>
+          val termTypes: Set[TermType] = coeffTerms.map(_._3.termType).toSet - TermType.constant
+          if (termTypes.size > 1)
+            Validated.invalidNel("Mixes several expression types: " + termTypes.mkString(", "))
+          else
+            coeffTerms.map {
+              case (coeff, termString, term) => term.validate(scenario).map( dExpr => coeff *: dExpr ).leftMap(_.map(s"Term '${termString}' : " + _))
+            }.sequenceU.map(_.fold(DExpr.zero(scenario))(_+_))
+        }
       case f => Validated.invalidNel(f.toString)
     }
   }
