@@ -27,7 +27,7 @@ The first command downloads a local copy of your faacets-gamma repository, and t
 
 ### How to contribute
 The following typical contribution paths are detailed below:
- - [Updating the documentation](#updating-the-documentation)
+ - [Writing documentation](#updating-the-documentation)
  - [Contributing to the database](#contributing-to-the-database)
  - [Improving the source code](#contributing-to-the-code)
 
@@ -44,7 +44,12 @@ After these steps, you may go to the main [github page](https://github.com/denis
 
 
 ## Updating the documentation
-The website documentation is stored in the folder `docs/src/main`. It consists in a collection of markdown files. These files are automatically processed by various tools, including [tut](https://github.com/tpolecat/tut), [sbt-microsites](https://47deg.github.io/sbt-microsites/), [kramdown](https://kramdown.gettalong.org/) and [jekyll](https://jekyllrb.com/) to produce the documentation website.
+The website documentation is stored in the folder `docs/src/main`. It consists in a collection of markdown files (specifically, the GitHub variant). These files are automatically processed by various tools, including [tut](https://github.com/tpolecat/tut), [sbt-microsites](https://47deg.github.io/sbt-microsites/), [kramdown](https://kramdown.gettalong.org/) and [jekyll](https://jekyllrb.com/) to produce the documentation website.
+
+Right now, we use GitHub Pages to publish our website, and the Markdown processor is [kramdown](kramdown.gettalong.org).
+
+Mathematical equations are displayed using [MathJax](www.mathjax.org). It [seems](http://tobanwiebe.com/blog/2016/02/mathjax-kramdown) that `kramdown` only recognizes expressions in double dollar signs `$$ ... $$`, altough the [kramdown documentation](https://kramdown.gettalong.org/math_engine/mathjax.html) does not document the exact operation.
+
 
 ### Testing a modified documentation
 To see the effect of some changes in the documentation source files, use the following commands to reconstruct the documentation and serve it on a local computer.

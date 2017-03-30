@@ -1,1 +1,3 @@
-Please refer to the [documentation](http://www.faacets.com/doc/contributing.html).
+# Contributor guide
+
+Please refer to the [documentation](@docUrl/contributing.html).
