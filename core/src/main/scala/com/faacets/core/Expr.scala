@@ -84,7 +84,7 @@ object DExpr {
           case CoeffString(coeff, None) => Validated.valid( coeff *: Expr.constant(scenario).toDExpr )
           case CoeffString(coeff, Some(termString)) =>
             (CoeffString.term ~ End).parse(termString) match {
-              case Parsed.Success(term, _) => term.validate(scenario).map( coeff *: _ )
+              case Parsed.Success(term, _) => term.validate(scenario).map( coeff *: _ ).leftMap(_.map(s"Term '${termString}' : " + _))
               case f => Validated.invalidNel(f.toString)
             }
         }
