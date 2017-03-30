@@ -1,0 +1,118 @@
+package com.faacets
+package operation
+
+import spire.algebra.VectorSpace
+import spire.math.Rational
+import qalg.immutable.QVector
+import spire.implicits._
+import core._
+import affine._
+import product._
+
+final class ExprProductExtractor extends ProductExtractor[Expr] {
+  def semigroup = ExprSemigroup
+
+  def partialExtract(expr: Expr): Option[Seq[Expr]] = findProduct(expr).map {
+    case (expr1, expr2) =>
+      val dec1 = partialExtract(expr1).getOrElse(Seq(expr1))
+      val dec2 = partialExtract(expr2).getOrElse(Seq(expr2))
+      dec1 ++ dec2
+  }
+
+  def findProduct(exprToDecompose: Expr): Option[(Expr, Expr)] = {
+    val cRepresentation = exprToDecompose.representation match {
+      case NCRepresentation | NPRepresentation | NGRepresentation => NCRepresentation
+      case SCRepresentation | SPRepresentation | SGRepresentation => SCRepresentation
+      case WRepresentation | TRepresentation => TRepresentation
+    }
+    val scenario = exprToDecompose.scenario
+    val expr = exprToDecompose.to(cRepresentation)
+    val nParties = expr.scenario.parties.length
+    val sizes = expr.scenario.parties.map(_.partyRepr(cRepresentation).size)
+    for (nParties1 <- 1 to nParties - 1) {
+      val sizes1 = sizes.take(nParties1)
+      val sizes2 = sizes.drop(nParties1)
+      // build matrix of coefficients for rank test
+      val matrix = qalg.immutable.QMatrix.build(sizes1.product, sizes2.product, expr.coefficients.toArray)
+
+      Rank1.decomposition(matrix) match {
+        case None =>
+        case Some((coeffs1, coeffs2)) =>
+          val parties1: Seq[Party] = expr.scenario.parties.take(nParties1)
+          val parties2: Seq[Party] = expr.scenario.parties.drop(nParties1)
+          val scenario1 = Scenario(parties1)
+          val scenario2 = Scenario(parties2)
+          val r = exprToDecompose.representation
+          val rExpr1 = Expr(scenario1, cRepresentation, coeffs1).to(r)
+          val rExpr2 = Expr(scenario2, cRepresentation, coeffs2).to(r)
+          return Some((rExpr1, rExpr2))
+      }
+    }
+    None
+  }
+}
+
+trait ExprTensorExtractor extends Extractor[Expr] {
+  def integerToVector(k: Int, n: Int): Vector[Boolean] =
+    Vector.tabulate(n)(i => (k & (1 << i)) != 0)
+
+  def isComposite(e: Expr) = !findPartition(e).isEmpty
+
+  def nonTrivialBipartitions(n: Int) = {
+    val bipartitions = (1 until (1 << n) - 1).map(integerToVector(_, n))
+    val (singleA, restA) = bipartitions.partition(_.count(_ == true) == 1)
+    val (singleB, rest) = restA.partition(_.count(_ == false) == 1)
+    singleA ++ (singleB.map(_.map(!_))) ++ rest
+  }
+
+  def findPartition(exprToDecompose: Expr): Option[(Affine, Seq[Boolean], Expr, Expr)] = {
+    val cRepresentation = exprToDecompose.representation match {
+      case NCRepresentation | NPRepresentation | NGRepresentation => NCRepresentation
+      case SCRepresentation | SPRepresentation | SGRepresentation => SCRepresentation
+      case WRepresentation | TRepresentation => TRepresentation
+    }
+    val scenario = exprToDecompose.scenario
+    val expr = exprToDecompose.to(cRepresentation)
+    val nParties = expr.scenario.parties.length
+    val sizes = expr.scenario.parties.map(_.partyRepr(cRepresentation).size)
+    for (in1 <- nonTrivialBipartitions(nParties)) {
+      val sizes1 = (sizes zip in1).filter(_._2).map(_._1)
+      val sizes2 = (sizes zip in1).filterNot(_._2).map(_._1)
+
+      // build matrix of coefficients for rank test
+      val matrix = qalg.mutable.QMatrix.zeros(sizes1.product, sizes2.product)
+      for (ind <- 0 until expr.coefficients.length) {
+        val subind = ind2sub(sizes, ind)
+        val subind1 = (subind zip in1).filter(_._2).map(_._1)
+        val subind2 = (subind zip in1).filterNot(_._2).map(_._1)
+        val ind1 = sub2ind(sizes1, subind1)
+        val ind2 = sub2ind(sizes2, subind2)
+        matrix(ind1, ind2) = expr.coefficients(ind)
+      }
+
+      Rank1.decompositionWithShift(matrix.toImmutable) match {
+        case None =>
+        case Some((shift, (coeffs1, coeffs2))) =>
+          val parties1: Seq[Party] = (expr.scenario.parties zip in1).filter(_._2).map(_._1)
+          val parties2: Seq[Party] = (expr.scenario.parties zip in1).filterNot(_._2).map(_._1)
+          val scenario1 = Scenario(parties1)
+          val scenario2 = Scenario(parties2)
+          val r = exprToDecompose.representation
+          val rExpr1 = Expr(scenario1, cRepresentation, coeffs1).to(r)
+          val rExpr2 = Expr(scenario2, cRepresentation, coeffs2).to(r)
+          val Affine(factor1, _) = Affine.ExprExtractor.extract(rExpr1)
+          val Affine(factor2, _) = Affine.ExprExtractor.extract(rExpr2)
+          val rExpr1Norm = {
+            implicit def vectorSpace: VectorSpace[Expr, Rational] = rExpr1.scenario.ExprVectorSpace
+            rExpr1 :/ factor1
+          }
+          val rExpr2Norm = {
+            implicit def vectorSpace: VectorSpace[Expr, Rational] = rExpr2.scenario.ExprVectorSpace
+            rExpr2 :/ factor2
+          }
+          return Some((Affine(factor1 * factor2, shift), in1, rExpr1Norm, rExpr2Norm))
+      }
+    }
+    None
+  }
+}

@@ -1,0 +1,68 @@
+package com.faacets
+package operation
+package laws
+/*
+import org.typelevel.discipline.Laws
+
+import org.scalacheck.{Arbitrary, Prop}
+import org.scalacheck.Prop._
+
+import spire.algebra.{Eq, Groupoid, PartialAction}
+import spire.std.int._
+import spire.std.boolean._
+import spire.syntax.eq._
+import spire.syntax.bool._
+import spire.syntax.action._
+import spire.laws._
+
+import syntax.all._
+
+import core.laws.OperationGenerator
+
+object OperationLaws {
+  def apply[A : Eq : Arbitrary, O : Eq : Arbitrary] = new OperationLaws[A, O] {
+    def EquA = Eq[A]
+    def EquO = Eq[O]
+    def ArbA = implicitly[Arbitrary[A]]
+    def ArbO = implicitly[Arbitrary[O]]
+  }
+}
+
+trait OperationLaws[A, O] extends Laws {
+
+  implicit def EquA: Eq[A]
+  implicit def EquO: Eq[O]
+  implicit def ArbA: Arbitrary[A]
+  implicit def ArbO: Arbitrary[O]
+
+  def groupoid(implicit
+    O: Groupoid[O],
+    P: PartialAction[A, O],
+    E: OperationExtractor[A, O],
+    C: Arbitrary[Canonical[A]],
+    G: OperationGenerator[A, O]) = new OperationProperties(
+    name = "operation",
+
+    parent = None,
+
+    bases = Seq("groupoid" -> GroupLaws[O].groupoid),
+
+    "extraction after transformation of canonical" -> forAll((canonical: Canonical[A]) => {
+      val Canonical(a) = canonical
+      forAll(G.gen(a)) { o =>
+        val transformed = (a <|+|? o).get
+        val operationBack = transformed.forceExtract[O]
+        val back = transformed <|+| operationBack
+        a === back
+      }
+    })
+  )
+
+  class OperationProperties(
+    val name: String,
+    val parent: Option[OperationProperties],
+    val bases: Seq[(String, Laws#RuleSet)],
+    val props: (String, Prop)*
+  ) extends RuleSet with HasOneParent
+}
+*/
