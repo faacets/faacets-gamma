@@ -18,6 +18,12 @@ object CoeffString {
   val correlatorString: P[String] = P("<" ~ CharIn(('A'to'Z')++('0'to'9')).rep ~ ">").!
 
   val termString: P[String] = P(probabilityString | correlatorString)
+/* TODO: remove
+  val timesSep: P[Unit] = P( " ".rep(min=0) ~~ "*" ~~ " ".rep(min=0) )
+
+  val spaceSep: P[Unit] = P( " ".rep(min=1) )
+
+  val sep: P[Unit] = P( timesSep | spaceSep )*/
 
   val nonNegativeCoeffNonEmptyString: P[CoeffString] = P( (nonNegativeRational ~ "*".?).? ~ termString ).map {
     case (None, str) => CoeffString(Rational.one, Some(str))
