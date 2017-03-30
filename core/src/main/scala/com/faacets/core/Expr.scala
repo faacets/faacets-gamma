@@ -15,6 +15,9 @@ import spire.syntax.eq._
 import scalin.syntax.all._
 import cats.syntax.traverse._
 import cats.instances.vector._
+import com.faacets.core.text._
+
+import scala.collection.mutable.ArrayBuffer
 
 
 trait GenExpr extends PVec { expr =>
@@ -70,36 +73,29 @@ class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) 
     if (r.isZero) DExpr.zero(scenario)
     else new DExpr(scenario, coefficients * r)
 
+  def fullExpression: String = {
+    val coeffTerms = (0 until coefficients.length).filterNot(i => coefficients(i).isZero).map { ind =>
+      val (aa, xx) = scenario.ind2subP(ind)
+      (coefficients(ind), FullTerm(aa, xx))
+    }
+    Term.printExpression(coeffTerms)
+  }
+
 }
 
 object DExpr {
 
   def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, DExpr] = {
-    import fastparse.noApi._
-    import com.faacets.data.Parsers.White._
-    import com.faacets.core.text._
-    (CoeffString.expr ~ End).parse(expression) match {
-      case Parsed.Success(csSeq, _) =>
-        val allCoeffTerms = csSeq.toVector.map {
-          case CoeffString(coeff, None) => Validated.valid( (coeff, "", ConstantTerm) )
-          case CoeffString(coeff, Some(termString)) =>
-            (CoeffString.term ~ End).parse(termString) match {
-              case Parsed.Success(term, _) => Validated.valid( (coeff, termString, term) )
-              case f => Validated.invalidNel(f.toString)
-            }
-        }
-        allCoeffTerms.sequenceU.andThen { coeffTerms =>
+    Term.parseExpression(expression).andThen { coeffTerms =>
           val termTypes: Set[TermType] = coeffTerms.map(_._3.termType).toSet - TermType.constant
           if (termTypes.size > 1)
-            Validated.invalidNel("Mixes several expression types: " + termTypes.mkString(", "))
+            Validated.invalidNel("Mixes several expression types: " + termTypes.map(_.name).mkString(", "))
           else
             coeffTerms.map {
               case (coeff, termString, term) => term.validate(scenario).map( dExpr => coeff *: dExpr ).leftMap(_.map(s"Term '${termString}' : " + _))
             }.sequenceU.map(_.fold(DExpr.zero(scenario))(_+_))
         }
-      case f => Validated.invalidNel(f.toString)
     }
-  }
 
   def changeBasis(scenario: Scenario, matChoice: Party => Mat[Rational], coefficients: Vec[Rational]): Vec[Rational] =
     revKronMatVec(scenario.parties.map(p => matChoice(p).t), coefficients)
@@ -225,9 +221,39 @@ class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) e
     Expr.applyUnsafe(scenario, lhs.coefficients + rhs.coefficients)
   }
 
+  def fullExpression: String = toDExpr.fullExpression
+
+  def collinsGisinExpression: String = {
+    val cgCoeffs = collinsGisin
+    val coeffTerms = (0 until cgCoeffs.length).filterNot(i => cgCoeffs(i).isZero).map { ind =>
+      val (kk, xx) = scenario.ind2subNG(ind)
+      (cgCoeffs(ind), CGTerm.fromKX(kk, xx))
+    }
+    Term.printExpression(coeffTerms)
+  }
+
+  def correlatorsExpression: String = {
+    require(scenario.maxNumOutputs <= 2, "Scenario must have binary outputs to use the correlators expression")
+    val cCoeffs = correlators
+    val coeffTerms = (0 until cCoeffs.length).filterNot(i => cCoeffs(i).isZero).map { ind =>
+      val (kk, xx) = scenario.ind2subNC(ind)
+      (cCoeffs(ind), CorrelatorsTerm.fromKX(kk, xx))
+    }
+    Term.printExpression(coeffTerms)
+  }
+
 }
 
 object Expr extends NDVecBuilder[Expr] {
+
+  def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, Expr] =
+  DExpr.parseExpression(scenario, expression) andThen { dExpr =>
+    val expr = dExpr.projected
+    if (dExpr.coefficients == expr.coefficients) // TODO use ===
+      Validated.valid(expr)
+    else
+      Validated.invalidNel("Expression is not in nonsignaling subspace")
+  }
 
   import DExpr.changeBasis
 

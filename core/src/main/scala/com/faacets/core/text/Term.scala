@@ -9,6 +9,7 @@ import scalin.syntax.all._
 import spire.math.Rational
 import cats.syntax.traverse._
 import cats.instances.vector._
+import spire.syntax.cfor._
 
 sealed case class TermType(name: String)
 
@@ -23,18 +24,81 @@ abstract class Term(val termType: TermType) { self =>
 
   def validate(scenario: Scenario): ValidatedNel[String, DExpr]
 
+  def string: String
+
 }
 
 object Term {
 
   def oneAt[A:Ring:VecEngine](length: Int, ind: Int): Vec[A] =
-  VecEngine[A].fromMutable(length, Ring[A].zero)( res => res(ind) := Ring[A].one )
+    VecEngine[A].fromMutable(length, Ring[A].zero)( res => res(ind) := Ring[A].one )
+
+  def parseExpression(expression: String): ValidatedNel[String, Vector[(Rational, String, Term)]] = {
+    import fastparse.noApi._
+    import com.faacets.data.Parsers.White._
+    (CoeffString.expr ~ End).parse(expression) match {
+      case Parsed.Success(csSeq, _) =>
+        val allCoeffTerms = csSeq.toVector.map {
+          case CoeffString(coeff, None) => Validated.valid((coeff, "", ConstantTerm))
+          case CoeffString(coeff, Some(termString)) =>
+            (CoeffString.term ~ End).parse(termString) match {
+              case Parsed.Success(term, _) => Validated.valid((coeff, termString, term))
+              case f => Validated.invalidNel(f.toString)
+            }
+        }
+        allCoeffTerms.sequenceU
+      case f => Validated.invalidNel(f.toString)
+    }
+  }
+
+  def printHeadCoeff(sb: StringBuilder, coeff: Rational, term: String): Unit = {
+    require(!coeff.isZero)
+    if (coeff.signum < 0) {
+      sb ++= "-"
+      printHeadCoeff(sb, -coeff, term)
+    } else {
+      if (coeff.isOne) {
+        if (term.isEmpty)
+          sb ++= "1"
+        else
+          sb ++= term
+      } else {
+        sb ++= coeff.toString
+        if (term.nonEmpty) {
+          sb ++= " "
+          sb ++= term
+        }
+      }
+    }
+  }
+
+  def printTailCoeff(sb: StringBuilder, coeff: Rational, term: String): Unit = {
+    require(coeff.signum != 0)
+    if (coeff.signum < 0) {
+      sb ++= " - "
+      printHeadCoeff(sb, -coeff, term)
+    } else {
+      sb ++= " + "
+      printHeadCoeff(sb, coeff, term)
+    }
+  }
+
+  def printExpression(seq: Seq[(Rational, Term)]) = {
+    val sb = StringBuilder.newBuilder
+    if (seq.length > 0) printHeadCoeff(sb, seq(0)._1, seq(0)._2.string)
+    cforRange(1 until seq.length) { i =>
+      printTailCoeff(sb, seq(i)._1, seq(i)._2.string)
+    }
+    sb.toString
+  }
 
 }
 
 case object ConstantTerm extends Term(TermType.constant) {
 
   def validate(scenario: Scenario): ValidatedNel[String, DExpr] = Validated.valid(Expr.constant(scenario).toDExpr)
+
+  def string = ""
 
 }
 
@@ -63,6 +127,8 @@ case class FullTerm(outputs: Seq[Int], inputs: Seq[Int]) extends Term(TermType.f
     }
   }
 
+  def string = "P(" + outputs.mkString(",") + "|" + inputs.mkString(",") + ")"
+
 }
 
 case class CGTerm(parties: Seq[Int], outputs: Seq[Int], inputs: Seq[Int]) extends Term(TermType.collinsGisin) {
@@ -73,6 +139,7 @@ case class CGTerm(parties: Seq[Int], outputs: Seq[Int], inputs: Seq[Int]) extend
   def nInputs: Int = inputs.size
 
   def nParties: Int = parties.size
+
   def validate(scenario: Scenario): ValidatedNel[String, DExpr] =
     if (outputs.size != inputs.size)
       Validated.invalidNel(s"Term has $nOutputs outputs but $nInputs inputs")
@@ -109,6 +176,23 @@ case class CGTerm(parties: Seq[Int], outputs: Seq[Int], inputs: Seq[Int]) extend
 
     }
 
+  def string = "P" + parties.map(p => ('A' + p).toChar.toString).mkString + "(" + outputs.mkString(",") + "|" + inputs.mkString(",") + ")"
+
+}
+
+object CGTerm {
+
+  def fromKX(kk: Seq[Int], xx: Seq[Int]): Term = {
+    val nParties = kk.length
+    require(kk.length == xx.length)
+    val parties = (0 until nParties).filter(p => kk(p) >= 0 && xx(p) >=0 )
+    if (parties.isEmpty) ConstantTerm else {
+      val outputs = parties.map(kk(_))
+      val inputs = parties.map(xx(_))
+      CGTerm(parties, outputs, inputs)
+    }
+  }
+
 }
 
 case class CorrelatorsTerm(elements: Seq[(Int, Int)]) extends Term(TermType.correlators) {
@@ -135,6 +219,24 @@ case class CorrelatorsTerm(elements: Seq[(Int, Int)]) extends Term(TermType.corr
         expr.toDExpr
       }
 
+    }
+  }
+
+  def string = "<" + (elements.map { case (p, x) => ('A' + p).toChar.toString + x.toString }.mkString) + ">"
+
+}
+
+object CorrelatorsTerm {
+
+  def fromKX(kk: Seq[Int], xx: Seq[Int]): Term = {
+    val nParties = kk.length
+    require(kk.length == xx.length)
+    val parties = (0 until nParties).filter(p => kk(p) >= 0 && xx(p) >=0 )
+    if (parties.isEmpty) ConstantTerm else {
+      val outputs = parties.map(kk(_))
+      assert(outputs.forall(_ == 0))
+      val inputs = parties.map(xx(_))
+      CorrelatorsTerm(parties zip inputs)
     }
   }
 

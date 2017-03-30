@@ -66,7 +66,7 @@ object CoeffString {
     case (p, x) => (p.head - 'A', x)
   }
 
-  val correlatorTerm: P[CorrelatorsTerm] = P( "<" ~ correlator.rep(min = 1) ~ ">" ).map( CorrelatorsTerm )
+  val correlatorTerm: P[CorrelatorsTerm] = P( "<" ~ correlator.rep(min = 1) ~ ">" ).map( CorrelatorsTerm(_) )
 
   val term: P[Term] = P( fullTerm | cgTerm | correlatorTerm )
 
