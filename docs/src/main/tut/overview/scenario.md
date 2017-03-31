@@ -1,8 +1,7 @@
 ---
 layout: docs
-title:  "Bell scenarios"
-section: "Overview of Bell inequalities"
-position: 1
+title:  "Bell scenario"
+section: "overview"
 ---
 
 # Bell scenarios

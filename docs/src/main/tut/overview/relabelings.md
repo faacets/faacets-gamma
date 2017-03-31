@@ -1,8 +1,7 @@
 ---
 layout: docs
 title:  "Relabelings"
-section: "Overview of Bell inequalities"
-position: 1
+section: "overview"
 ---
 
 # Relabelings
