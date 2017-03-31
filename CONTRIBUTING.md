@@ -1,5 +1,7 @@
 ## Contributing to Faacets
 
-As of March 2017, our development is done (mostly) in the open. Currently, we do not accept feature requests or code extensions, as we need to stabilize the code base. 
+Starting from March 2017, the development is done in the open. Our current focus is to reach feature parity with the former beta version still online on http://faceets.com.
 
-Feel free to write us if you want to help with the stabilization: you need to be familiar with Scala and with the mathematical formalism of nonlocality.
+Our current focus is to stabilize the mathematical algorithms and write an unambiguous specification for the file format.
+
+We welcome any help towards that goal.
