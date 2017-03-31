@@ -4,8 +4,7 @@ package repr
 
 import spire.algebra.Eq
 
-import data._
-import fastparse.noApi._
+import data.Textable
 
 case class Group(n: Int, plus: Set[Int], minus: Set[Int]) {
 
@@ -32,15 +31,6 @@ object Group {
 
   implicit val equ: Eq[Group] = spire.optional.genericEq.generic[Group]
 
-  implicit val parsable: Parsable[Group] = new Parsable[Group] {
-
-    import com.faacets.data.Parsers._
-    import White._
-
-    def toText(g: Group) = g.toString
-
-    def phrase = Parsers.group ~ End
-
-  }
+  implicit val textable: Textable[Group] = Textable.fromParser[Group](Parsers.group, _.toString)
 
 }

@@ -2,9 +2,8 @@ package com.faacets.core
 
 import spire.algebra._
 import spire.syntax.cfor._
-
 import com.faacets.core.perm._
-
+import com.faacets.data.Textable
 import net.alasc.finite.FaithfulPermutationActionBuilder
 import net.alasc.perms.{Cycles, Perm}
 import net.alasc.syntax.all._
@@ -138,7 +137,7 @@ object PartyRelabeling extends PartyRelabelingCompanion {
 
   implicit val equ: Eq[PartyRelabeling] = new PartyRelabelingEq
 
-  implicit val parsable = new PartyRelabelingParsable
+  implicit val textable: Textable[PartyRelabeling] = Textable.fromParser[PartyRelabeling](perm.Parsers.partyRelabeling, _.toString)
 
   implicit lazy val imprimitivePartyRelabelingRepBuilder: FaithfulPermutationActionBuilder[PartyRelabeling] =
     new ImprimitivePartyRelabelingRepBuilder

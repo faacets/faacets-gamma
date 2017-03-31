@@ -1,9 +1,8 @@
-package com.faacets.data.instances
+package com.faacets.data
+package instances
 
 import scala.util.Try
-
 import spire.math.Rational
-
 import com.faacets.consolidate.Merge
 import io.circe._
 
@@ -38,5 +37,7 @@ trait RationalInstances {
   }
 
   implicit val rationalMerge: Merge[Rational] = Merge.fromEquals[Rational]
+
+  implicit val rationalTextable: Textable[Rational] = Textable.fromParser(Parsers.rational, _.toString)
 
 }

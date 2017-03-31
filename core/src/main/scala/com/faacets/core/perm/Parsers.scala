@@ -14,6 +14,8 @@ object Parsers {
   import com.faacets.core.Parsers._
   import White._
 
+  val inputIndex = nonNegativeInt.opaque("<input-index>")
+
   def partiesSingleCycle: P[Cycles] = P( "(" ~ partyIndex.rep(sep=",") ~ ")" ).map { seq =>
     if (seq.isEmpty) Cycles.id else (Cycle(seq: _*): Cycles)
   }
@@ -25,7 +27,7 @@ object Parsers {
     case (p, x) => Relabeling.InputComponent(p, x).get
   }
 
-  def relabelingOutputComponent: P[Relabeling] = P( partyIndex ~ nonNegativeInt ~/ perm ).map {
+  def relabelingOutputComponent: P[Relabeling] = P( partyIndex ~ inputIndex ~/ perm ).map {
     case (p, x, a) => Relabeling.OutputComponent(p, x, a).get
   }
 
@@ -34,7 +36,7 @@ object Parsers {
 
   def relabeling: P[Relabeling] = relabelingComponent.rep.map( Group[Relabeling].combineAll(_) )
 
-  def partyRelabelingOutputComponent: P[PartyRelabeling] = P( nonNegativeInt ~ perm ).map {
+  def partyRelabelingOutputComponent: P[PartyRelabeling] = P( inputIndex ~ perm ).map {
     case (x, a) => PartyRelabeling.OutputComponent(x, a).get
   }
 

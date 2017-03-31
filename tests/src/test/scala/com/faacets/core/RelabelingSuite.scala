@@ -4,7 +4,6 @@ import spire.laws.GroupLaws
 
 import com.faacets.FaacetsSuite
 import com.faacets.laws._
-import org.scalacheck.Arbitrary
 import org.typelevel.discipline.Laws
 
 import net.alasc.algebra.PermutationAction
