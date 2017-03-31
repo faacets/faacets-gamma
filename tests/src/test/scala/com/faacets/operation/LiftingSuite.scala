@@ -41,28 +41,28 @@ class LiftingSuite extends FaacetsSuite {
     assert(lifting.target.scenario == scenarioB)
   }
 
-  /*
+  val expr_CHSH = DExpr.parseExpression(scenario_CHSH,
+    "P(0,0|0,0) + P(0,0|0,1) + P(0,0|1,0) - P(0,0|1,1) + P(1,1|0,0) + P(1,1|0,1) + P(1,1|1,0) - P(1,1|1,1)"
+    ).getOrElse(sys.error("")).projected
 
-  val expr_CHSH = Expr.parseExpression(scenario_CHSH)(
+  val expr_222_222 = DExpr.parseExpression(scenario_222_222,
     "P(0,0|0,0) + P(0,0|0,1) + P(0,0|1,0) - P(0,0|1,1) + P(1,1|0,0) + P(1,1|0,1) + P(1,1|1,0) - P(1,1|1,1)"
-    )
-  val expr_222_222 = Expr.parseExpression(scenario_222_222)(
-    "P(0,0|0,0) + P(0,0|0,1) + P(0,0|1,0) - P(0,0|1,1) + P(1,1|0,0) + P(1,1|0,1) + P(1,1|1,0) - P(1,1|1,1)"
-    )
-  val expr_22_33 = Expr.parseExpression(scenario_22_33)(
+    ).getOrElse(sys.error("")).projected
+
+  val expr_22_33 = DExpr.parseExpression(scenario_22_33,
     "P(0,0|0,0) + P(0,0|0,1) + P(0,0|1,0) - P(0,0|1,1) + P(1,1|0,0) + P(1,1|0,1) + P(1,1|1,0) - P(1,1|1,1) " +
-      "+ P(1,2|0,0) + P(1,2|0,1) + P(1,2|1,0) - P(1,2|1,1)")
+      "+ P(1,2|0,0) + P(1,2|0,1) + P(1,2|1,0) - P(1,2|1,1)").getOrElse(sys.error("")).projected
 
   test("Example ii) of Pironio doi:10.1063/1.1928727") {
-    val lifting = "[(2 2) (2 2)] -> [(2 2 {0 0}) (2 2 {0 0})]".fromText[Lifting]
-    assert((expr_CHSH <|+| lifting) == expr_222_222)
+    val lifting = "[(2 2) (2 2)] -> [(2 2 {0 0}) (2 2 {0 0})]".parseUnsafe[Lifting]
+    assert((expr_CHSH <|+|? lifting).get == expr_222_222)
   }
 
   test("Example (3) of Pironio doi:10.1063/1.1928727") {
-    val lifting = "[(2 2) (2 2)] -> [(2 2) ({0 1 1} {0 1 1})]".fromText[Lifting]
-    assert((expr_CHSH <|+| lifting) == expr_22_33)
+    val lifting = "[(2 2) (2 2)] -> [(2 2) ({0 1 1} {0 1 1})]".parseUnsafe[Lifting]
+    assert((expr_CHSH <|+|? lifting).get == expr_22_33)
   }
-
+/*
   def testGroupingInScenario(scenario: Scenario) = {
     for ((ncExpr, _) <- LocalPolytope(scenario).facets) {
       val lifted = ncExpr.to(NPRepresentation)
