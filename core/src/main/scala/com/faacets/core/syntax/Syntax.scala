@@ -1,10 +1,22 @@
 package com.faacets.core.syntax
 
-trait LiteralsSyntax {
+import com.faacets.core.{PartyRelabeling, PartyRelabelingSubgroups, Relabeling, RelabelingSubgroups}
+import net.alasc.finite.Grp
 
-    implicit def coreLiterals(sc: StringContext): Literals = new Literals(sc)
+trait SubgroupsSyntax {
+
+  implicit def coreSubgroupsPartyRelabeling(grp: Grp[PartyRelabeling]): PartyRelabelingSubgroups = PartyRelabelingSubgroups(grp)
+
+  implicit def coreSubgroupsRelabeling(grp: Grp[Relabeling]): RelabelingSubgroups = RelabelingSubgroups(grp)
 
 }
 
-trait AllSyntax extends
-  LiteralsSyntax
+trait LiteralsSyntax {
+
+  implicit def coreLiterals(sc: StringContext): Literals = new Literals(sc)
+
+}
+
+trait AllSyntax
+  extends LiteralsSyntax
+  with SubgroupsSyntax
