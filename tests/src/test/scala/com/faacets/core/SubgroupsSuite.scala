@@ -6,7 +6,6 @@ import net.alasc.perms.Perm
 import net.alasc.perms.default._
 
 import spire.std.map._
-import spire.std.int._
 
 class SubgroupsSuite extends FaacetsSuite {
 
