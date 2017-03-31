@@ -2,7 +2,7 @@
 
 val scala212Version = "2.12.1"
 
-val alascVersion = "0.14.1.0"
+val alascVersion = "0.14.1.1"
 val catsVersion = "0.9.0"
 val circeVersion = "0.7.0"
 val circeYamlVersion = "0.5.0"
