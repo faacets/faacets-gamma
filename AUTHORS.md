@@ -14,5 +14,5 @@ Thank you!
 
 Faacets has maintainers who manage the pull requests (code reviews and merges).
 
-- Jean-Daniel Bancal [TODO email]
+- Jean-Daniel Bancal (*jdbancal.physics@gmail.com*)
 - Denis Rosset (*physics@denisrosset.com*)
