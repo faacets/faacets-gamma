@@ -18,19 +18,22 @@ case class PartyRelabelingSubgroups(val group: Grp[PartyRelabeling]) {
 
   implicit val action: PermutationAction[PartyRelabeling] = shapeLattice.shape.ImprimitiveAction
 
+  val groupInRep: GrpChain[PartyRelabeling, action.type] = GrpChainPermutationAction[PartyRelabeling].fromGrp(group, action)
+
+  val nInputs = shapeLattice.party.nInputs
+
   def subgroupFor(test: (Int, Int) => Boolean, predicate: PartyRelabeling => Boolean): GrpChain[PartyRelabeling, action.type] = {
     val definition = SubgroupDefinition[PartyRelabeling, action.type](test, predicate)(action)
     GrpChainPermutationAction[PartyRelabeling].subgroupFor[action.type](groupInRep, action, definition)
   }
 
-  val groupInRep: GrpChain[PartyRelabeling, action.type] =
-    GrpChainPermutationAction[PartyRelabeling].fromGrp(group, action)
-
+  /** Returns the permutation group corresponding to pure input relabelings. */
   def inputsPermSubgroup: Grp[Perm] = {
     val subgrp = inputsSubgroup
-    Grp.fromGeneratorsAndOrder(subgrp.generators.map(g => (g: PartyRelabeling).xPerm), subgrp.order)
+    Grp.fromGeneratorsAndOrder(subgrp.generators.map(_.xPerm), subgrp.order)
   }
 
+  /** Returns the subgroup of pure input relabelings. */
   def inputsSubgroup: Grp[PartyRelabeling] = {
     def predicate(pr: PartyRelabeling) = pr.nInputsWithOutputRelabelings == 0
     def test(preimage: Int, image: Int) = {
@@ -41,12 +44,11 @@ case class PartyRelabelingSubgroups(val group: Grp[PartyRelabeling]) {
     subgroupFor(test, predicate)
   }
 
-  def nInputs = (1 /: group.generators.map(_.nInputs))(_.max(_))
-
-  def outputPermSubgroups: Map[Int, Grp[Perm]] =
-    (0 until nInputs).filter( x => group.generators.exists(r => r.xPerm.movesPoint(x) || !r.aPerm(x).isId) ).map { x =>
+  def outputPermSubgroups: Map[Int, Grp[Perm]] = {
+    (0 until nInputs).filter(x => group.generators.exists(r => r.xPerm.movesPoint(x) || !r.aPerm(x).isId)).map { x =>
       x -> outputPermSubgroup(x)
     }.filterNot(_._2.isTrivial).toMap
+  }
 
   def outputPermSubgroup(x: Int): Grp[Perm] =  {
     val prSubGrp = inputSubgroup(x)

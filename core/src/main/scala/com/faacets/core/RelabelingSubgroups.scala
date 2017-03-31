@@ -23,13 +23,13 @@ case class RelabelingSubgroups(val group: Grp[Relabeling]) {
 
   implicit val action: PermutationAction[Relabeling] = shapeLattice.shape.ImpImpAction
 
+  val groupInRep: GrpChain[Relabeling, action.type] =
+    GrpChainPermutationAction[Relabeling].fromGrp(group, action)
+
   def subgroupFor(test: (Int, Int) => Boolean, predicate: Relabeling => Boolean): GrpChain[Relabeling, action.type] = {
     val definition = SubgroupDefinition[Relabeling, action.type](test, predicate)(action)
     GrpChainPermutationAction[Relabeling].subgroupFor[action.type](groupInRep, action, definition)
   }
-
-  val groupInRep: GrpChain[Relabeling, action.type] =
-    GrpChainPermutationAction[Relabeling].fromGrp(group, action)
 
   def partiesPermSubgroup: Grp[Perm] = {
     val subgrp = partiesSubgroup
@@ -70,7 +70,7 @@ case class RelabelingSubgroups(val group: Grp[Relabeling]) {
   def partySubgroup(p: Int): Grp[Relabeling] = {
     def predicate(r: Relabeling): Boolean = r.pPerm.isId && {
       cforRange(0 until r.nPartiesWithRelabelings) { p1 =>
-        if (p1 != p && (!r.xPerm(p).isId || r.nInputsWithOutputRelabelings(p) > 0)) return false
+        if (p1 != p && (!r.xPerm(p1).isId || r.nInputsWithOutputRelabelings(p1) > 0)) return false
       }
       true
     }
