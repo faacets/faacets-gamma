@@ -1,0 +1,102 @@
+<html><head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>Faacets</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="A library for Bell expressions" /><meta name="author" content="Jean-Daniel Bancal, Denis Rosset" /><meta name="og:image" content="/faacets-gamma/img/poster.png" /><meta name="og:title" content="Faacets" /><meta name="og:site_name" content="Faacets" /><meta name="og:url" content="https://github.com/denisrosset/faacets-gamma" /><meta name="og:type" content="website" /><meta name="og:description" content="A library for Bell expressions" /><meta name="twitter:image" content="/faacets-gamma/img/poster.png" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="" /><link rel="icon" type="image/png" href="/faacets-gamma/img/favicon.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/faacets-gamma/highlight/styles/default.css" /><link rel="stylesheet" href="/faacets-gamma/css/style.css" /><link rel="stylesheet" href="/faacets-gamma/css/palette.css" /></head><body><header id="site-header"><div class="navbar-wrapper navbar-inverse"><div class="container"><div class="navbar-header"><button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false"><span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button><a href="/faacets-gamma/" class="brand"><div class="icon-wrapper" style="background:url('/faacets-gamma/img/navbar_brand.png') no-repeat"><span>Faacets</span></div></a></div><nav class="text-right"><ul class=""><li><a href="https://github.com/denisrosset/faacets-gamma"><i class="fa fa-github"></i><span class="hidden-xs">GitHub</span></a></li><li><a href="/faacets-gamma/"><i class="fa fa-file-text"></i><span class="hidden-xs">Documentation</span></a></li></ul></nav></div></div><div class="jumbotron" style="background-image:url('/faacets-gamma/img/jumbotron_pattern.png')"></div><div><ul class="horizontalNav">                                     <li><a class=" active " href="/faacets-gamma/gettingStarted.html">Getting started</a></li>  <li><a class="" href="/faacets-gamma/overview.html">Faacets concepts</a></li>  <li><a class="" href="/faacets-gamma/fileFormat.html">Yaml file format</a></li>  <li><a class="" href="/faacets-gamma/contributing.html">Contributing</a></li> </ul></div></header><main id="site-main"><section class="use"><div class="container"><div id="content"><h1 id="getting-started-with-the-faacets-tools">Getting started with the Faacets tools</h1>
+
+<p>This page describes how to use faacets beyond the main website. In particular, it explains how to:</p>
+<ul>
+  <li><a href="#how-to-run-the-faacets-console">Run the Faacets console</a></li>
+  <li><a href="#how-to-run-a-local-copy-of-the-website">Run a local copy of the website</a></li>
+  <li><a href="#how-to-use-faacets-in-matlab">Run Faacets in matlab</a></li>
+</ul>
+
+<p>Check <a href="contributing.html">this page</a> for ways to contribute to this project.</p>
+
+<h2 id="how-to-run-the-faacets-console">How to run the Faacets console</h2>
+<p>Faacets being based on scala, it comes with a standard console interface. Here we describe how to install this through SBT.</p>
+
+<h3 id="install-git">Install git</h3>
+<p>Since the Faacets project is hosted on a git server, it requires a <a href="https://git-scm.com/downloads">git client</a>. On ubuntu, you can install git with the following command:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>sudo apt-get install git
+</code></pre>
+</div>
+
+<h3 id="install-sbt">Install SBT</h3>
+<p>Install the Scala Build Tool from <a href="http://www.scala-sbt.org/download.html">http://www.scala-sbt.org/download.html</a></p>
+
+<h3 id="download-the-faacets-code">Download the Faacets code</h3>
+<p>The latest code of Faacets can be downloaded directly from github.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>git clone https://github.com/denisrosset/faacets-gamma
+cd faacets-gamma
+</code></pre>
+</div>
+
+<h3 id="launch-the-console">Launch the console</h3>
+<p>In order to launch the Faacets console, open a terminal in the faacets-gamma folder and type</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>sbt
+</code></pre>
+</div>
+
+<p>The first time the <code class="highlighter-rouge">sbt</code> command is called, several software modules will be downloaded. This may take several minutes. When this is finished, type</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>console
+</code></pre>
+</div>
+
+<p>This launches the Faacets console.</p>
+
+<h3 id="using-the-faacets-console">Using the Faacets console</h3>
+<p>See <a href="console/example.html">here</a> for an example of Faacets console usage.</p>
+
+<h2 id="how-to-run-a-local-copy-of-the-website">How to run a local copy of the website</h2>
+
+<p>There are two ways to run the Faacets website. 
+The first one uses the SBT Play plugin, and is appropriate for local development and use, the second is based on Docker containers and is robust for production use.
+For both methods, first install git / SBT  as detailed in <a href="#getting-started-with-the-faacets-tools">Getting started with the Faacets tools</a></p>
+
+<h3 id="development-mode">Development mode</h3>
+
+<p>1) Clone the faacets <em>website</em> repository.</p>
+
+<p>git clone https://github.com/denisrosset/faacets-playnew
+   cd faacets-playnew</p>
+
+<p>2) The first time the <code class="highlighter-rouge">sbt</code> command is called, several software modules will be downloaded.
+   This download takes several minutes. When this is finished, type</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>   run
+</code></pre>
+</div>
+
+<p>This launches the Faacets server on your local computer.</p>
+
+<p>3) Open a web browser at the address http://localhost:9000 .</p>
+
+<p>Note: additional lengthy downloads may occur at steps 2) and 3), and are subsequently cached by the local Ivy/Maven repository on your computer.</p>
+
+<h3 id="production-mode-docker">Production mode (Docker)</h3>
+
+<p>The website is packaged using Docker containers.</p>
+
+<p>Install Docker: follow the instructions on the Docker website, including
+“Manage Docker as a non-root user” in the post-installation steps.</p>
+
+<p>1) Clone the Git repository
+2) Run <code class="highlighter-rouge">sbt docker:publishLocal</code> to create a local Docker container with the version
+3) Run <code class="highlighter-rouge">docker run -e APPLICATION_SECRET=1234 --net="host" faacets-playnew:0.14.1.0-SNAPSHOT</code>
+   where <code class="highlighter-rouge">1234</code> is the application secret (does not matter much, as all the website is public)
+   and where <code class="highlighter-rouge">0.14.1.0-SNAPSHOT</code> is the version you want to run. By default, we run the networking
+   on the host (i.e. the port 9000 will be opened on the host).
+4) Connect to http://localhost:9000</p>
+
+<h2 id="how-to-use-faacets-in-matlab">How to use Faacets in Matlab</h2>
+
+<p>As of March 2017, there are no bindings for Matlab. 
+The previous solution (Java adapters) has too high maintenance burden, we will consider lighter alternatives in the future.</p>
+
+<p>[TODO]</p>
+</div></div></section></main><footer id="site-footer"><div class="container"><div class="row"><div class="col-xs-6"><p>Faacets is designed and developed by <a href="https://github.com/denisrosset/faacets-gamma" target="_blank">Jean-Daniel Bancal, Denis Rosset</a></p></div><div class="col-xs-6"><p class="text-right"><a href="https://github.com/denisrosset/faacets-gamma"><span class="fa fa-github"></span>View on Github</a></p></div></div></div></footer><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/faacets-gamma/highlight/highlight.pack.js"></script><script>hljs.configure({
+languages:['scala','java','bash']
+});
+hljs.initHighlighting();
+             </script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></body></html>

@@ -1,0 +1,47 @@
+<html><head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>Faacets</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="A library for Bell expressions" /><meta name="author" content="Jean-Daniel Bancal, Denis Rosset" /><meta name="og:image" content="/faacets-gamma/img/poster.png" /><meta name="og:title" content="Faacets" /><meta name="og:site_name" content="Faacets" /><meta name="og:url" content="https://github.com/denisrosset/faacets-gamma" /><meta name="og:type" content="website" /><meta name="og:description" content="A library for Bell expressions" /><meta name="twitter:image" content="/faacets-gamma/img/poster.png" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="" /><link rel="icon" type="image/png" href="/faacets-gamma/img/favicon.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /><link rel="stylesheet" href="/faacets-gamma/highlight/styles/default.css" /><link rel="stylesheet" href="/faacets-gamma/css/style.css" /><link rel="stylesheet" href="/faacets-gamma/css/palette.css" /></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><ul id="sidebar" class="sidebar-nav"><li class="sidebar-brand"><a href="/faacets-gamma/" class="brand"><div class="brand-wrapper" style="background:url('/faacets-gamma/img/sidebar_brand.png') no-repeat"><span>Faacets</span></div></a></li>        <li><a href="/faacets-gamma/fileFormat.html" class="">Yaml file format</a></li> <li><a href="/faacets-gamma/fileFormat/minimal.html" class="">Minimal keys for Bell Expressions</a></li> <li><a href="/faacets-gamma/fileFormat/bounds.html" class="">Lower and upper bounds</a></li> <li><a href="/faacets-gamma/fileFormat/keywords.html" class="">Keywords</a></li> <li><a href="/faacets-gamma/fileFormat/decomposition.html" class=" active ">Decomposition and remarkable forms</a></li> <li><a href="/faacets-gamma/fileFormat/transform.html" class="">Transforms</a></li> <li><a href="/faacets-gamma/fileFormat/symmetries.html" class="">Bell expression symmetries</a></li> <li><a href="/faacets-gamma/fileFormat/metadata.html" class="">File Metadata</a></li> <li><a href="/faacets-gamma/fileFormat/canonical.html" class="">Canonical Bell Expressions</a></li></ul></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li class="hidden-xs"><a href="https://github.com/denisrosset/faacets-gamma"><i class="fa fa-eye"></i><span>WATCH<span id="eyes" class="label label-default">--</span></span></a></li><li class="hidden-xs"><a href="https://github.com/denisrosset/faacets-gamma"><i class="fa fa-star-o"></i><span>STARS<span id="stars" class="label label-default">--</span></span></a></li><li><a href="#" onclick="shareSiteTwitter('Faacets A library for Bell expressions');"><i class="fa fa-twitter"></i></a></li><li><a href="#" onclick="shareSiteFacebook('Faacets A library for Bell expressions');"><i class="fa fa-facebook"></i></a></li><li><a href="#" onclick="shareSiteGoogle();"><i class="fa fa-google-plus"></i></a></li></ul></div></div></div></div><div id="content" data-github-owner="denisrosset" data-github-repo="faacets-gamma"><div class="content-wrapper"><section><h1 id="decomposition-and-remarkable-forms">Decomposition and remarkable forms</h1>
+
+<p>The operations that relate a Bell expression to its canonical form are stored in a YAML file to avoid expensive recomputations. The motivation for these operations is described in <a href="http://www.arxiv.org/">FaacetsPaper</a>.</p>
+
+<p>Moreover, when storing canonical forms of Bell expressions, one wants to keep track of possible remarkable forms of an expression, for example a form symmetric under permutation of parties.</p>
+
+<p>A Bell expression which is not in the canonical form can have a <code class="highlighter-rouge">decomposition</code> key that provide its decomposition into canonical elements. The possible elements in the <code class="highlighter-rouge">decomposition</code> key are described in the next section <a href="transform.md">Transforms</a>. When the Bell expression is included in a compendium, the canonical elements can be referenced using the <code class="highlighter-rouge">CanonicalExpression</code> placeholder described below.</p>
+
+<p>A Bell expression, canonical or not, can have a list of remarkable forms under the key <code class="highlighter-rouge">remarkableForms</code>, containing a mapping of form names to decompositions. These decompositions should include as final elements the <code class="highlighter-rouge">OriginalExpression</code> placeholder.</p>
+
+<p>Reserved keys for remarkable forms include:</p>
+
+<ul>
+  <li>
+    <p>maximal</p>
+
+    <p>Describes the maximal lexicographic of the Bell expression. Has to be present for canonical expressions, because it is used to compute quickly the minimal lexicographic representative of the opposite of a canonical expression.</p>
+  </li>
+  <li>
+    <p>fullySymmetric</p>
+
+    <p>Describes the representative of a Bell expression under relabelings fully symmetric under the permutation of parties. If several of such representatives exists, the form should reference the one minimal under lexicographic ordering.</p>
+  </li>
+</ul>
+
+<h2 id="bell-expressions-placeholders">Bell Expressions placeholders</h2>
+
+<p>Two special Bell Expression placeholders can be used in decompositions or remarkable forms:</p>
+
+<ul>
+  <li>
+    <p>CanonicalExpression</p>
+
+    <p>This placeholder has a single key <code class="highlighter-rouge">index</code> which references a canonical Bell expression in the canonical folder of a compendium.</p>
+  </li>
+  <li>
+    <p>OriginalExpression</p>
+
+    <p>Used as a placeholder in the remarkable forms section, to reference the main Bell expression of the file.</p>
+  </li>
+</ul>
+
+</section></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="/faacets-gamma/highlight/highlight.pack.js"></script><script>hljs.configure({
+languages:['scala','java','bash']
+});
+hljs.initHighlighting();
+             </script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><script src="/faacets-gamma/js/main.js"></script></body></html>
