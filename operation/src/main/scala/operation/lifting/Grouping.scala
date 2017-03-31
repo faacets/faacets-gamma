@@ -22,7 +22,7 @@ case class Grouping(parties: Seq[PartyGrouping]) {
 
   def isLifting: Boolean = hasLiftedOutputs || hasLiftedInputs
 
-  def compact = Grouping(parties.map(_.compact))
+  def compact: Scenario = Scenario(parties.map(_.compact))
 
   def updated(p: Int, partyGrouping: PartyGrouping): Grouping = Grouping(parties.updated(p, partyGrouping))
 
@@ -39,7 +39,9 @@ object Grouping {
 
   def apply(expr: Expr): Grouping = apply(expr.scenario, expr.symmetryGroup)
 
-  //implicit val textable: Textable[Grouping] = new GroupingTextable
+  def noLifting(scenario: Scenario): Grouping = Grouping(scenario.parties.map(PartyGrouping.noLifting(_)))
+
+  implicit val textable: Textable[Grouping] = Textable.fromParser(GroupingParsers.grouping, _.toString)
 
   implicit val equ: Eq[Grouping] = Eq.fromUniversalEquals[Grouping]
 

@@ -65,11 +65,9 @@ final class Scenario private (val parties: Seq[Party]) {
   val maxNumOutputs = parties.flatMap(_.inputs).max
   val nParties = parties.length
 
-
   /** Number of different input tuples, i.e. the number of different measurements overall.
     * Example: Scenario.CHSH.nInputTuples === 4. */
   val nInputTuples = parties.foldLeft(SafeLong(1)) { case (mul, party) => mul * SafeLong(party.nInputs) }
-
 
   val shape = new Shape(parties)
   val shapeLattice = ShapeLattice(parties)
@@ -94,7 +92,6 @@ final class Scenario private (val parties: Seq[Party]) {
 
   def tabulateNG[A](coefficients: (Array[Int], Array[Int]) => A): Vec[A] =
     tabulateNC(coefficients)
-
 
   def tabulateNC[A](coefficients: (Array[Int], Array[Int]) => A): Vec[A] = {
     import scalin.immutable.dense._

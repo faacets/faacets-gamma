@@ -35,7 +35,7 @@ lazy val laws = (project in file("laws"))
   .settings(faacetsSettings: _*)
   .settings(lawsSettings:_*)
   .settings(commonJvmSettings: _*)
-  .dependsOn(core, data)
+  .dependsOn(core, data, operation)
 
 lazy val core = (project in file("core"))
   .settings(moduleName := "faacets-core")

@@ -25,7 +25,7 @@ case class InputGrouping(partition: Partition) {
 
   def hasLiftedOutputs = partition.blocks.exists(_.size > 1)
 
-  def compact: Option[InputGrouping] = if (isLiftedInput) None else Some(InputGrouping.noLifting(partition.nBlocks))
+  def compact: Option[Int] = if (isLiftedInput) None else Some(partition.nBlocks)
 
 }
 

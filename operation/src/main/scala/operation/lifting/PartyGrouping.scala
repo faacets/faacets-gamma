@@ -19,7 +19,7 @@ case class PartyGrouping(inputs: Seq[InputGrouping]) {
 
   def isLifting: Boolean = hasLiftedOutputs || hasLiftedInputs
 
-  def compact: PartyGrouping = PartyGrouping(inputs.flatMap(_.compact))
+  def compact: Party = Party(inputs.flatMap(_.compact))
 
   lazy val indexFromCompact: Seq[Int] = inputs.zipWithIndex.filter(!_._1.isLiftedInput).map(_._2)
 
@@ -37,5 +37,7 @@ object PartyGrouping {
     val inputGroupings = party.inputs.indices.map( x => InputGrouping(party.inputs(x), subgroups.getOrElse(x, trivialGrp)) )
     PartyGrouping(inputGroupings)
   }
+
+  def noLifting(party: Party): PartyGrouping = PartyGrouping(party.inputs.map(InputGrouping.noLifting(_)))
 
 }
