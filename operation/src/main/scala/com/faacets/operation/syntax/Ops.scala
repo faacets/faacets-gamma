@@ -18,10 +18,6 @@ final class ExtractorValueOps[A](val lhs: A) extends AnyVal {
 }
 
 /*
-final class ExtractorLeafOps[T: LeafBuilder](val lhs: Leaf[A]) {
-  def partialExtractTree[O](implicit ev: OperationExtractor[T, O]): Option[OperationNode[T, O]] = ev.partialExtractTree(lhs)
-}*/
-/*
 final class SymmetricFormsOps[T](val lhs: T)(implicit ev: SymmetricForms[T]) {
   def symmetricRepresentative: Representative[T, Relabeling] = ev.symmetricRepresentative(lhs)
   def cyclicRepresentative: Representative[T, Relabeling] = ev.cyclicRepresentative(lhs)
