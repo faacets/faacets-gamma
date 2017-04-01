@@ -21,7 +21,6 @@ import com.faacets.consolidate.instances.all._
 import com.faacets.core.perm.ShapeLattice
 import com.faacets.data.instances.textable._
 import io.circe.{AccumulatingDecoder, Decoder, Encoder, HCursor}
-import net.alasc.algebra.PermutationAction
 import net.alasc.bsgs._
 import com.faacets.data.syntax.validatedNel._
 import spire.algebra.partial.PartialAction
