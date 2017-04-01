@@ -6,7 +6,6 @@ import spire.util._
 
 // import net.alasc.math.enum.Representative
 
-
 final class ExtractorValueOps[A](val lhs: A) extends AnyVal {
 
   def partialExtract[O](implicit ev: OperationExtractor[A, O]): Opt[O] = ev.partialExtract(lhs)
