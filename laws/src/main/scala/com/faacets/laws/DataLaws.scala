@@ -27,12 +27,12 @@ trait DataLaws[A] extends Laws {
   implicit def Equ: Eq[A]
   implicit def Arb: Arbitrary[A]
 
-  def coded(implicit d: AccumulatingDecoder[A], e: Encoder[A]) =
+  def coded(implicit d: Decoder[A], e: Encoder[A]) =
     new SimpleRuleSet(
       "coded",
 
       "through JSON AST" → forAll( (a: A) =>
-        AccumulatingDecoder[A].apply(HCursor.fromJson(Encoder[A].apply(a))).fold( _ => false, _ === a)
+        Decoder[A].apply(HCursor.fromJson(Encoder[A].apply(a))).fold( _ => false, _ === a)
       ),
 
       "through YAML" → forAll { (a: A) =>

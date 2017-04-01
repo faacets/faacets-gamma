@@ -20,9 +20,10 @@ import com.faacets.data.instances.grp._
 import com.faacets.consolidate.instances.all._
 import com.faacets.core.perm.ShapeLattice
 import com.faacets.data.instances.textable._
-import io.circe.Encoder
+import io.circe.{AccumulatingDecoder, Decoder, Encoder, HCursor}
 import net.alasc.algebra.PermutationAction
-import net.alasc.bsgs.FixingPartition
+import net.alasc.bsgs._
+import com.faacets.data.syntax.validatedNel._
 import spire.algebra.partial.PartialAction
 
 /** Base class for vectors in the probability space of a causal scenario.
@@ -131,7 +132,7 @@ trait PVecBuilder[V <: PVec[V]] {
 
 }
 
-trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] {
+trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] { self =>
 
   protected[faacets] def updatedWithSymmetryGroup(original: V, newScenario: Scenario, newCoefficients: Vec[Rational],
                                                   symGroupF: (Grp[Relabeling]) => Option[Grp[Relabeling]]): V = {
@@ -193,6 +194,21 @@ trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] {
       case Some(grp) => encodeWithGroup( (v, grp) )
       case None => encodeWithoutGroup(v)
     }
+  }
+
+  implicit val decode: Decoder[V] = new Decoder[V] {
+
+    def apply(c: HCursor): Decoder.Result[V] = decodeAccumulating(c).leftMap(_.head).toEither
+
+    override def decodeAccumulating(c: HCursor): AccumulatingDecoder.Result[V] =
+      AccumulatingDecoder.resultInstance.map3(
+        Decoder[Scenario].tryDecodeAccumulating(c.downField("scenario")),
+        Decoder[Vec[Rational]].tryDecodeAccumulating(c.downField("coefficients")),
+        Decoder[Option[Grp[Relabeling]]].tryDecodeAccumulating(c.downField("symmetryGroup"))
+      )( (_, _, _) ).andThen {
+        case (s: Scenario, c: Vec[Rational], sg: Option[Grp[Relabeling]]) => self.validate(s, c, sg).toAccumulatingDecoderResult
+      }
+
   }
 
   implicit val equ: Eq[V] = Eq.fromUniversalEquals[V]

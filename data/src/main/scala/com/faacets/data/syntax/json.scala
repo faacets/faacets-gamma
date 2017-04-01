@@ -1,10 +1,10 @@
 package com.faacets.data.syntax
 
-import io.circe.{AccumulatingDecoder, Json}
+import io.circe.{AccumulatingDecoder, Decoder, Json}
 
 final class JsonOps(val lhs: Json) extends AnyVal {
 
-  def asAcc[A](implicit d: AccumulatingDecoder[A]): AccumulatingDecoder.Result[A] = d(lhs.hcursor)
+  def asAcc[A](implicit d: Decoder[A]): AccumulatingDecoder.Result[A] = d.accumulating(lhs.hcursor)
 
 }
 
