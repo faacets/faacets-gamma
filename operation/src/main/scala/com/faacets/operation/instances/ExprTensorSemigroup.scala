@@ -1,10 +1,9 @@
-package com.faacets
-package operation
+package com.faacets.operation.instances
 
-import spire.algebra.Semigroup
+import com.faacets.core.{Expr, Scenario}
 import scalin.immutable.Vec
+import spire.algebra.Semigroup
 import scalin.immutable.dense._
-import core._
 
 /** Performs the tensor product of two Vecs. */
 class ExprTensorSemigroup extends Semigroup[Expr] {

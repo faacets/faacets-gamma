@@ -1,35 +1,25 @@
 package com.faacets
 package operation
-/*
+
 import scala.collection.immutable
 import scala.collection.mutable
 import scala.annotation.tailrec
 
-import spire.algebra.NullboxPartialAction
 import spire.math.Rational
 import spire.syntax.group._
 import spire.syntax.action._
 import spire.syntax.eq._
-import spire.util.Nullbox
 
-import net.alasc.algebra.InversePair
-import net.alasc.math.{Grp, Perm}
-import net.alasc.math.bsgs
-import net.alasc.math.enum.Representative
 import net.alasc.syntax.permutationAction._
-import net.alasc.syntax.subgroup._
 
 import core._
-import perm.{PartyRelabeling, Relabeling}
 
-final class VecSymmetricForms[V <: Vec[V]](implicit val action: NullboxPartialAction[V, Relabeling]) extends SymmetricForms[V] {
-  def symmetryGroup(v: V): Grp[Relabeling] = v.symmetryGroup
-}
 // notes: http://groupprops.subwiki.org/wiki/Coset_intersection_problem
 // http://groupprops.subwiki.org/wiki/Double_coset_membership_testing_problem
-
+/*
 trait SymmetricForms[A] extends Any {
   def action: NullboxPartialAction[A, Relabeling]
+
   def symmetryGroup(a: A): Grp[Relabeling]
 
   def symmetricRepresentative(a: A): Representative[A, Relabeling] =

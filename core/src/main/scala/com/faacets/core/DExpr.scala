@@ -12,11 +12,13 @@ import scalin.immutable.dense._
 import scalin.syntax.all._
 import cats.syntax.traverse._
 import cats.instances.vector._
+import net.alasc.finite.Grp
+
 import scala.reflect.classTag
 
-class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends GenExpr { lhs =>
+class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends GenExpr[DExpr] { lhs =>
 
-  type V = DExpr
+  def builder = DExpr
 
   def inBasis(matChoice: Party => Mat[Rational]): Vec[Rational] =
     revKronMatVec(scenario.parties.map(p => matChoice(p).t), coefficients)
@@ -75,7 +77,11 @@ class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) 
 
 }
 
-object DExpr {
+object DExpr extends PVecBuilder[DExpr] {
+
+  protected[faacets] def updatedWithSymmetryGroup(original: DExpr, newScenario: Scenario, newCoefficients: Vec[Rational],
+                                                  symGroupF: (Grp[Relabeling]) => Option[Grp[Relabeling]]): DExpr = apply(newScenario, newCoefficients)
+
 
   def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, DExpr] = {
     Term.parseExpression(expression).andThen { coeffTerms =>

@@ -1,5 +1,4 @@
-package operation.instances
+package com.faacets.operation.instances
 
-trait AllInstances {
-
-}
+trait AllInstances
+  extends ExprInstances

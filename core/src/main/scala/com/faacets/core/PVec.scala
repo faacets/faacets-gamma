@@ -2,29 +2,28 @@ package com.faacets
 package core
 
 import scala.reflect.ClassTag
-
 import spire.algebra._
-import spire.syntax.eq._
+import spire.syntax.order._
+import spire.syntax.partialAction._
 import spire.syntax.cfor._
 import spire.math.Rational
-
 import cats.data.{Validated, ValidatedNel}
 import com.faacets.consolidate.{Merge, Result}
 import com.faacets.consolidate.syntax.all._
-
 import net.alasc.perms.default._
 import scalin.immutable.Vec
-
 import net.alasc.attributes.{Attributable, Attributes}
 import net.alasc.domains.Partition
 import net.alasc.finite.Grp
 import com.faacets.data.instances.vec._
 import com.faacets.data.instances.grp._
 import com.faacets.consolidate.instances.all._
+import com.faacets.core.perm.ShapeLattice
 import com.faacets.data.instances.textable._
 import io.circe.Encoder
-
+import net.alasc.algebra.PermutationAction
 import net.alasc.bsgs.FixingPartition
+import spire.algebra.partial.PartialAction
 
 /** Base class for vectors in the probability space of a causal scenario.
   *
@@ -40,15 +39,13 @@ import net.alasc.bsgs.FixingPartition
   * Expressions which are not written in the canonical basis of the causal (nonsignaling) subspace are of class `DExpr`.
   *
   */
-abstract class PVec extends Attributable { lhs =>
+abstract class PVec[V <: PVec[V]] extends Attributable { lhs: V =>
 
   def prefix: String
 
   override def toString = s"$prefix($scenario, $coefficients)"
 
   val scenario: Scenario
-
-  type V <: PVec
 
   implicit def classTagV: ClassTag[V]
 
@@ -61,7 +58,7 @@ abstract class PVec extends Attributable { lhs =>
     case None => false
   }
 
-  def ===(rhs: PVec): Boolean = ((lhs.scenario: Scenario) === (rhs.scenario: Scenario)) && (lhs.coefficients == rhs.coefficients) // TODO use Eq
+  def ===(rhs: PVec[V]): Boolean = ((lhs.scenario: Scenario) === (rhs.scenario: Scenario)) && (lhs.coefficients == rhs.coefficients) // TODO use Eq
 
   def coefficient(aArray: Array[Int], xArray: Array[Int]): Rational = {
     var ind = 0
@@ -72,15 +69,43 @@ abstract class PVec extends Attributable { lhs =>
     coefficients(ind)
   }
 
+  def builder: PVecBuilder[V]
+
+  /** Relabeling of a PVec.
+    *
+    * Relabellings/permutations can be applied to behaviors and Bell expressions. The action we describe below is the right action.
+    *
+    * - for the representations `NPRepr`, `SPRepr` and `WRepr` we have the following:
+    *   Let \\( j = (a b ... x y ..) \\) (for correlations) the index over the coefficients \\( P(j) \\)
+    *   Let \\( g \\) be a permutation in the Bell group of the `Ket` scenario.
+    *   The action \\( j^g \\) is well-defined.
+    *   We define the action of \\(P^g\\) such that:
+    *   \\( P^g(j^g) = P(j) \\)
+    *
+    *   Throws if the relabeling is not compatible.
+    */
+  def <|+|(r: Relabeling): V = {
+
+    val rLattice = ShapeLattice(r)
+
+    if (!(rLattice <= scenario.shapeLattice)) throw new IllegalArgumentException(s"Relabeling $r cannot be applied in scenario $scenario")
+    else {
+      import scalin.immutable.dense._
+      implicit def action: PartialAction[Vec[Rational], Relabeling] = net.alasc.std.vec.vecPermutation[Rational, Vec[Rational], Relabeling](scenario.probabilityAction, implicitly, implicitly)
+      builder.updatedWithSymmetryGroup(lhs, scenario, (coefficients <|+|? r).get, g => Some(g.conjugatedBy(r)))
+    }
+
+  }
+
 }
 
-trait PVecEq[V <: PVec] extends Eq[V] {
+trait PVecEq[V <: PVec[V]] extends Eq[V] {
 
   def eqv(lhs: V, rhs: V): Boolean = (lhs.scenario === rhs.scenario) && (lhs.coefficients == rhs.coefficients) // TODO Eq[Vec[Rational]]
 
 }
 
-abstract class NDVec extends PVec {
+abstract class NDVec[V <: NDVec[V]] extends PVec[V] { lhs: V =>
 
   def symmetryGroup: Grp[Relabeling] = NDVec.attributes.symmetryGroup(this) {
     val partition = Partition.fromSeq(coefficients.toIndexedSeq)
@@ -89,9 +114,35 @@ abstract class NDVec extends PVec {
 
 }
 
-trait NDVecBuilder[V <: NDVec] {
+trait PVecBuilder[V <: PVec[V]] {
 
   def apply(scenario: Scenario, coefficients: Vec[Rational]): V
+
+  /** Returns a new Bell vector using the provided scenario and coefficients, with possible symmetry group update
+    *
+    * @param original        Original Bell vector (used when the symmetry group can be updated)
+    * @param newScenario     Scenario of the updated Bell vector
+    * @param newCoefficients Coefficients of the updated Bell vector
+    * @param symGroupF       Function that optionally provides the updated symmetry group, when it has
+    *                        already been computed for `original`
+    */
+  protected[faacets] def updatedWithSymmetryGroup(original: V, newScenario: Scenario, newCoefficients: Vec[Rational],
+                                                  symGroupF: Grp[Relabeling] => Option[Grp[Relabeling]]): V
+
+}
+
+trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] {
+
+  protected[faacets] def updatedWithSymmetryGroup(original: V, newScenario: Scenario, newCoefficients: Vec[Rational],
+                                                  symGroupF: (Grp[Relabeling]) => Option[Grp[Relabeling]]): V = {
+    val res = apply(newScenario, newCoefficients)
+    NDVec.attributes.symmetryGroup.get(original).flatMap(symGroupF) match {
+      case Some(newGrp) => NDVec.attributes.symmetryGroup(res)(newGrp)
+      case None => // we do not have an updated group
+      }
+    res
+
+  }
 
   def inNonSignalingSubspace(scenario: Scenario, coefficients: Vec[Rational]): Boolean
 
@@ -153,7 +204,7 @@ object NDVec {
   object attributes extends Attributes("NDVec") {
 
     object symmetryGroup extends Attribute("symmetryGroup") {
-      implicit def forNDVec: For[NDVec, Grp[Relabeling]] = For
+      implicit def forNDVec[V <: NDVec[V]]: For[NDVec[V], Grp[Relabeling]] = For
     }
 
   }

@@ -19,7 +19,7 @@ import com.faacets.core.text._
 
 import scala.collection.mutable.ArrayBuffer
 
-trait GenExpr extends PVec { expr =>
+trait GenExpr[V <: GenExpr[V]] extends PVec[V] { expr: V =>
 
   /** Computes the inner product between this expression and the given behavior. */
   def inner(corr: Behavior): Rational = expr.coefficients.dot(corr.coefficients)
@@ -27,9 +27,9 @@ trait GenExpr extends PVec { expr =>
 }
 
 /** Describes a Bell expression. */
-class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends NDVec with GenExpr { lhs =>
+class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends NDVec[Expr] with GenExpr[Expr] { lhs =>
 
-  type V = Expr
+  def builder = Expr
 
   def prefix = "Expr"
 

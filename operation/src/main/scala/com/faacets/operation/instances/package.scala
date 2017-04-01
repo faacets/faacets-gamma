@@ -1,4 +1,4 @@
-package com.faacetsoperation
+package com.faacets.operation
 
 package object instances {
 
