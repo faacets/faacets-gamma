@@ -14,14 +14,12 @@ class LawTests extends FaacetsSuite {
   import spire.laws.arb.{safeLong => arbSafeLong, rational => arbRational}
   import net.alasc.perms.Perm
   import net.alasc.laws.Permutations._
-  import com.faacets.data.instances.all._
   import scalin.immutable.dense._
 
   implicit def vecEq: Eq[Vec[Rational]] = Eq.fromUniversalEquals[Vec[Rational]]
 
   implicit val arbVecRational: Arbitrary[Vec[Rational]] =
     Arbitrary { arbitrary[IndexedSeq[Rational]].map(Vec.fromSeq(_)) }
-
 
   checkAll("DataLaws[Perm].textable", DataLaws[Perm].textable)
 

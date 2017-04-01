@@ -20,14 +20,13 @@ class RelabelingSuite extends FaacetsSuite {
     checkAll("Relabeling", GroupLaws[Relabeling].group)
   }
 
-  /*{ TODO
+  {
     import net.alasc.perms.default._
-    import com.faacets.data.instances.grp._
     import Scenarios.Small._
     import Relabelings.arbRelabeling
     import Grps.arbGrp
     checkAll("Grp[Relabeling]", DataLaws[Grp[Relabeling]].coded)
-  }*/
+  }
 
 
   def relabelingLaws(rep: Scenario => PermutationAction[Relabeling])(implicit scenario: Scenario): Laws#RuleSet = {

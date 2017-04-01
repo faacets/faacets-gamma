@@ -1,11 +1,11 @@
-package com.faacets.operation
-package laws
-/*
+package com.faacets.laws
+
 import org.scalacheck.Gen
 
 import spire.math.Rational
 
 object Rationals {
+
   def genPositiveRational: Gen[Rational] = for {
     num <- Gen.choose(1, 10)
     den <- Gen.choose(1, 10)
@@ -25,5 +25,5 @@ object Rationals {
     num <- Gen.choose(-10, 10)
     den <- Gen.choose(1, 10)
   } yield Rational(num, den)
+
 }
-*/

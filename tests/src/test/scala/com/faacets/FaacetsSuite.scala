@@ -19,6 +19,7 @@ trait FaacetsSuite extends FunSuite with Matchers
     with PropertyChecks
     with spire.syntax.AllSyntax
     with data.syntax.AllSyntax
+    with data.instances.AllInstances
     with core.syntax.AllSyntax
     with scalin.syntax.AllSyntax
     with consolidate.syntax.AllSyntax
