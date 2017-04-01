@@ -1,11 +1,14 @@
 package com.faacets
 package operation
 
+import com.faacets.laws.Groupings
+import com.faacets.operation.lifting.Grouping
 import spire.syntax.all._
 import spire.math.Rational
-
 import core._
 import data._
+import scalin.immutable.Vec
+import scalin.immutable.dense._
 
 /** Test suite for `Lifting`
   *
@@ -62,48 +65,42 @@ class LiftingSuite extends FaacetsSuite {
     val lifting = "[(2 2) (2 2)] -> [(2 2) ({0 1 1} {0 1 1})]".parseUnsafe[Lifting]
     assert((expr_CHSH <|+|? lifting).get == expr_22_33)
   }
-/*
-  def testGroupingInScenario(scenario: Scenario) = {
-    for ((ncExpr, _) <- LocalPolytope(scenario).facets) {
-      val lifted = ncExpr.to(NPRepresentation)
-      val delifting = lifted.forceExtract[Lifting]
-      val unlifted = ncExpr <|+| delifting
-      val relifted = delifting |+|> unlifted
-      assert(ncExpr == relifted)
-    }
-  }
 
-  test("Unlifting/lifting for inequalities of [(3 3) (2 2 2)]") {
-    testGroupingInScenario("[(3 3) (2 2 2)]".fromText[Scenario])
-  }
-
-  test("Unlifting/lifting for inequalities of [(5 2) (2 2)]") {
-    testGroupingInScenario("[(5 2) (2 2)]".fromText[Scenario])
-  }
-
-  val liftingTexts = List("[(2 2) (2 2)] -> [(2 {0 1 1}) (2 {0 1 1})]",
-    "[(2 2) (2 2)] -> [({0 0 1} {0 1 1}) ({0 1 1} {0 1 1})]",
-    "[(2 2) (2 2)] -> [({0 0 1} {0 1 1} {0 0}) ({0 1 1} {0 1 1} {0 0})]",
-    "[(2 2) (2 2)] -> [(2 2 {0 0}) (2 2 {0 0})]"
+  val chshTargets = Table("target",
+    "[(2 {0 1 1}) (2 {0 1 1})]",
+    "[({0 0 1} {0 1 1}) ({0 1 1} {0 1 1})]",
+    "[({0 0 1} {0 1 1} {0 0}) ({0 1 1} {0 1 1} {0 0})]",
+    "[(2 2 {0 0}) ({0 1 0 1} 2 {0 0})]",
+    "[(2 {0} 2 {0 0}) (2 2 {0 0})]"
   )
 
-  test("Lifting split") {
-    for (liftingText <- liftingTexts) {
-      val lifting = liftingText.fromText[Lifting]
-      val LiftingSplit(inputLifting, outputLifting) = lifting.split
-      assert(lifting.source.scenario == inputLifting.source.scenario)
-      assert(inputLifting.target.scenario == outputLifting.source.scenario)
-      assert(outputLifting.target.scenario == lifting.target.scenario)
+  test("Liftings of CHSH") {
+    val source = Grouping.noLifting(Scenario.CHSH)
+    val chsh = Expr.CHSH
+    forAll(chshTargets) { targetText =>
+      val target = targetText.parseUnsafe[Grouping]
+      val lifting = Lifting(source, target)
+      val liftedCHSH = (chsh <|+|? lifting).get
+      val unliftedCHSH = (lifting ?|+|> liftedCHSH).get
+      chsh should ===(unliftedCHSH)
+    }
+    forAll(Groupings.genCompatibleGrouping(source)) { target =>
+      val lifting = Lifting(source, target)
+      val liftedCHSH = (chsh <|+|? lifting).get
+      val unliftedCHSH = (lifting ?|+|> liftedCHSH).get
+      chsh should ===(unliftedCHSH)
     }
   }
 
-  test("Liftings of CHSH") {
-    for (liftingText <- liftingTexts) {
-      val lifting = liftingText.fromText[Lifting]
-      val liftedCHSH = chsh <|+| lifting
-      val unliftedCHSH = lifting |+|> liftedCHSH
-      assert(chsh == unliftedCHSH)
+  test("Liftings of I3322") {
+    val source = Grouping.noLifting(Scenario.nmk(2,3,2))
+    val i3322 = Expr.I3322
+    forAll(Groupings.genCompatibleGrouping(source), Groupings.genCompatibleGrouping(source)) { (step1, step2) =>
+      val res1 = (i3322 <|+|? Lifting(source, step1)).get
+      val res2 = (res1 <|+|? Lifting(step1, step2)).get
+      val back = (res2 <|+|? Lifting(step2, source)).get
+      i3322 should ===(back)
     }
   }
-*/
+
 }

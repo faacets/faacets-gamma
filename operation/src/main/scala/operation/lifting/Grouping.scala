@@ -22,7 +22,9 @@ case class Grouping(parties: Seq[PartyGrouping]) {
 
   def isLifting: Boolean = hasLiftedOutputs || hasLiftedInputs
 
-  def compact: Scenario = Scenario(parties.map(_.compact))
+  def minimalScenario: Scenario = Scenario(parties.map(_.minimalParty))
+
+  def compactOutputs: Grouping = Grouping(parties.map(_.compactOutputs))
 
   def updated(p: Int, partyGrouping: PartyGrouping): Grouping = Grouping(parties.updated(p, partyGrouping))
 

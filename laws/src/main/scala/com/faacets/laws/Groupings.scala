@@ -34,6 +34,8 @@ object Groupings {
     Gen.sequence[Seq[PartyGrouping], PartyGrouping](scenario.parties.map(genPartyGrouping(_)))
       .map(Grouping(_))
 
+  def genCompatibleGrouping(grouping: Grouping): Gen[Grouping] = genGrouping(grouping.minimalScenario)
+
   implicit def arbGrouping(implicit arbScenario: Arbitrary[Scenario]): Arbitrary[Grouping] =
     Arbitrary(arbScenario.arbitrary.flatMap(genGrouping(_)))
 

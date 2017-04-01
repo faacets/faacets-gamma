@@ -19,7 +19,9 @@ case class PartyGrouping(inputs: Seq[InputGrouping]) {
 
   def isLifting: Boolean = hasLiftedOutputs || hasLiftedInputs
 
-  def compact: Party = Party(inputs.flatMap(_.compact))
+  def minimalParty: Party = Party(inputs.flatMap(_.compact))
+
+  def compactOutputs: PartyGrouping = PartyGrouping(inputs.map(ig => InputGrouping.noLifting(ig.partition.nBlocks)))
 
   lazy val indexFromCompact: Seq[Int] = inputs.zipWithIndex.filter(!_._1.isLiftedInput).map(_._2)
 

@@ -144,6 +144,8 @@ trait NDVecBuilder[V <: NDVec] {
     }
   }
 
+  implicit val equ: Eq[V] = Eq.fromUniversalEquals[V]
+
 }
 
 object NDVec {
