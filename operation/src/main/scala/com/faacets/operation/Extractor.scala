@@ -1,6 +1,7 @@
 package com.faacets
 package operation
 
+import com.faacets.core.Relabeling
 import spire.algebra.{Action, Group}
 import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.util.Opt
@@ -64,7 +65,7 @@ trait GroupOperationExtractor[E, O] extends OperationExtractor[E, O] { self =>
 
   implicit def group: Group[O]
 
-  implicit def action: Action[E, O]
+  def identity(e: E): O = group.empty
 
   def groupoid = new Groupoid[O] {
 
@@ -74,6 +75,12 @@ trait GroupOperationExtractor[E, O] extends OperationExtractor[E, O] { self =>
 
   }
 
+}
+
+trait GroupActionOperationExtractor[E, O] extends GroupOperationExtractor[E, O] { self =>
+
+  implicit def action: Action[E, O]
+
   def partialAction = new PartialAction[E, O] {
 
     def partialActr(p: E, g: O): Opt[E] = Opt(action.actr(p, g))
@@ -81,8 +88,6 @@ trait GroupOperationExtractor[E, O] extends OperationExtractor[E, O] { self =>
     def partialActl(g: O, p: E): Opt[E] = Opt(action.actl(g, p))
 
   }
-
-  def identity(e: E): O = group.empty
 
 }
 

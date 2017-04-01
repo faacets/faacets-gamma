@@ -13,10 +13,14 @@ import spire.algebra.partial.PartialAction
 import spire.math.Rational
 import spire.util.Opt
 import net.alasc.perms.default._
+import net.alasc.perms.orbits.Seqs
+import net.alasc.syntax.group._
+import spire.algebra.{Action, Group}
 
 class VecRelabelingPartialAction[V <: PVec[V]](implicit builder: PVecBuilder[V]) extends PartialAction[V, Relabeling] {
 
   def partialActl(r: Relabeling, v: V): Opt[V] = partialActr(v, r.inverse)
+
   def partialActr(v: V, r: Relabeling): Opt[V] = {
     val rLattice = ShapeLattice(r)
 
@@ -28,6 +32,17 @@ class VecRelabelingPartialAction[V <: PVec[V]](implicit builder: PVecBuilder[V])
       Opt(builder.updatedWithSymmetryGroup(v, v.scenario, (v.coefficients <|+|? r).get, g => Some(g.conjugatedBy(r))))
     }
 
+  }
+
+}
+
+class VecRelabelingExtractor[V <: PVec[V]](implicit val partialAction: PartialAction[V, Relabeling]) extends GroupOperationExtractor[V, Relabeling] {
+
+  def group = Relabeling.group
+
+  def partialExtract(e: V): Opt[Relabeling] = {
+    val r = Seqs.Representatives.ordered(e.scenario.group, e.scenario.probabilityAction, e.coefficients.toIndexedSeq).minimum
+    if (r.isId) Opt.empty[Relabeling] else Opt(r)
   }
 
 }

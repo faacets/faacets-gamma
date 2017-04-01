@@ -10,7 +10,7 @@ import spire.util.Opt
 
 import core._
 
-class ExprAffineExtractor extends GroupOperationExtractor[Expr, Affine] {
+class ExprAffineExtractor extends GroupActionOperationExtractor[Expr, Affine] {
 
   def group = Affine.group
 

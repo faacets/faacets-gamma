@@ -15,7 +15,9 @@ package object defaults
     with com.faacets.consolidate.instances.AllInstances
     with com.faacets.core.syntax.AllSyntax
     with com.faacets.data.instances.AllInstances
-    with com.faacets.data.syntax.AllSyntax {
+    with com.faacets.data.syntax.AllSyntax
+    with com.faacets.operation.syntax.AllSyntax
+    with com.faacets.operation.instances.AllInstances {
 
   implicit def vecEngine[A]: scalin.VecEngine[A, scalin.immutable.DenseVec[A]] = scalin.immutable.DenseVec.defaultEngine[A]
 
