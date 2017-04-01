@@ -24,7 +24,7 @@ final class ScenarioReorderingAction extends PartialAction[Scenario, Reordering]
   */
 final class ScenarioReorderingExtractor extends OperationExtractor[Scenario, Reordering] {
 
-  def action = Reordering.scenarioAction
+  def partialAction = Reordering.scenarioAction
 
   def groupoid = Reordering.groupoid
 

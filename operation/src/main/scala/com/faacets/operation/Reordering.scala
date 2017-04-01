@@ -1,12 +1,9 @@
 package com.faacets
 package operation
 
-import spire.syntax.group._
-import spire.syntax.action._
 import spire.syntax.eq._
 import data._
 import core._
-import core.perm._
 import reordering._
 import spire.algebra.Eq
 import spire.algebra.partial.{Groupoid, PartialAction}
@@ -35,14 +32,15 @@ object Reordering {
 
   implicit val textable: Textable[Reordering] = Textable.fromParser[Reordering](Parsers.reordering, _.toString)
 
-
   implicit val groupoid: Groupoid[Reordering] = new ReorderingGroupoid
 
   implicit val scenarioAction: PartialAction[Scenario, Reordering] = new ScenarioReorderingAction
   implicit val scenarioReorderingExtractor: OperationExtractor[Scenario, Reordering] = new ScenarioReorderingExtractor
-  implicit val exprReorderingAction: PartialAction[Expr, Reordering] = new VecReorderingAction[Expr]
-  implicit val corrReorderingAction: PartialAction[Behavior, Reordering] = new VecReorderingAction[Behavior]
+  implicit val exprReorderingAction: PartialAction[Expr, Reordering] = new VecReorderingPartialAction[Expr]
+  implicit val dExprReorderingAction: PartialAction[DExpr, Reordering] = new VecReorderingPartialAction[DExpr]
+  implicit val behaviorReorderingAction: PartialAction[Behavior, Reordering] = new VecReorderingPartialAction[Behavior]
   implicit val exprReorderingExtractor: OperationExtractor[Expr, Reordering] = new VecReorderingExtractor[Expr]
-  implicit val corrReorderingExtractor: OperationExtractor[Behavior, Reordering] = new VecReorderingExtractor[Behavior]
+  implicit val dExprReorderingExtractor: OperationExtractor[DExpr, Reordering] = new VecReorderingExtractor[DExpr]
+  implicit val behaviorReorderingExtractor: OperationExtractor[Behavior, Reordering] = new VecReorderingExtractor[Behavior]
 
 }

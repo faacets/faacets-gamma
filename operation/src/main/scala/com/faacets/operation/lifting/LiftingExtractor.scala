@@ -10,7 +10,7 @@ import core._
 
 final class ExprLiftingExtractor extends OperationExtractor[Expr, Lifting] {
 
-  implicit def action = Lifting.exprAction
+  implicit def partialAction = Lifting.exprAction
 
   implicit def groupoid = Lifting.groupoid
 

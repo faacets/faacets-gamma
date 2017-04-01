@@ -96,7 +96,7 @@ object Term {
 
 case object ConstantTerm extends Term(TermType.constant) {
 
-  def validate(scenario: Scenario): ValidatedNel[String, DExpr] = Validated.valid(Expr.constant(scenario).toDExpr)
+  def validate(scenario: Scenario): ValidatedNel[String, DExpr] = Validated.valid(Expr.one(scenario).toDExpr)
 
   def string = ""
 

@@ -1,38 +1,33 @@
 package com.faacets
 package operation
 package relabeling
+import com.faacets.core.perm.ShapeLattice
 import spire.syntax.group._
-import spire.syntax.action._
-import spire.syntax.partialOrder._
-
+import spire.syntax.order._
+import spire.syntax.partialAction._
 import core._
 import relabeling._
+import scalin.immutable.Vec
+import scalin.immutable.dense._
+import spire.algebra.partial.PartialAction
+import spire.math.Rational
+import spire.util.Opt
+import net.alasc.perms.default._
 
-/*
-      override def actrIsDefined(v: V, r: Relabeling): Boolean = ShapeLattice(r) <= v.scenario.shapeLattice
-      override def actlIsDefined(r: Relabeling, v: V): Boolean = actrIsDefined(v, r.inverse)
+class VecRelabelingPartialAction[V <: PVec[V]](implicit builder: PVecBuilder[V]) extends PartialAction[V, Relabeling] {
 
-      def partialActr(v: V, r: Relabeling): Nullbox[V] = if (actrIsDefined(v, r)) Nullbox(actr(v, r)) else Nullbox.empty[V]
-      def partialActl(r: Relabeling, v: V): Nullbox[V] = partialActr(v, r.inverse)
+  def partialActl(r: Relabeling, v: V): Opt[V] = partialActr(v, r.inverse)
+  def partialActr(v: V, r: Relabeling): Opt[V] = {
+    val rLattice = ShapeLattice(r)
 
-      override def actr(v: V, r: Relabeling): V = {
-        def newSymGrpOption: Option[Grp[Relabeling]] = v.symmetryGroupIfComputed.map(sym => sym.conjBy(InversePair(r, r.inverse)))
-        v.representation match {
-          case SPRepresentation | NPRepresentation =>
-            implicit val action = v.scenario.probabilityAction
-            v.builder(v.scenario, v.representation, v.coefficients <|+| r, newSymGrpOption)
-          case WRepresentation =>
-            implicit val action = v.scenario.strategyAction
-            v.builder(v.scenario, v.representation, v.coefficients <|+| r, newSymGrpOption)
-          case TRepresentation =>
-            actr(v.to(WRepresentation), r).to(v.representation)
-          case SCRepresentation | SGRepresentation =>
-            actr(v.to(SPRepresentation), r).to(v.representation)
-          case NCRepresentation | NGRepresentation =>
-            actr(v.to(NPRepresentation), r).to(v.representation)
-        }
-      }
+    if (!(rLattice <= v.scenario.shapeLattice)) Opt.empty[V]
+    else {
+      import scalin.immutable.dense._
+      implicit def action: PartialAction[Vec[Rational], Relabeling] =
+        net.alasc.std.vec.vecPermutation[Rational, Vec[Rational], Relabeling](v.scenario.probabilityAction, implicitly, implicitly)
+      Opt(builder.updatedWithSymmetryGroup(v, v.scenario, (v.coefficients <|+|? r).get, g => Some(g.conjugatedBy(r))))
+    }
 
-      override def actl(r: Relabeling, v: V): V = actr(v, r.inverse)
+  }
 
- */
+}

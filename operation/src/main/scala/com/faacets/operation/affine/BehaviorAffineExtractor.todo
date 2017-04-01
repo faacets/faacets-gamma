@@ -1,3 +1,5 @@
+TODO: restore support of affine (actually, convex) degeneracy removal for behaviors
+
 package com.faacets
 package operation
 package affine
@@ -47,5 +49,12 @@ class CorrAffineExtractor extends GroupOperationExtractor[Corr, Affine] {
       case Some(v) => Nullbox(Affine(v.reciprocal, 1 - v.reciprocal).inverse)
     }
   }
+}
+
+object Affine {
+  /* TODO: restore Behavior affine stuff
+  implicit val CorrExtractor: OperationExtractor[Corr, Affine] = new CorrAffineExtractor
+  implicit val CorrAction: Action[Corr, Affine] = new VecAffineAction[Corr]
+  */
 }
 */

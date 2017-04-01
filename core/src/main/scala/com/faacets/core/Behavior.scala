@@ -47,6 +47,8 @@ class Behavior protected (val scenario: Scenario, val coefficients: Vec[Rational
 
 object Behavior extends NDVecBuilder[Behavior] {
 
+  implicit def builder: NDVecBuilder[Behavior] = this
+
   def inNonSignalingSubspace(scenario: Scenario, coefficients: Vec[Rational]): Boolean = {
     val pCoefficients = changeBasis(scenario,
       p => p.matrices.matSPfromSG * p.matrices.matSGfromNG * p.matrices.matNGfromSG * p.matrices.matSGfromSP,

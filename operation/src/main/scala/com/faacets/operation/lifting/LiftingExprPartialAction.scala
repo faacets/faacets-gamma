@@ -9,7 +9,7 @@ import spire.syntax.cfor._
 import spire.algebra.partial.PartialAction
 import spire.util.Opt
 
-final class LiftingExprAction extends PartialAction[Expr, Lifting] {
+final class LiftingExprPartialAction extends PartialAction[Expr, Lifting] {
 
   def partialActl(l: Lifting, expr: Expr) = partialActr(expr, l.inverse)
 

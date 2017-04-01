@@ -10,19 +10,70 @@ import scalin.immutable.{Mat, Vec}
 import scala.reflect.classTag
 import cats.data.{Validated, ValidatedNel}
 import com.faacets.core.NDVec.attributes.symmetryGroup
-import spire.syntax.cfor._
 import spire.syntax.eq._
-import scalin.syntax.all._
-import cats.syntax.traverse._
-import cats.instances.vector._
 import com.faacets.core.text._
 
-import scala.collection.mutable.ArrayBuffer
+trait GenExprBuilder[V <: GenExpr[V]] extends PVecBuilder[V] { self =>
 
-trait GenExpr[V <: GenExpr[V]] extends PVec[V] { expr: V =>
+  def zero(scenario: Scenario): V
+
+  def one(scenario: Scenario): V
+
+  def vectorSpace(scenario: Scenario): VectorSpace[V, Rational] = new VectorSpace[V, Rational] {
+
+    def scalar = spire.math.Rational.RationalAlgebra
+
+    def timesl(r: Rational, v: V): V = {
+      require(v.scenario === scenario)
+      r *: v
+    }
+
+    def negate(x: V): V = {
+      require(x.scenario === scenario)
+      -x
+    }
+
+    def zero: V = self.zero(scenario)
+
+    def plus(x: V, y: V): V = {
+      require(x.scenario === scenario)
+      require(y.scenario === scenario)
+      x + y
+    }
+
+  }
+
+}
+
+trait GenExpr[V <: GenExpr[V]] extends PVec[V] { lhs: V =>
+
+  def builder: GenExprBuilder[V]
 
   /** Computes the inner product between this expression and the given behavior. */
-  def inner(corr: Behavior): Rational = expr.coefficients.dot(corr.coefficients)
+  def inner(rhs: Behavior): Rational = lhs.coefficients.dot(rhs.coefficients)
+
+  def :*(r: Rational): V = r *: lhs
+
+  def *:(r: Rational): V = {
+    if (r.isZero) builder.zero(scenario)
+      else builder.updatedWithSymmetryGroup(lhs, scenario, coefficients * r, grp => Some(grp))
+  }
+
+  def unary_- : V = builder.updatedWithSymmetryGroup(lhs, scenario, -coefficients, grp => Some(grp))
+
+  def +(rhs: V): V = {
+    require(lhs.scenario === rhs.scenario)
+    builder.apply(scenario, lhs.coefficients + rhs.coefficients)
+  }
+
+  def -(rhs: V): V = {
+    require(lhs.scenario === rhs.scenario)
+    builder.apply(scenario, lhs.coefficients - rhs.coefficients)
+  }
+
+  def +(rhs: Rational): V = lhs + rhs *: builder.one(lhs.scenario)
+
+  def -(rhs: Rational): V = lhs - rhs *: builder.one(lhs.scenario)
 
 }
 
@@ -57,31 +108,6 @@ class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) e
     else if (scenario.nParties == 2) Table(correlators.reshape(scenario.parties(0).shapeNC.size, scenario.parties(1).shapeNC.size).t)
     else sys.error("Scenarios with > 2 parties are not supported")
 
-  def *:(r: Rational): Expr = {
-    if (r.isZero) Expr.zero(scenario) else {
-      val res = Expr.applyUnsafe(scenario, coefficients * r)
-      NDVec.attributes.symmetryGroup.get(lhs)(NDVec.attributes.symmetryGroup.forNDVec) match {
-        case Some(grp) => NDVec.attributes.symmetryGroup(res)(grp)
-        case None =>
-      }
-      res
-    }
-  }
-
-  def unary_- : Expr = {
-    val res = Expr.applyUnsafe(scenario, -coefficients)
-    NDVec.attributes.symmetryGroup.get(lhs) match {
-      case Some(grp) => NDVec.attributes.symmetryGroup(res)(grp)
-      case None =>
-    }
-    res
-  }
-
-  def +(rhs: Expr): Expr = {
-    require(lhs.scenario === rhs.scenario)
-    Expr.applyUnsafe(scenario, lhs.coefficients + rhs.coefficients)
-  }
-
   def fullExpression: String = toDExpr.fullExpression
 
   def collinsGisinExpression: String = {
@@ -105,7 +131,9 @@ class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) e
 
 }
 
-object Expr extends NDVecBuilder[Expr] {
+object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
+
+  implicit def builder: NDVecBuilder[Expr] with GenExprBuilder[Expr] = this
 
   def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, Expr] =
   DExpr.parseExpression(scenario, expression) andThen { dExpr =>
@@ -124,18 +152,12 @@ object Expr extends NDVecBuilder[Expr] {
     res
   }
 
-  def vectorSpace(scenario: Scenario): VectorSpace[Expr, Rational] = new VectorSpace[Expr, Rational] {
-    def scalar = spire.math.Rational.RationalAlgebra
-    def timesl(r: Rational, v: Expr): Expr = r *: v
-    def negate(x: Expr): Expr = -x
-    def zero: Expr = Expr.zero(scenario)
-    def plus(x: Expr, y: Expr): Expr = (x + y)
-  }
-
-  def constant(scenario: Scenario): Expr = {
+  def one(scenario: Scenario): Expr = {
     val ratio = Rational(SafeLong.one, scenario.nInputTuples)
     val pCoefficients = Vec.fillConstant(scenario.shapeP.size)(ratio)
-    apply(scenario, pCoefficients) // TODO use applyUnsafe
+    val res = applyUnsafe(scenario, pCoefficients)
+    symmetryGroup(res)(scenario.group)
+    res
   }
 
   def inNonSignalingSubspace(scenario: Scenario, coefficients: Vec[Rational]): Boolean = {
@@ -163,10 +185,7 @@ object Expr extends NDVecBuilder[Expr] {
     applyUnsafe(scenario, pCoefficients)
   }
 
-  def averageNormalization(scenario: Scenario): Expr = {
-    val pCoefficients =  Vec.fillConstant(scenario.shapeP.size)(Rational(1, scenario.nInputTuples))
-    applyUnsafe(scenario, pCoefficients)
-  }
+  def averageNormalization(scenario: Scenario): Expr = one(scenario)
 
   def CHSH = correlators(Scenario.CHSH, Vec[Rational](0, 0, 0, 0, 1, 1, 0, 1, -1))
 

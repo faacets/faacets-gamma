@@ -9,7 +9,7 @@ import spire.util.Opt
 import core._
 import spire.algebra.partial.PartialAction
 
-final class VecReorderingAction[V <: PVec[V]](implicit builder: PVecBuilder[V]) extends PartialAction[V, Reordering] {
+final class VecReorderingPartialAction[V <: PVec[V]](implicit builder: PVecBuilder[V]) extends PartialAction[V, Reordering] {
 
   import Reordering.reorderParty
 
@@ -59,7 +59,7 @@ final class VecReorderingAction[V <: PVec[V]](implicit builder: PVecBuilder[V]) 
 
 }
 
-final class VecReorderingExtractor[V <: PVec[V]](implicit val action: PartialAction[V, Reordering]) extends OperationExtractor[V, Reordering] {
+final class VecReorderingExtractor[V <: PVec[V]](implicit val partialAction: PartialAction[V, Reordering]) extends OperationExtractor[V, Reordering] {
   def groupoid = Reordering.groupoid
   def identity(v: V) = Reordering.scenarioReorderingExtractor.identity(v.scenario)
   def partialExtract(v: V) = Reordering.scenarioReorderingExtractor.partialExtract(v.scenario)
