@@ -30,7 +30,7 @@ object Lifting {
   implicit val groupoid: Groupoid[Lifting] = new LiftingGroupoid
   implicit val textable: Textable[Lifting] = Textable.fromParser(LiftingParsers.lifting, _.toString)
 
-  implicit val ExprAction: PartialAction[Expr, Lifting] = new LiftingExprAction
-  //implicit val ExprExtractor: OperationExtractor[Expr, Lifting] = new ExprLiftingExtractor*/
+  implicit val exprAction: PartialAction[Expr, Lifting] = new LiftingExprAction
+  implicit val exprExtractor: OperationExtractor[Expr, Lifting] = new ExprLiftingExtractor
 }
 

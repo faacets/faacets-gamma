@@ -1,37 +1,40 @@
 package com.faacets
 package operation
-/*
-import spire.algebra.{Eq, NullboxGroupoid, NullboxPartialAction}
+
 import spire.syntax.group._
 import spire.syntax.action._
 import spire.syntax.eq._
-
 import data._
-
 import core._
 import core.perm._
-
-import qalg.immutable.QVector
-
 import reordering._
+import spire.algebra.Eq
 
 case class Reordering(source: Scenario, target: Scenario) {
+
   import Reordering._
+
   require(reorderScenario(source) === reorderScenario(target))
-  override def toString = this.toText
+
+  override def toString = s"$source -> $target"
+
 }
 
 object Reordering {
-  implicit val LexicographicPartyOrdering: Ordering[Party] = new LexicographicPartyOrdering
+
+  implicit val lexicographicPartyOrdering: Ordering[Party] = LexicographicPartyOrder.toOrdering
 
   def reorderParty(party: Party) =
     Party(party.inputs.sorted.reverse)
+
   def reorderScenario(scenario: Scenario) =
     Scenario(scenario.parties.map(reorderParty).sorted.reverse)
 
-  implicit val Eq: Eq[Reordering] = spire.optional.genericEq.generic[Reordering] // TODO: migrate all adhoc Eq to real Eq instances
-  implicit val Parsable: Parsable[Reordering] = new ReorderingParsable
-  implicit val Groupoid: NullboxGroupoid[Reordering] = new ReorderingGroupoid
+  implicit val equ: Eq[Reordering] = Eq.fromUniversalEquals[Reordering]
+
+  implicit val textable: Textable[Reordering] = Textable.fromParser(Parsers.reordering, _.toString)??? //new ReorderingParsable
+
+  /*implicit val Groupoid: NullboxGroupoid[Reordering] = new ReorderingGroupoid
   implicit val ScenarioAction: NullboxPartialAction[Scenario, Reordering] =
     new ScenarioReorderingAction
   implicit val ScenarioReorderingExtractor: OperationExtractor[Scenario, Reordering] =
@@ -41,6 +44,5 @@ object Reordering {
   implicit val ExprReorderingExtractor: OperationExtractor[Expr, Reordering] =
     new VecReorderingExtractor[Expr]
   implicit val CorrReorderingExtractor: OperationExtractor[Corr, Reordering] =
-    new VecReorderingExtractor[Corr]
+    new VecReorderingExtractor[Corr]*/
 }
-*/

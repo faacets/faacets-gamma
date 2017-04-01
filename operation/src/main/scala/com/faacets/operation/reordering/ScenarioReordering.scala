@@ -1,6 +1,8 @@
 package com.faacets
 package operation
 package reordering
+
+
 /*
 import spire.algebra.NullboxPartialAction
 import spire.syntax.group._
@@ -18,19 +20,6 @@ final class ScenarioReorderingAction extends NullboxPartialAction[Scenario, Reor
     if (reordering.source === source) Nullbox(reordering.target) else Nullbox.empty[Scenario]
 }
 
-final class LexicographicPartyOrdering extends Ordering[Party] {
-  def compare(a: Party, b: Party) = {
-    val compareInputs = (a.inputs zip b.inputs).foldLeft(0) {
-      case (0, (na, nb)) if na > nb => 1
-      case (0, (na, nb)) if na < nb => -1
-      case (res, _) => res
-    }
-    compareInputs match {
-      case 0 => a.inputs.length - b.inputs.length
-      case _ => compareInputs
-    }
-  }
-}
 
 /** Reordering a scenario to its canonical form.
   * 

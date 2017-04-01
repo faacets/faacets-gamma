@@ -1,5 +1,9 @@
 package com.faacets
 package operation
+
+import spire.algebra.partial.{Groupoid, PartialAction}
+import spire.util.Opt
+
 /*
 import spire.algebra.{PartialAction, Group, Groupoid, Semigroup}
 import spire.math.Rational
@@ -34,29 +38,32 @@ object ProductExtractor {
     }
   }
 }
+*/
 
-
-trait OperationExtractor[A, O] extends Extractor[A] {
-  implicit def action: PartialAction[A, O]
+trait OperationExtractor[E, O] {
+  implicit def action: PartialAction[E, O]
   implicit def groupoid: Groupoid[O]
 
-  def identity(a: A): O
+  def identity(a: E): O
 
-  def canExtract(a: A): Boolean = partialExtract(a).nonEmpty
+  def canExtract(a: E): Boolean = partialExtract(a).nonEmpty
 
   /** If the given element `a` is not reduced, finds an operation `o` such that the reduced
-    * value is given by `u = a <|+| o` and returns Nullbox(o).
+    * value is given by `u = a <|+| o` and returns Opt(o) or Opt.empty[O]
     */
-  def partialExtract(a: A): Nullbox[O]
+  def partialExtract(a: E): Opt[O]
 
-  def forceExtract(a: A): O = partialExtract(a).getOrElse(identity(a))
+  def forceExtract(a: E): O = partialExtract(a).getOrElse(identity(a))
+
 }
 
+/*
 trait GroupOperationExtractor[A, O] extends OperationExtractor[A, O] {
   implicit def group: Group[O]
   def groupoid = group
   def identity(a: A): O = group.id
 }
+*/
 
 /*
 case class Extractors[T](extractors: Seq[Extractor[T]]) {
@@ -89,4 +96,3 @@ case class Extractors[T](extractors: Seq[Extractor[T]]) {
   }
 }
  */
-*/
