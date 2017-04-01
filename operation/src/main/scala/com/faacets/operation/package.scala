@@ -16,7 +16,6 @@ package object operation {
 
   implicit def exprBounds(expr: Expr) = new ExprBounds(expr)
 
-  implicit val ExprSemigroup: Semigroup[Expr] = new VecTensorSemigroup[Expr]
   implicit val CorrSemigroup: Semigroup[Corr] = new VecTensorSemigroup[Corr]
   implicit val ExprRelabelingAction: PartialAction[Expr, Relabeling] = new VecRelabelingAction[Expr]
   implicit val CorrRelabelingAction: PartialAction[Corr, Relabeling] = new VecRelabelingAction[Corr]
