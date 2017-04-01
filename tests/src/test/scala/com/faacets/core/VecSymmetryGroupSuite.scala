@@ -10,7 +10,7 @@ import scalin.immutable.dense._
 import scalin.immutable.Vec
 
 
-class VecSymmetryGroupCheck extends FaacetsSuite {
+class VecSymmetryGroupSuite extends FaacetsSuite {
   val scenario = "[(2 2) (3 3 3) (2 2)]".parseUnsafe[Scenario]
   val barnea = Expr.collinsGisin(scenario,
       Vec[Rational](-1,1,-1,1,-1,1,-1,1,-1,0,0,0,-2,-2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

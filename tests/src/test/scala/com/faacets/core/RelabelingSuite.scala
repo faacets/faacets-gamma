@@ -1,13 +1,12 @@
 package com.faacets.core
 
 import spire.laws.GroupLaws
-
 import com.faacets.FaacetsSuite
 import com.faacets.laws._
 import org.typelevel.discipline.Laws
-
 import net.alasc.algebra.PermutationAction
-import net.alasc.laws.{AnyRefLaws, PermutationActionLaws}
+import net.alasc.finite.Grp
+import net.alasc.laws.{AnyRefLaws, Grps, PermutationActionLaws}
 
 class RelabelingSuite extends FaacetsSuite {
 
@@ -20,6 +19,16 @@ class RelabelingSuite extends FaacetsSuite {
     checkAll("Relabeling", DataLaws[Relabeling].textable)
     checkAll("Relabeling", GroupLaws[Relabeling].group)
   }
+
+  /*{ TODO
+    import net.alasc.perms.default._
+    import com.faacets.data.instances.grp._
+    import Scenarios.Small._
+    import Relabelings.arbRelabeling
+    import Grps.arbGrp
+    checkAll("Grp[Relabeling]", DataLaws[Grp[Relabeling]].coded)
+  }*/
+
 
   def relabelingLaws(rep: Scenario => PermutationAction[Relabeling])(implicit scenario: Scenario): Laws#RuleSet = {
     import Relabelings.arbRelabelingInScenario
