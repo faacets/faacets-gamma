@@ -28,9 +28,9 @@ object Lifting {
 
   implicit val equ = Eq.fromUniversalEquals[Lifting]
   implicit val groupoid: Groupoid[Lifting] = new LiftingGroupoid
-  implicit val textable: Textable[Lifting] = Textable.fromParser(LiftingParsers.lifting, _.toString)
+  implicit val textable: Textable[Lifting] = Textable.fromParser(Parsers.lifting, _.toString)
 
   implicit val exprAction: PartialAction[Expr, Lifting] = new LiftingExprAction
   implicit val exprExtractor: OperationExtractor[Expr, Lifting] = new ExprLiftingExtractor
-}
 
+}

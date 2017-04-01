@@ -18,6 +18,6 @@ object Parsers {
     case (source, target) => Lifting.validate(source, target).fold(s => Fail.opaque(s.toList.mkString(",")), l => Pass.map(x => l))
   }
 
-  val reordering: P[Reordering] = P( scenario ~ "->" ~ scenario ).map( Reordering(_, _) )
+  val reordering: P[Reordering] = P( scenario ~ "->" ~ scenario ).map { case (s, t) => Reordering(s, t) }
 
 }

@@ -2,24 +2,18 @@ package com.faacets
 package operation
 package reordering
 
-
-/*
-import spire.algebra.NullboxPartialAction
-import spire.syntax.group._
+import spire.syntax.groupoid._
 import spire.syntax.eq._
-import spire.util.Nullbox
-
-import net.alasc.math.Perm
-
 import core._
-import core.perm._
+import spire.algebra.partial.PartialAction
+import spire.util.Opt
 
-final class ScenarioReorderingAction extends NullboxPartialAction[Scenario, Reordering] {
-  def partialActl(reordering: Reordering, target: Scenario): Nullbox[Scenario] = partialActr(target, reordering.inverse)
-  def partialActr(source: Scenario, reordering: Reordering): Nullbox[Scenario] =
-    if (reordering.source === source) Nullbox(reordering.target) else Nullbox.empty[Scenario]
+final class ScenarioReorderingAction extends PartialAction[Scenario, Reordering] {
+
+  def partialActl(reordering: Reordering, target: Scenario): Opt[Scenario] = partialActr(target, reordering.inverse)
+  def partialActr(source: Scenario, reordering: Reordering): Opt[Scenario] =
+    if (reordering.source === source) Opt(reordering.target) else Opt.empty[Scenario]
 }
-
 
 /** Reordering a scenario to its canonical form.
   * 
@@ -29,14 +23,17 @@ final class ScenarioReorderingAction extends NullboxPartialAction[Scenario, Reor
   * - parties are sorted in decreasing lexicographic order.
   */
 final class ScenarioReorderingExtractor extends OperationExtractor[Scenario, Reordering] {
-  def action = Reordering.ScenarioAction
-  def groupoid = Reordering.Groupoid
+
+  def action = Reordering.scenarioAction
+
+  def groupoid = Reordering.groupoid
+
   def identity(scenario: Scenario) = Reordering(scenario, scenario)
 
-  def partialExtract(source: Scenario): Nullbox[Reordering] = {
+  def partialExtract(source: Scenario): Opt[Reordering] = {
     val target = Reordering.reorderScenario(source)
 
-    if (source =!= target) Nullbox(Reordering(source, target)) else Nullbox.empty[Reordering]
+    if (source =!= target) Opt(Reordering(source, target)) else Opt.empty[Reordering]
   }
+
 }
-*/

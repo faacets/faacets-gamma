@@ -7,11 +7,10 @@ import io.circe._
 import net.alasc.algebra.PermutationAction
 import net.alasc.blackbox.RandomBag
 import net.alasc.bsgs.{BaseGuide, GrpChainExplicit, GrpChainPermutationAction, KernelBuilder, MutableChain, SchreierSims}
-import net.alasc.finite.{Grp, GrpGroup}
+import net.alasc.finite.Grp
 import safeLong._
-import scalin.immutable.Vec
 import spire.algebra.{Eq, Group}
-import spire.math.{Rational, SafeLong}
+import spire.math.SafeLong
 import spire.util.Opt
 
 import scala.reflect.ClassTag

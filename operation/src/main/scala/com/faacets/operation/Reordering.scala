@@ -9,6 +9,7 @@ import core._
 import core.perm._
 import reordering._
 import spire.algebra.Eq
+import spire.algebra.partial.{Groupoid, PartialAction}
 
 case class Reordering(source: Scenario, target: Scenario) {
 
@@ -32,17 +33,16 @@ object Reordering {
 
   implicit val equ: Eq[Reordering] = Eq.fromUniversalEquals[Reordering]
 
-  implicit val textable: Textable[Reordering] = Textable.fromParser(Parsers.reordering, _.toString)??? //new ReorderingParsable
+  implicit val textable: Textable[Reordering] = Textable.fromParser[Reordering](Parsers.reordering, _.toString)
 
-  /*implicit val Groupoid: NullboxGroupoid[Reordering] = new ReorderingGroupoid
-  implicit val ScenarioAction: NullboxPartialAction[Scenario, Reordering] =
-    new ScenarioReorderingAction
-  implicit val ScenarioReorderingExtractor: OperationExtractor[Scenario, Reordering] =
-    new ScenarioReorderingExtractor
-  implicit val ExprReorderingAction: NullboxPartialAction[Expr, Reordering] = new VecReorderingAction[Expr]
-  implicit val CorrReorderingAction: NullboxPartialAction[Corr, Reordering] = new VecReorderingAction[Corr]
-  implicit val ExprReorderingExtractor: OperationExtractor[Expr, Reordering] =
-    new VecReorderingExtractor[Expr]
-  implicit val CorrReorderingExtractor: OperationExtractor[Corr, Reordering] =
-    new VecReorderingExtractor[Corr]*/
+
+  implicit val groupoid: Groupoid[Reordering] = new ReorderingGroupoid
+
+  implicit val scenarioAction: PartialAction[Scenario, Reordering] = new ScenarioReorderingAction
+  implicit val scenarioReorderingExtractor: OperationExtractor[Scenario, Reordering] = new ScenarioReorderingExtractor
+  implicit val exprReorderingAction: PartialAction[Expr, Reordering] = new VecReorderingAction[Expr]
+  implicit val corrReorderingAction: PartialAction[Behavior, Reordering] = new VecReorderingAction[Behavior]
+  implicit val exprReorderingExtractor: OperationExtractor[Expr, Reordering] = new VecReorderingExtractor[Expr]
+  implicit val corrReorderingExtractor: OperationExtractor[Behavior, Reordering] = new VecReorderingExtractor[Behavior]
+
 }
