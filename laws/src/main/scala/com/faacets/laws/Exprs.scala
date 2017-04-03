@@ -2,7 +2,6 @@ package com.faacets.laws
 
 import com.faacets.core.{Expr, Scenario}
 import org.scalacheck.{Arbitrary, Gen}
-import Arbitrary.arbitrary
 import scalin.immutable.Vec
 import spire.math.Rational
 import scalin.immutable.dense._

@@ -3,12 +3,7 @@ package operation
 
 import com.faacets.laws.Groupings
 import com.faacets.operation.lifting.Grouping
-import spire.syntax.all._
-import spire.math.Rational
 import core._
-import data._
-import scalin.immutable.Vec
-import scalin.immutable.dense._
 
 /** Test suite for `Lifting`
   *

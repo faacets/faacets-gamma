@@ -17,4 +17,18 @@ trait ExprInstances {
   implicit val operationExprRelabelingExtractor: GroupOperationExtractor[Expr, Relabeling] =
     new VecRelabelingExtractor[Expr]
 
+  /* TODO
+
+    class VecRepresentativesSyntax[V <: Vec[V]](val v: V) extends AnyVal {
+    def representatives(implicit ev: VecRepresentatives[V]) = ev.representatives(v)
+  }
+
+  implicit def exprBounds(expr: Expr) = new ExprBounds(expr)
+
+  implicit val ExprSymmetricForms: SymmetricForms[Expr] = new VecSymmetricForms[Expr]
+  implicit val CorrSymmetricForms: SymmetricForms[Corr] = new VecSymmetricForms[Corr]
+  implicit def ExprRepresentatives = new VecRepresentatives[Expr]
+  implicit def CorrRepresentatives = new VecRepresentatives[Corr]
+
+   */
 }

@@ -1,6 +1,6 @@
 package com.faacets
 package operation
-
+/*
 import scala.collection.immutable
 import scala.collection.mutable
 import scala.annotation.tailrec
@@ -16,7 +16,7 @@ import core._
 
 // notes: http://groupprops.subwiki.org/wiki/Coset_intersection_problem
 // http://groupprops.subwiki.org/wiki/Double_coset_membership_testing_problem
-/*
+
 trait SymmetricForms[A] extends Any {
   def action: NullboxPartialAction[A, Relabeling]
 

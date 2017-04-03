@@ -1,7 +1,6 @@
 package com.faacets.operation
 
 import com.faacets.operation.lifting.GroupingParsers
-import GroupingParsers.grouping
 import fastparse.noApi._
 import spire.math.Rational
 
