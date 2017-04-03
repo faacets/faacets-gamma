@@ -153,6 +153,7 @@ trait RelabelingCompanion {
 }
 
 object Relabeling extends RelabelingCompanion {
+  def id = group.empty
   val seed = "Relabeling".hashCode
   abstract class Component {
     def get: Relabeling

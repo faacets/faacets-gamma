@@ -1,18 +1,22 @@
 package com.faacets
 package operation
 
+import com.faacets.core.perm.ShapeLattice
+
 import scala.collection.immutable
 import scala.collection.mutable
 import scala.annotation.tailrec
-
 import spire.math.Rational
 import spire.syntax.group._
 import spire.syntax.action._
 import spire.syntax.eq._
-
 import net.alasc.syntax.permutationAction._
-
 import core._
+import net.alasc.bsgs.{GrpChain, GrpChainPermutationAction, Node}
+import net.alasc.finite.Grp
+import net.alasc.perms.default._
+import net.alasc.perms.Perm
+import spire.util.Opt
 
 // notes: http://groupprops.subwiki.org/wiki/Coset_intersection_problem
 // http://groupprops.subwiki.org/wiki/Double_coset_membership_testing_problem
@@ -35,13 +39,14 @@ trait SymmetricForms[A] extends Any {
       val original = a
       val element = SymmetricForms.findCyclicForm(symmetryGroup(a))
     }
-}
+}*/
 
 object SymmetricForms {
+
   def findSymmetricForm(symGrp: Grp[Relabeling]): Relabeling = {
-    val nParties = (symGrp.generators.map(_.nParties).toSeq :+ 1).max
+    val nParties = symGrp.generators.map(_.nParties).fold(1)(_ max _)
     val remaining = mutable.BitSet(0 until nParties: _*)
-    var r = Relabeling.Algebra.id
+    var r = Relabeling.id
     var newSym = false
     var curSymGrp = symGrp
     while (remaining.nonEmpty) {
@@ -52,9 +57,9 @@ object SymmetricForms {
         val p2 = current.head
         findElement(curSymGrp, p1, p2) match {
           case Some(member) =>
-            val newR = Relabeling(Map(p2 -> member.partyRelabeling(p1).inverse), Perm.Algebra.id)
+            val newR = Relabeling(Map(p2 -> member.partyRelabeling(p1).inverse), Perm.id)
             r = r |+| newR
-            curSymGrp = curSymGrp.conjBy(InversePair(newR, newR.inverse))
+            curSymGrp = curSymGrp.conjugatedBy(newR)
             remaining -= p2
             newSym = true
           case None =>
@@ -62,7 +67,7 @@ object SymmetricForms {
         current -= p2
       }
     }
-    if (newSym) r else Relabeling.Algebra.id
+    if (newSym) r else Relabeling.id
   }
 
   def findCyclicForm(symGrp: Grp[Relabeling]): Relabeling = {
@@ -70,7 +75,7 @@ object SymmetricForms {
     // v <|+| Relabeling(Map(0 -> d, 1 -> e, 2 -> f), Perm(0,1,2))
     // then v is symmetric under relabeling by Relabeling(Map(0 -> d e^-1, 1 -> e f^-1, 2 -> f d^-1), Perm(0,1,2))
     // we find such relabeling using findCyclicElement
-    findCyclicElement(symGrp, 0).fold(Relabeling.Algebra.id) { rel =>
+    findCyclicElement(symGrp, 0).fold(Relabeling.id) { rel =>
       // we then get the elements d e^-1, e f^-1, f d^-1, from which we can build
       // the elements d d^-1 = id, d e^-1, d f^-1, whose inverses can be used to build the
       // relabeling we are looking for
@@ -79,7 +84,7 @@ object SymmetricForms {
           val nextCumPR = cumPR |+| rel.partyRelabeling(p)
           partyRelabelings(p <|+| rel.pPerm, curMap + (p -> cumPR.inverse), nextCumPR)
         }
-      Relabeling(partyRelabelings(0 <|+| rel.pPerm, Map.empty[Int, PartyRelabeling], rel.partyRelabeling(0)), Perm.Algebra.id)
+      Relabeling(partyRelabelings(0 <|+| rel.pPerm, Map.empty[Int, PartyRelabeling], rel.partyRelabeling(0)), Perm.id)
     }
   }
 
@@ -89,57 +94,60 @@ object SymmetricForms {
     * Note that this relabeling has order 2 (= self-inverse).
     */
   def findElement(symGrp: Grp[Relabeling], p1: Int, p2: Int): Option[Relabeling] = {
-    implicit val rep = Relabeling.marginalRepresentations.get(symGrp)
-    val scenario = rep.shapeLattice.scenario
+    val shapeLattice = ShapeLattice.fromRelabelings(symGrp.generators)
+    val scenario = shapeLattice.scenario
+    val action = shapeLattice.shape.ImpImpAction
+    implicit def a: action.type = action
     if (scenario.parties(p1) =!= scenario.parties(p2)) return None // non-identical parties cannot be permuted
-    implicit def action = rep.action
-    val imp = rep.shapeLattice.shape.imprimitiveImprimitive
+    val imp = shapeLattice.shape.imprimitiveImprimitive
     def pointsForParty(p: Int): Set[Int] = immutable.BitSet(imp.offsets(p) until imp.offsets(p + 1): _*)
     val pointsFixed = (scenario.parties.indices.toSet - p1 - p2).flatMap(pointsForParty(_))
-    val p1p2Sym = symGrp.pointwiseStabilizer(pointsFixed, rep)
+    val p1p2Sym = symGrp.pointwiseStabilizer(action, pointsFixed)
     val length = imp.sizes(p1)
     val offset1 = imp.offsets(p1)
     val offset2 = imp.offsets(p2)
     def in1(k: Int) = k >= offset1 && k < offset1 + length
     def in2(k: Int) = k >= offset2 && k < offset2 + length
-    def rec(curR: Relabeling, curGrp: Grp[Relabeling]): Option[Relabeling] = curGrp.stabilizer(rep) match {
-      case Nullbox((nextGrp1, tr1)) =>
-        // we are looking for a permutation that sends e.g.
-        // (offset1 + i) to (offset2 + j) and (offset2 + j) to (offset1 + i)
-        // thus, if we get e.g. beta = offset1 + i sent to br1 = offset2 + j
-        // we take br1 = offset2 + j as the next base point in the stabilizer chain
-        // possible redundancies are not removed by looking for a coset minimal representative,
-        // as the coset order is always small
-        val beta = tr1.beta
-        if (in1(beta) || in2(beta)) {
-          tr1.foreachOrbit { b1 =>
-            val br1 = b1 <|+| curR
-            if ( (in1(beta) && in2(br1)) || (in2(beta) && in1(br1)) ) {
-              val nextR1 = tr1.u(b1) |+| curR
-              val (nextGrp2, tr2) = nextGrp1.stabilizer(br1, rep)
-              val b2 = beta <|+| nextR1.inverse
-              if (tr2.inOrbit(b2)) {
-                val nextR2 = tr2.u(b2) |+| nextR1
-                val res = rec(nextR2, nextGrp2)
-                if (res.nonEmpty) return res
+    def rec(curR: Relabeling, curGrp: GrpChain[Relabeling, action.type]): Option[Relabeling] =
+      GrpChainPermutationAction[Relabeling].someStabilizerTransversal(curGrp, action) match {
+        case Opt((nextGrp1, tr1)) =>
+          // we are looking for a permutation that sends e.g.
+          // (offset1 + i) to (offset2 + j) and (offset2 + j) to (offset1 + i)
+          // thus, if we get e.g. beta = offset1 + i sent to br1 = offset2 + j
+          // we take br1 = offset2 + j as the next base point in the stabilizer chain
+          // possible redundancies are not removed by looking for a coset minimal representative,
+          // as the coset order is always small
+          val beta = tr1.beta
+          if (in1(beta) || in2(beta)) {
+            tr1.foreachOrbit { b1 =>
+              val br1 = b1 <|+| curR
+              if ( (in1(beta) && in2(br1)) || (in2(beta) && in1(br1)) ) {
+                val nextR1 = tr1.u(b1) |+| curR
+                val (nextGrp2, tr2) = GrpChainPermutationAction[Relabeling].stabilizerTransversal(nextGrp1, action, br1)
+                val b2 = beta <|+| nextR1.inverse
+                if (tr2.inOrbit(b2)) {
+                  val nextR2 = tr2.u(b2) |+| nextR1
+                  val res = rec(nextR2, nextGrp2)
+                  if (res.nonEmpty) return res
+                }
               }
             }
-          }
-          None
-        } else rec(curR, nextGrp1) // if there are some redundant points in the basis
-      case _ =>
-        val pr1 = curR.partyRelabeling(p1)
-        val pr2 = curR.partyRelabeling(p2)
-        if (pr1 === pr2.inverse) Some(curR) else None
-    }
-    rec(Relabeling.Algebra.id, p1p2Sym)
+            None
+          } else rec(curR, nextGrp1) // if there are some redundant points in the basis
+        case _ =>
+          val pr1 = curR.partyRelabeling(p1)
+          val pr2 = curR.partyRelabeling(p2)
+          if (pr1 === pr2.inverse) Some(curR) else None
+      }
+    rec(Relabeling.id, GrpChainPermutationAction[Relabeling].fromGrp(p1p2Sym, action))
   }
 
   def findCyclicElement(symGrp: Grp[Relabeling], startParty: Int): Option[Relabeling] = {
-    implicit val rep = Relabeling.marginalRepresentations.get(symGrp)
-    val scenario = rep.shapeLattice.scenario
-    implicit def action = rep.action
-    val imp = rep.shapeLattice.shape.imprimitiveImprimitive
+    val shapeLattice = ShapeLattice.fromRelabelings(symGrp.generators)
+    val scenario = shapeLattice.scenario
+    val action = shapeLattice.shape.ImpImpAction
+    implicit def a: action.type = action
+    val imp = shapeLattice.shape.imprimitiveImprimitive
     val length = imp.sizes(0)
     val n = scenario.parties.length
     def offset(partyIndex: Int): Int = imp.offsets(partyIndex)
@@ -155,13 +163,14 @@ object SymmetricForms {
         if (pP == startParty) cumOp else
           recMul(pP, cumOp |+| rel.partyRelabeling(pP))
       }
-      val isCycleProductId = recMul(startParty, rel.partyRelabeling(startParty)).isId
+      val isCycleProductId = recMul(startParty, rel.partyRelabeling(startParty)).isEmpty
       val startPartyOrbit = rel.pPerm.orbit(startParty)
-      val otherPartiesId = scenario.parties.indices.forall(p => rel.partyRelabeling(p).isId || startPartyOrbit.contains(p))
+      val otherPartiesId = scenario.parties.indices.forall(p => rel.partyRelabeling(p).isEmpty || startPartyOrbit.contains(p))
       isCycleProductId && otherPartiesId
     }
-    def inRec(loopTo: Int, curR: Relabeling, curGrp: Grp[Relabeling]): Option[Relabeling] = curGrp.stabilizer(rep) match {
-      case Nullbox((nextGrp, tr)) =>
+    def inRec(loopTo: Int, curR: Relabeling, curGrp: Grp[Relabeling]): Option[Relabeling] =
+      GrpChainPermutationAction[Relabeling].someStabilizerTransversal(curGrp, action) match {
+      case Opt((nextGrp, tr)) =>
         tr.foreachOrbit { b =>
           val br = b <|+| curR
           val brParty = partyFor(br)
@@ -179,7 +188,7 @@ object SymmetricForms {
       case _ => if (isCorrect(curR)) Some(curR) else None
     }
     def restart(beta: Int, curR: Relabeling, curGrp: Grp[Relabeling]): Option[Relabeling] = {
-      val (nextGrp, tr) = curGrp.stabilizer(beta, rep)
+      val (nextGrp, tr) = GrpChainPermutationAction[Relabeling].stabilizerTransversal(curGrp, action, beta)
       tr.foreachOrbit { b =>
         var br = b <|+| curR
         if (!inParty(startParty, br)) {
@@ -191,9 +200,9 @@ object SymmetricForms {
       None
     }
     def outRec(curR: Relabeling, curGrp: Grp[Relabeling]): Option[Relabeling] = {
-      curGrp.chain(rep) match {
-        case node: bsgs.Node[Relabeling] if inParty(startParty, node.beta) => restart(node.beta, curR, curGrp)
-        case node: bsgs.Node[Relabeling] =>
+      GrpChainPermutationAction[Relabeling].fromGrp(curGrp, action).chain match {
+        case node: Node[Relabeling, action.type] if inParty(startParty, node.beta) => restart(node.beta, curR, curGrp)
+        case node: Node[Relabeling, action.type] =>
           pointsForParty(startParty).find(k => curGrp.generators.exists(g => k <|+| g != k)) match {
             case Some(beta) => restart(beta, curR, curGrp)
             case None => if (isCorrect(curR)) Some(curR) else None
@@ -201,7 +210,7 @@ object SymmetricForms {
         case _ => if (isCorrect(curR)) Some(curR) else None
       }
     }
-    outRec(Relabeling.Algebra.id, symGrp)
+    outRec(Relabeling.id, symGrp)
   }
+
 }
-*/

@@ -10,6 +10,6 @@ import net.alasc.finite.FaithfulPermutationActionBuilder
 final class ImprimitiveImprimitiveRelabelingRepBuilder extends FaithfulPermutationActionBuilder[Relabeling] {
 
   def apply(generators: Iterable[Relabeling]): PermutationAction[Relabeling] =
-    generators.foldLeft(ShapeLattice.algebra.zero)(_ join ShapeLattice(_)).shape.ImpImpAction
+    ShapeLattice.fromRelabelings(generators).shape.ImpImpAction
 
 }
