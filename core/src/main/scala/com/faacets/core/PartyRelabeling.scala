@@ -104,6 +104,8 @@ trait PartyRelabelingCompanion {
 
 object PartyRelabeling extends PartyRelabelingCompanion {
 
+  def id = group.empty
+
   abstract class Component {
     def get: PartyRelabeling
     def forParty(p: Int): Relabeling.Component

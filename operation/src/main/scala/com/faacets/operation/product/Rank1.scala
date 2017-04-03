@@ -1,24 +1,20 @@
 package com.faacets
 package operation
 package product
-/*
-import scala.annotation.tailrec
-import spire.syntax.all._
-import spire.math.Rational
 
 import net.alasc.util._
+import scalin.immutable.{Mat, MatEngine, Vec, VecEngine}
+import spire.algebra.{Eq, Field, Ring}
 
-import qalg.GenQMatrix
-import qalg.immutable.{QVector, QMatrix}
+import scala.annotation.tailrec
+import spire.syntax.all._
+import scalin.syntax.all._
 
 object Rank1 {
-  def QMatrixTopLeftOne(rows: Int, cols: Int): QMatrix =
-    QMatrix.tabulate(rows, cols) {
-      (r, c) => if (r == 0 && c == 0) Rational.one else Rational.zero }
 
-  def QVectorFirstOne(n: Int): QVector =
-    QVector.tabulate(n)( i => if (i == 0) Rational.one else Rational.zero )
+  def topLeftOne[A:MatEngine:Ring](rows: Int, cols: Int): Mat[A] = Mat.fromMutable[A](rows, cols, Ring[A].zero)( res => res(0, 0) := Ring[A].one )
 
+  def firstOne[A:VecEngine:Ring](n: Int): Vec[A] = Vec.fromMutable[A](n, Ring[A].zero)( res => res(0) := Ring[A].one )
 
   /** Finds a rank-1 decomposition of a QMatrix.
     * 
@@ -26,12 +22,12 @@ object Rank1 {
     * 
     * (c * r.t) = original matrix.
     */
-  def decomposition(matrix: GenQMatrix): Option[(QVector, QVector)] = {
+  def decomposition[A:Eq:Field:VecEngine:MatEngine](matrix: Mat[A]): Option[(Vec[A], Vec[A])] = {
 
     def findNonZeroInside: OptionTuple2NN = {
-      cforRange(0 until matrix.rows) { r =>
-        cforRange(0 until matrix.cols) { c =>
-          if (matrix(r, c).signum != 0)
+      cforRange(0 until matrix.nRows) { r =>
+        cforRange(0 until matrix.nCols) { c =>
+          if (!matrix(r, c).isZero)
             return SomeTuple2NN(r, c)
         }
       }
@@ -44,19 +40,20 @@ object Rank1 {
         def rVec(c: Int) = matrix(r0, c)
         val factor = matrix(r0, c0) / (rVec(c0) * cVec(r0))
 
-        cforRange(0 until matrix.rows) { r =>
-          cforRange(0 until matrix.cols) { c =>
+        cforRange(0 until matrix.nRows) { r =>
+          cforRange(0 until matrix.nCols) { c =>
             if (matrix(r, c) != factor * cVec(r) * rVec(c))
               return None
           }
         }
         Some((
-          QVector.tabulate(matrix.rows)(r => cVec(r) * factor),
-          QVector.tabulate(matrix.cols)(c => rVec(c))
+          Vec.tabulate[A](matrix.nRows)(r => cVec(r) * factor),
+          Vec.tabulate[A](matrix.nCols)(c => rVec(c))
         ))
       case _ =>
-        Some((QVector.zeros(matrix.rows), QVector.zeros(matrix.cols)))
+        Some((Vec.zeros(matrix.nRows), Vec.zeros(matrix.nCols)))
     }
+
   }
 
   /** Finds a rank-1 decomposition of a QMatrix, with possible shift.
@@ -66,33 +63,32 @@ object Rank1 {
     * (c * r.t) + s * [1 0 ... 0; 0 ... 0 ; ... ; 0 ... 0] = original matrix,
     * and c and r are vectors with integer coefficients.
     */
-  def decompositionWithShift(matrix: GenQMatrix): Option[(Rational, (QVector, QVector))] = {
+  def decompositionWithShift[A:Eq:Field:VecEngine:MatEngine](matrix: Mat[A]): Option[(A, (Vec[A], Vec[A]))] = {
     @tailrec def findTopNonZero(c: Int = 1): NNOption =
-      if (c == matrix.cols) NNNone
-      else if (matrix(0, c).signum != 0) NNSome(c)
+      if (c == matrix.nCols) NNNone
+      else if (!matrix(0, c).isZero) NNSome(c)
       else findTopNonZero(c + 1)
     @tailrec def findLeftNonZero(r: Int = 1): NNOption =
-      if (r == matrix.rows) NNNone
-      else if (matrix(r, 0).signum != 0) NNSome(r)
+      if (r == matrix.nRows) NNNone
+      else if (!matrix(r, 0).isZero) NNSome(r)
       else findLeftNonZero(r + 1)
     val topNonZero: NNOption = findTopNonZero()
     val leftNonZero: NNOption = findLeftNonZero()
 
-    case class ShiftedQMatrix(original: GenQMatrix, shift: Rational) extends GenQMatrix {
-      def rows = original.rows
-      def cols = original.cols
-      def apply(ind: Int) =
-        if (ind == 0) original(0) + shift else original(ind)
-      def toArray: Array[Rational] = Array.tabulate(length)(apply(_))
-      def unsafeToArray = toArray
+    case class ShiftedQMatrix(original: Mat[A], shift: A) extends Mat[A] {
+      def nRows = original.nRows
+      def nCols = original.nCols
+      def apply(r: Int, c: Int) =
+        if (r == 0 && c == 0) original(r, c) + shift else original(r, c)
     }
 
-    def withShift(shift: Rational): Option[(Rational, (QVector, QVector))] = {
+    def withShift(shift: A): Option[(A, (Vec[A], Vec[A]))] = {
       val matrixWithoutShift = ShiftedQMatrix(matrix, -shift)
       decomposition(matrixWithoutShift).map( (shift, _) )
     }
+
     (leftNonZero, topNonZero) match {
-      case (NNOption(r), NNOption(c)) if matrix(r,c).signum == 0 => None
+      case (NNOption(r), NNOption(c)) if matrix(r,c).isZero => None
       case (NNOption(r), NNOption(c)) =>
         val mr0 = matrix(r, 0)
         val m0c = matrix(0, c)
@@ -104,5 +100,5 @@ object Rank1 {
         withShift(matrix(0, 0))
     }
   }
+
 }
-*/
