@@ -40,6 +40,24 @@ object Scenarios {
 
   }
 
+  object BipartiteSmall extends ScenarioGenerators {
+
+    def genScenario = for {
+      alice <- Parties.Small.genParty
+      bob <- Parties.Small.genParty
+    } yield Scenario(Seq(alice, bob))
+
+  }
+
+  object BinaryOutputs extends ScenarioGenerators {
+
+    def genScenario = for {
+      nParties <- Gen.choose(1, 3)
+      parties <- Gen.containerOfN[Seq, Party](nParties, Parties.genParty(outputs = 2 -> 2, inputs = 1 -> 4))
+    } yield Scenario(parties)
+
+  }
+
   implicit val scenarioInstances: Instances[Scenario] = Instances(Seq(Scenario.nmk(3,2,2), Scenario.nmk(2,3,2)))
 
   implicit val scenarioCloner: Cloner[Scenario] = Cloner(scenario => Scenario(scenario.parties.map(_.inputs).map(xs => Party(xs))))

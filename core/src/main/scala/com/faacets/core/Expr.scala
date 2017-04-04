@@ -12,6 +12,7 @@ import cats.data.{Validated, ValidatedNel}
 import com.faacets.core.NDVec.attributes.symmetryGroup
 import spire.syntax.eq._
 import com.faacets.core.text._
+import text.UserVecRational.userVecRationalTextable
 
 trait GenExprBuilder[V <: GenExpr[V]] extends PVecBuilder[V] { self =>
 
@@ -95,7 +96,7 @@ class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) e
 
   def collinsGisin: Vec[Rational] = inBasis(p => p.matrices.matSPfromSG * p.matrices.matSGfromNG)
 
-  def fullTable: Table = toDExpr.fullTable
+  def fullTable_BA: Table = toDExpr.fullTable_BA
 
   def collinsGisinTable_BA: Table =
     if (scenario.nParties == 1) Table(collinsGisin.toRowMat)
@@ -184,6 +185,27 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
     val pCoefficients = changeBasis(scenario, p => p.matrices.matNCfromSC * p.matrices.matSCfromSP, correlatorsCoefficients)
     applyUnsafe(scenario, pCoefficients)
   }
+
+  def parseCollinsGisinVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr] =
+    userVecRationalTextable.fromText(coefficientsString) andThen { coeffs =>
+      if (coeffs.length != scenario.shapeNG.size)
+        Validated.invalidNel(s"Incorrect coefficient vector length ${coeffs.length}, should be ${scenario.shapeNG.size}")
+      else
+        Validated.valid(Expr.collinsGisin(scenario, coeffs))
+    }
+
+  def parseCorrelatorsVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr] =
+    userVecRationalTextable.fromText(coefficientsString) andThen { coeffs =>
+      if (scenario.minNumOutputs < 2 || scenario.maxNumOutputs > 2)
+        Validated.invalidNel(s"Correlators are only defined for scenarios with binary outputs")
+      else if (coeffs.length != scenario.shapeNC.size)
+        Validated.invalidNel(s"Incorrect coefficient vector length ${coeffs.length} should be ${scenario.shapeNG.size}")
+      else
+        Validated.valid(Expr.correlators(scenario, coeffs))
+    }
+
+  def parseVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr] =
+    userVecRationalTextable.fromText(coefficientsString) andThen { coeffs => Expr.validate(scenario, coeffs, None) }
 
   def averageNormalization(scenario: Scenario): Expr = one(scenario)
 

@@ -57,7 +57,7 @@ class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) 
     Term.printExpression(coeffTerms)
   }
 
-  def fullTable: Table =
+  def fullTable_BA: Table =
     if (scenario.nParties == 1) Table(coefficients.toRowMat)
     else if (scenario.nParties == 2) Table(coefficients.reshape(scenario.parties(0).shapeP.size, scenario.parties(1).shapeP.size).t)
     else sys.error("Scenarios with > 2 parties are not supported")
