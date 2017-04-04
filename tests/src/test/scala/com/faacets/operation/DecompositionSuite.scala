@@ -19,4 +19,13 @@ class DecompositionSuite extends FaacetsSuite {
     }
   }
 
+  test("Consideration of the opposite expression") {
+    val posDec = Extracted.CanonicalWithAffine(Expr.I3322)
+    val negDec = Extracted.CanonicalWithAffine(-Expr.I3322)
+    assert(posDec.original === Expr.I3322)
+    assert(negDec.original === (-Expr.I3322))
+    assert(posDec.affine.multiplier.signum == -negDec.affine.multiplier.signum)
+    assert(posDec.canonical === negDec.canonical)
+  }
+
 }
