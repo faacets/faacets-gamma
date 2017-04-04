@@ -3,7 +3,6 @@ package operation
 package affine
 
 import spire.syntax.all._
-import spire.algebra.Group
 import spire.math.Rational
 import spire.util.Opt
 

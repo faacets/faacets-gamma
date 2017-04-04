@@ -2,8 +2,6 @@ package com.faacets
 package operation
 package lifting
 
-import data._
-import core._
 import fastparse.noApi._
 import net.alasc.domains.Partition
 

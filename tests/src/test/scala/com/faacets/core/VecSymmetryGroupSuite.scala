@@ -2,10 +2,7 @@ package com.faacets
 package core
 
 import com.faacets.laws.Relabelings
-import spire.syntax.action._
-import spire.syntax.group._
 import spire.math.Rational
-import net.alasc.syntax.all._
 import scalin.immutable.dense._
 import scalin.immutable.Vec
 

@@ -4,8 +4,6 @@ package lifting
 
 import spire.util._
 
-import data._
-
 import core._
 
 final class ExprLiftingExtractor extends OperationExtractor[Expr, Lifting] {

@@ -53,6 +53,6 @@ trait GrpInstances {
 
   }
 
-  implicit def grpMerge[G]: Merge[Grp[G]] = Merge.fromEquals[Grp[G]] // TODO: Eq
+  implicit def grpMerge[G:Eq]: Merge[Grp[G]] = Merge.fromEq[Grp[G]]
 
 }

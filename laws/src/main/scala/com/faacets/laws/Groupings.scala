@@ -1,17 +1,13 @@
 package com.faacets
 package laws
 
-import scala.annotation.tailrec
 import org.scalacheck._
-import spire.math.Rational
 import spire.syntax.action._
 import net.alasc.laws._
 import net.alasc.std.seq._
 import core._
-import core.perm._
 import operation._
 import lifting._
-import data._
 import net.alasc.domains.Partition
 import data.syntax.textable._
 

@@ -1,7 +1,6 @@
 package com.faacets
 package operation
 
-import com.faacets.core.Relabeling
 import spire.algebra.{Action, Group}
 import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.util.Opt
@@ -90,35 +89,3 @@ trait GroupActionOperationExtractor[E, O] extends GroupOperationExtractor[E, O] 
   }
 
 }
-
-/*
-case class Extractors[T](extractors: Seq[Extractor[T]]) {
-  def partialExtractTree(leaf: Leaf[T])(implicit lb: LeafBuilder[T]): Option[Branch[T]] = {
-    extractors.foreach { ext =>
-      ext.partialExtractTree(leaf) match {
-        case someNode@Some(node) => return someNode
-        case None =>
-      }
-    }
-    None
-  }
-  def repeatPartialExtractTree(tree: Tree[T])(implicit lb: LeafBuilder[T]): Option[Tree[T]] = tree match {
-    case leaf: Leaf[T] => partialExtractTree(leaf).map( branch => repeatPartialExtractTree(branch) match {
-      case None => branch
-      case Some(extracted) => extracted
-    })
-    case oNode: OperationNode[T, _] => repeatPartialExtractTree(oNode.child).map(newChild => oNode.childUpdated(newChild))
-    case pNode: ProductNode[T] =>
-      val newChildrenOption = pNode.children.map(repeatPartialExtractTree(_))
-      if (newChildrenOption.forall(_.isEmpty))
-        None
-      else {
-        val newChildren = (newChildrenOption zip pNode.children).map {
-          case (Some(child), _) => child
-          case (None, oldChild) => oldChild
-        }
-        Some(pNode.childrenUpdated(newChildren))
-      }
-  }
-}
- */

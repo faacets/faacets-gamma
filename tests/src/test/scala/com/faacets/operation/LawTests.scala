@@ -5,16 +5,18 @@ import com.faacets.laws.DataLaws
 import com.faacets.operation.lifting.Grouping
 import net.alasc.laws.AnyRefLaws
 
+/* TODO
 import scala.reflect.ClassTag
 import spire.algebra._
 import spire.algebra.lattice._
 import spire.math._
 import spire.laws._
 
-import scala.{specialized => spec}
+*/
+// import scala.{specialized => spec}
 import org.typelevel.discipline.scalatest.Discipline
-import org.scalacheck.{Arbitrary, Gen, Prop}
-import org.typelevel.discipline.Laws
+// import org.scalacheck.{Arbitrary, Gen, Prop}
+// import org.typelevel.discipline.Laws
 import org.scalatest.FunSuite
 
 class LawTests extends FunSuite with Discipline {

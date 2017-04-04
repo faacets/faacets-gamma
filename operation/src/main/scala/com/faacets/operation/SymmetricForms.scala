@@ -2,7 +2,6 @@ package com.faacets
 package operation
 
 import com.faacets.core.perm.ShapeLattice
-
 import scala.collection.immutable
 import scala.collection.mutable
 import scala.annotation.tailrec
@@ -18,9 +17,10 @@ import net.alasc.perms.default._
 import net.alasc.perms.Perm
 import spire.util.Opt
 
+/*
 // notes: http://groupprops.subwiki.org/wiki/Coset_intersection_problem
 // http://groupprops.subwiki.org/wiki/Double_coset_membership_testing_problem
-/*
+
 trait SymmetricForms[A] extends Any {
   def action: NullboxPartialAction[A, Relabeling]
 

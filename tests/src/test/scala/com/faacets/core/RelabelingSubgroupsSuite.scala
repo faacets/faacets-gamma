@@ -7,9 +7,7 @@ import net.alasc.laws.{Grps, Permutations}
 import net.alasc.perms.Perm
 import net.alasc.perms.default._
 import org.scalacheck.{Arbitrary, Gen}
-import spire.algebra.Eq
 import spire.std.map._
-import syntax.subgroups._
 
 case class SmallIndex(toInt: Int)
 
@@ -24,7 +22,6 @@ object SmallIndex {
 class PartyRelabelingSubgroupsSuite extends FaacetsSuite {
 
   test("Output subgroups are correctly split") {
-    import spire.std.int._
     import spire.std.map._
     import Grps.arbGrp
     implicit def arbPerm: Arbitrary[Perm] = Arbitrary { Permutations.permForSize(5) }
@@ -71,7 +68,6 @@ class RelabelingSubgroupsSuite extends FaacetsSuite {
   }
 
   test("Party subgroups are correctly split") {
-    import spire.std.int._
     import spire.std.map._
     import PartyRelabelings.arbPartyRelabeling
     import Parties.Large._
