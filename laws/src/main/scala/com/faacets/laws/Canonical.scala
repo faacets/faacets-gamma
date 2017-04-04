@@ -11,6 +11,7 @@ import data.syntax.textable._
 case class Canonical[A](a: A)
 
 object Canonical {
+
   val positivity = Expr(Scenario.nmk(1,1,2), Vec[Rational](-1, 1))
   val i3322 = Expr(Scenario.nmk(2,3,2), Vec[Rational](-5, 3, -5, 3, -4, 2, 3, -1, 3, -1, 4, -2, -5, 3, -5, 3, 2, -4, 3, -1, 3, -1, -2, 4, -4, 4, 2, -2, 0, 0, 2, -2, -4, 4, 0, 0))
   val chsh = Expr(Scenario.nmk(2,2,2), Vec[Rational](-1, 1, -1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1, -1, -1, 1))
