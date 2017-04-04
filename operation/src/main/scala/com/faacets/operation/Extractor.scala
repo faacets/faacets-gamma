@@ -7,13 +7,14 @@ import io.circe.{Encoder, Json}
 import net.alasc.domains.Partition
 import spire.algebra._
 import spire.algebra.partial.{Groupoid, PartialAction}
-import spire.math.Rational
+import spire.math.{Rational, SafeLong}
 import spire.util.Opt
 import spire.syntax.partialAction._
 import spire.syntax.groupoid._
 import syntax.extractor._
 import io.circe.syntax._
 import com.faacets.data.instances.textable._
+import com.faacets.operation.product.ExprProductExtractor
 import com.faacets.operation.reordering.LexicographicPartyOrder
 import scalin.immutable.Vec
 import spire.syntax.order._
@@ -35,43 +36,46 @@ trait ProductExtractor[V] {
 
 }
 
-/*
-trait Decomposition[A] {
-
-    /*        val parties1: Seq[Party] = (expr.scenario.parties zip in1).filter(_._2).map(_._1)
-     val parties2: Seq[Party] = (expr.scenario.parties zip in1).filterNot(_._2).map(_._1)
-     val scenario1 = Scenario(parties1)
-     val scenario2 = Scenario(parties2)
-     val r = exprToDecompose.representation
-     val rExpr1 = Expr(scenario1, cRepresentation, coeffs1).to(r)
-     val rExpr2 = Expr(scenario2, cRepresentation, coeffs2).to(r)
-     val Affine(factor1, _) = Affine.ExprExtractor.forceExtract(rExpr1)
-     val Affine(factor2, _) = Affine.ExprExtractor.forceExtract(rExpr2)
-     val rExpr1Norm = {
-     import rExpr1.scenario.ExprVectorSpace
-     rExpr1 :/ factor1
-     }
-     val rExpr2Norm = {
-     import rExpr2.scenario.ExprVectorSpace
-     rExpr2 :/ factor2
-     }
-     return Some((Affine(factor1 * factor2, shift), in1, rExpr1Norm, rExpr2Norm))*/
-}
-*/
-
-/*
 object ProductExtractor {
-  def allBipartitions(n: Int): IndexedSeq[Domain#Partition] = new IndexedSeq[Domain#Partition] {
+
+  implicit val expr: ProductExtractor[Expr] = new ExprProductExtractor
+
+  def apply[V](implicit ev: ProductExtractor[V]): ProductExtractor[V] = ev
+
+  def bind2sub(N: Seq[SafeLong], i: SafeLong): Seq[SafeLong] =
+    N.scanLeft((SafeLong(0), i)) { case ((rem, quot), n) => (quot % n, quot / n) }.map(_._1).tail
+
+  def bsub2ind(N: Seq[SafeLong], I: Seq[SafeLong]): SafeLong =
+    (N zip I).foldLeft((SafeLong(0), SafeLong(1))) { case ((tot, mul), (n, i)) => (tot + mul * i, mul * n) }._1
+
+  def ind2sub(N: Seq[Int], i: Int): Seq[Int] =
+    N.scanLeft((0, i)) { case ((rem, quot), n) => (quot % n, quot / n) }.map(_._1).tail
+
+  def sub2ind(N: Seq[Int], I: Seq[Int]): Int =
+    (N zip I).foldLeft((0, 1)) { case ((tot, mul), (n, i)) => (tot + mul * i, mul * n) }._1
+
+  def integerToVector(k: Int, n: Int): Vector[Boolean] =
+    Vector.tabulate(n)(i => (k & (1 << i)) != 0)
+
+  def nonTrivialBipartitions(n: Int): IndexedSeq[Vector[Boolean]] = {
+    val bipartitions = (1 until (1 << n) - 1).map(integerToVector(_, n))
+    val (singleA, restA) = bipartitions.partition(_.count(_ == true) == 1)
+    val (singleB, rest) = restA.partition(_.count(_ == false) == 1)
+    singleA ++ (singleB.map(_.map(!_))) ++ rest
+  }
+
+  // TODO: remove this helper?
+  def allBipartitions(n: Int): IndexedSeq[Partition] = new IndexedSeq[Partition] {
     val bitset = scala.collection.immutable.BitSet(0 until n: _*)
     def length = ((1 << n) - 2)/2 // 2^n possibilities - 2 (we remove the two cases with an empty block)
     def apply(index: Int) = {
       val bits = index + 1 // the integer 0 is a bit vector representing a partition with an empty block
       val (block0, block1) = bitset.partition(b => (bits & (1 << b)) == 0)
-      Domain.Partition(block0, block1)
+      Partition(block0, block1)
     }
   }
+
 }
-*/
 
 
 trait OperationExtractor[V, O] extends Extractor[V] { self =>

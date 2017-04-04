@@ -47,7 +47,6 @@ object CanonicalDec {
 
 }
 
-
 case class CanonicalDecWithAffine[V](affine: Affine,
                                      lifting: Lifting,
                                      reordering: Reordering,
@@ -123,7 +122,8 @@ case class PolyProduct[V](pp: PartitionPolynomial, extracted: Vector[CanonicalDe
 
 object PolyProduct {
 
-  def merge2[V](partition: Partition, left: PolyProduct[V], right: PolyProduct[V]): PolyProduct[V] = {
+  // should left be < right ??? TODO
+  def merge2[V](partition: Partition, left: PolyProduct[V], right: PolyProduct[V], lr: Rational, l: Rational, r: Rational, cte: Rational): PolyProduct[V] = {
 
     // we work with these intermediate types
     type FinalBlock = Set[Int]
@@ -173,6 +173,8 @@ trait CanonicalWithAffineExtractor[V] {
 }
 
 object CanonicalWithAffineExtractor {
+
+  def apply[V](implicit ev: CanonicalWithAffineExtractor[V]): CanonicalWithAffineExtractor[V] = ev
 
   implicit def forV[V: LexicographicOrder](implicit
                                            A: PartialAction[V, Affine], AE: OperationExtractor[V, Affine],
