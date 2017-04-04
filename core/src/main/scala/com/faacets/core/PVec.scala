@@ -7,23 +7,17 @@ import spire.syntax.order._
 import spire.syntax.partialAction._
 import spire.syntax.cfor._
 import spire.math.Rational
-import cats.data.{Validated, ValidatedNel}
 import cats.kernel.Comparison
-import com.faacets.consolidate.{Merge, Result}
 import com.faacets.consolidate.syntax.all._
 import net.alasc.perms.default._
 import scalin.immutable.Vec
-import net.alasc.attributes.{Attributable, Attributes}
-import net.alasc.domains.Partition
+import net.alasc.attributes.Attributable
 import net.alasc.finite.Grp
 import com.faacets.data.instances.vec._
 import com.faacets.data.instances.grp._
 import com.faacets.consolidate.instances.all._
 import com.faacets.core.perm.ShapeLattice
 import com.faacets.data.instances.textable._
-import io.circe.{AccumulatingDecoder, Decoder, Encoder, HCursor}
-import net.alasc.bsgs._
-import com.faacets.data.syntax.validatedNel._
 import spire.algebra.partial.PartialAction
 
 /** Base class for vectors in the probability space of a causal scenario.
@@ -106,14 +100,7 @@ trait PVecEq[V <: PVec[V]] extends Eq[V] {
 
 }
 
-abstract class NDVec[V <: NDVec[V]] extends PVec[V] { lhs: V =>
 
-  def symmetryGroup: Grp[Relabeling] = NDVec.attributes.symmetryGroup(this) {
-    val partition = Partition.fromSeq(coefficients.toIndexedSeq)
-    scenario.group.fixingPartition(scenario.probabilityAction, partition)
-  }
-
-}
 
 trait PVecBuilder[V <: PVec[V]] {
 
@@ -141,101 +128,6 @@ trait PVecBuilder[V <: PVec[V]] {
         if (c != Comparison.EqualTo) return Some(c)
       }
       Some(Comparison.EqualTo)
-    }
-
-  }
-
-}
-
-trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] { self =>
-
-  protected[faacets] def updatedWithSymmetryGroup(original: V, newScenario: Scenario, newCoefficients: Vec[Rational],
-                                                  symGroupF: (Grp[Relabeling]) => Option[Grp[Relabeling]]): V = {
-    val res = apply(newScenario, newCoefficients)
-    NDVec.attributes.symmetryGroup.get(original).flatMap(symGroupF) match {
-      case Some(newGrp) => NDVec.attributes.symmetryGroup(res)(newGrp)
-      case None => // we do not have an updated group
-      }
-    res
-
-  }
-
-  def inNonSignalingSubspace(scenario: Scenario, coefficients: Vec[Rational]): Boolean
-
-  def validate(scenario: Scenario, coefficients: Vec[Rational], symGroup: Option[Grp[Relabeling]]): ValidatedNel[String, V] = {
-    val correctLength = scenario.shapeP.size
-    val coeffLength = coefficients.length
-    if (coeffLength != correctLength) Validated.invalidNel(s"Invalid coefficients length, is $coeffLength, should be $correctLength")
-    else if (!inNonSignalingSubspace(scenario, coefficients)) Validated.invalidNel("Coefficients are not in the nonsignaling subspace")
-    else {
-      val res = apply(scenario, coefficients)
-      symGroup match {
-        case Some(grp) =>
-          val partition = Partition.fromSeq(coefficients.toIndexedSeq)
-          grp.generators.find(!FixingPartition.partitionInvariantUnder(partition, scenario.probabilityAction, _)) match {
-            case Some(g) =>
-              Validated.invalidNel(s"Coefficients are not invariant under provided generator $g")
-            case None =>
-              NDVec.attributes.symmetryGroup(res)(grp)
-              Validated.valid(res)
-          }
-        case None =>
-          Validated.valid(res)
-      }
-    }
-  }
-
-  implicit lazy val merge: Merge[V] = new Merge[V] {
-
-    def merge(base: V, newV: V): Result[V] = {
-      import cats.syntax.all._
-      import NDVec.attributes.{symmetryGroup => sg}
-      val scenario = base.scenario merge newV.scenario
-      val coefficients = base.coefficients merge newV.coefficients
-      val symGroup = sg.get(base) merge sg.get(newV)
-      (scenario |@| coefficients |@| symGroup) .map( (_,_,_) ).validate((validate _).tupled)
-    }
-
-  }
-
-  lazy val encodeWithGroup: Encoder[(V, Grp[Relabeling])] =
-    Encoder.forProduct3[Scenario, Vec[Rational], Grp[Relabeling], (V, Grp[Relabeling])]("scenario", "coefficients", "symmetryGroup")( pair => (pair._1.scenario, pair._1.coefficients, pair._2) )
-
-  lazy val encodeWithoutGroup: Encoder[V] =
-    Encoder.forProduct2("scenario", "coefficients")( (v: V) => (v.scenario: Scenario, v.coefficients) )
-
-  implicit val encode: Encoder[V] = Encoder.instance[V] { v =>
-    NDVec.attributes.symmetryGroup.get(v) match {
-      case Some(grp) => encodeWithGroup( (v, grp) )
-      case None => encodeWithoutGroup(v)
-    }
-  }
-
-  implicit val decode: Decoder[V] = new Decoder[V] {
-
-    def apply(c: HCursor): Decoder.Result[V] = decodeAccumulating(c).leftMap(_.head).toEither
-
-    override def decodeAccumulating(c: HCursor): AccumulatingDecoder.Result[V] =
-      AccumulatingDecoder.resultInstance.map3(
-        Decoder[Scenario].tryDecodeAccumulating(c.downField("scenario")),
-        Decoder[Vec[Rational]].tryDecodeAccumulating(c.downField("coefficients")),
-        Decoder[Option[Grp[Relabeling]]].tryDecodeAccumulating(c.downField("symmetryGroup"))
-      )( (_, _, _) ).andThen {
-        case (s: Scenario, c: Vec[Rational], sg: Option[Grp[Relabeling]]) => self.validate(s, c, sg).toAccumulatingDecoderResult
-      }
-
-  }
-
-  implicit val equ: Eq[V] = Eq.fromUniversalEquals[V]
-
-}
-
-object NDVec {
-
-  object attributes extends Attributes("NDVec") {
-
-    object symmetryGroup extends Attribute("symmetryGroup") {
-      implicit def forNDVec[V <: NDVec[V]]: For[NDVec[V], Grp[Relabeling]] = For
     }
 
   }
