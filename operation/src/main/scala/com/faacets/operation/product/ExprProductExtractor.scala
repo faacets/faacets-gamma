@@ -71,6 +71,7 @@ final class ExprProductExtractor extends ProductExtractor[Expr] {
   protected def create(partition: Partition, shift: Rational, expr1: Expr, expr2: Expr): PolyProduct[Expr] = {
     val (Affine(m1, s1), c1) = CanonicalWithAffineExtractor[Expr].apply(expr1).withoutAffine
     val (Affine(m2, s2), c2) = CanonicalWithAffineExtractor[Expr].apply(expr2).withoutAffine
+    PolyProduct.merge2(partition, forceExtract(expr1), forceExtract(expr2), m1 * m2, m1 * s2, m2 * s1, s1 * s2 + shift)
     val coeffs: Map[Set[Int], Rational] = Map(Set(0, 1) -> (m1 * m2), Set(0) -> (m1 * s2), Set(1) -> (m2 * s1), Set.empty -> (s1 * s2 + shift))
     assert(partialExtract(expr1).isEmpty) // TODO support multiple levels of products
     assert(partialExtract(expr2).isEmpty)
