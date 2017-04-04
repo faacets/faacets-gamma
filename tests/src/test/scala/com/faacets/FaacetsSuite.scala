@@ -18,11 +18,14 @@ import net.alasc.laws.NestedDiscipline
 trait FaacetsSuite extends FunSuite with Matchers
     with PropertyChecks
     with spire.syntax.AllSyntax
-    with data.syntax.AllSyntax
-    with core.syntax.AllSyntax
     with scalin.syntax.AllSyntax
-    with consolidate.syntax.AllSyntax
     with net.alasc.syntax.AllSyntax
+    with data.syntax.AllSyntax
+    with data.instances.AllInstances
+    with core.syntax.AllSyntax
+    with operation.syntax.AllSyntax
+    with operation.instances.AllInstances
+    with consolidate.syntax.AllSyntax
     with Discipline
     with NestedDiscipline
     with StrictFaacetsEquality {

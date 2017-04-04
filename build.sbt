@@ -2,11 +2,11 @@
 
 val scala212Version = "2.12.1"
 
-val alascVersion = "0.14.1.1"
+val alascVersion = "0.14.1.2"
 val catsVersion = "0.9.0"
 val circeVersion = "0.7.0"
 val circeYamlVersion = "0.5.0"
-val consolidateVersion = "0.3"
+val consolidateVersion = "0.4"
 val fastParseVersion = "0.4.2"
 val scalinVersion = "0.14.1.0"
 val shapelessVersion = "2.3.2"
@@ -35,7 +35,7 @@ lazy val laws = (project in file("laws"))
   .settings(faacetsSettings: _*)
   .settings(lawsSettings:_*)
   .settings(commonJvmSettings: _*)
-  .dependsOn(core, data)
+  .dependsOn(core, data, operation)
 
 lazy val core = (project in file("core"))
   .settings(moduleName := "faacets-core")

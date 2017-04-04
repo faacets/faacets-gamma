@@ -12,8 +12,8 @@ trait VecInstances {
   implicit val vecRationalEncoder: Encoder[Vec[Rational]] =
     Encoder[IndexedSeq[Rational]].contramap[Vec[Rational]](_.toIndexedSeq.toVector)
 
-  implicit val vecRationalDecoder: AccumulatingDecoder[Vec[Rational]] =
-    AccumulatingDecoder[IndexedSeq[Rational]].map(seq => scalin.immutable.DenseVec(seq: _*))
+  implicit val vecRationalDecoder: Decoder[Vec[Rational]] =
+    Decoder[IndexedSeq[Rational]].map(seq => scalin.immutable.DenseVec(seq: _*))
 
   implicit val vecRationalMerge: Merge[Vec[Rational]] = Merge.fromEquals[Vec[Rational]] // TODO: move to cats.Eq
 

@@ -1,0 +1,60 @@
+TODO: restore support of affine (actually, convex) degeneracy removal for behaviors
+
+package com.faacets
+package operation
+package affine
+/*
+import spire.syntax.all._
+import spire.algebra.Group
+import spire.math.Rational
+import spire.util._
+
+import net.alasc.syntax.sequence._
+
+import polyta._
+
+import core._
+
+class CorrAffineExtractor extends GroupOperationExtractor[Corr, Affine] {
+  def group = Affine.Group
+  def action = Affine.CorrAction
+
+  /** The maximal visibility of these correlations` \\( \vec{P} \\) is
+    *  the maximal visibility \\( v \\) such that
+    * \\[ v \vec{P} + (1-v) \vec{P}_0 \\]
+    * is non-negative.
+    * 
+    * If \\( \vec{P} = \vec{P}_0 \\), then \\( v \\) is unbounded. 
+    * In this case, None is returned
+    */
+  def maximalPhysicalVisibility(corr: Corr): Option[Rational] = {
+    val pRepresentation = corr.representation.permutable
+    val pCoefficients = corr.to(pRepresentation).coefficients
+    val pCoefficients0 = Corr.one(corr.scenario, pRepresentation).coefficients
+    if (pCoefficients0 === pCoefficients)
+      return None
+    (pCoefficients0.toIndexedSeq zip pCoefficients.toIndexedSeq).collect {
+      case (p0, p) if p0 =!= p =>
+        if (p > p0)
+          (1 - p0)/(p - p0)
+        else
+          p0/(p0 - p)
+    }.reduceOption(_.min(_))
+  }
+
+  def partialExtract(corr: Corr): Nullbox[Affine] = {
+    maximalPhysicalVisibility(corr) match {
+      case None => Nullbox.empty[Affine]
+      case Some(v) if v === 1 => Nullbox.empty[Affine]
+      case Some(v) => Nullbox(Affine(v.reciprocal, 1 - v.reciprocal).inverse)
+    }
+  }
+}
+
+object Affine {
+  /* TODO: restore Behavior affine stuff
+  implicit val CorrExtractor: OperationExtractor[Corr, Affine] = new CorrAffineExtractor
+  implicit val CorrAction: Action[Corr, Affine] = new VecAffineAction[Corr]
+  */
+}
+*/

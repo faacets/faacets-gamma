@@ -4,19 +4,19 @@ import cats.data.{Validated, ValidatedNel}
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import com.faacets.core.text.{FullTerm, Term, TermType}
 import scalin.immutable.{Mat, Vec}
-import spire.algebra.VectorSpace
-import spire.math.Rational
+import spire.math.{Rational, SafeLong}
 import spire.syntax.cfor._
-import spire.syntax.eq._
 import scalin.immutable.dense._
 import scalin.syntax.all._
 import cats.syntax.traverse._
 import cats.instances.vector._
+import net.alasc.finite.Grp
+
 import scala.reflect.classTag
 
-class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends GenExpr { lhs =>
+class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends GenExpr[DExpr] { lhs =>
 
-  type V = DExpr
+  def builder = DExpr
 
   def inBasis(matChoice: Party => Mat[Rational]): Vec[Rational] =
     revKronMatVec(scenario.parties.map(p => matChoice(p).t), coefficients)
@@ -49,18 +49,7 @@ class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) 
     Expr.applyUnsafe(scenario, nsCoeffs)
   }
 
-  def unary_- : DExpr = new DExpr(scenario, -coefficients)
-
-  def +(rhs: DExpr): DExpr = {
-    require(lhs.scenario === rhs.scenario)
-    new DExpr(scenario, lhs.coefficients + rhs.coefficients)
-  }
-
-  def *:(r: Rational): DExpr =
-    if (r.isZero) DExpr.zero(scenario)
-    else new DExpr(scenario, coefficients * r)
-
-  def fullExpression: String = {
+  def expression: String = {
     val coeffTerms = (0 until coefficients.length).filterNot(i => coefficients(i).isZero).map { ind =>
       val (aa, xx) = scenario.ind2subP(ind)
       (coefficients(ind), FullTerm(aa, xx))
@@ -68,14 +57,20 @@ class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) 
     Term.printExpression(coeffTerms)
   }
 
-  def fullTable: Table =
+  def fullTable_BA: Table =
     if (scenario.nParties == 1) Table(coefficients.toRowMat)
     else if (scenario.nParties == 2) Table(coefficients.reshape(scenario.parties(0).shapeP.size, scenario.parties(1).shapeP.size).t)
     else sys.error("Scenarios with > 2 parties are not supported")
 
 }
 
-object DExpr {
+object DExpr extends GenExprBuilder[DExpr] {
+
+  implicit def builder: GenExprBuilder[DExpr] = this
+
+  protected[faacets] def updatedWithSymmetryGroup(original: DExpr, newScenario: Scenario, newCoefficients: Vec[Rational],
+                                                  symGroupF: (Grp[Relabeling]) => Option[Grp[Relabeling]]): DExpr =
+    apply(newScenario, newCoefficients)
 
   def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, DExpr] = {
     Term.parseExpression(expression).andThen { coeffTerms =>
@@ -84,7 +79,9 @@ object DExpr {
         Validated.invalidNel("Mixes several expression types: " + termTypes.map(_.name).mkString(", "))
       else
         coeffTerms.map {
-          case (coeff, termString, term) => term.validate(scenario).map( dExpr => coeff *: dExpr ).leftMap(_.map(s"Term '${termString}' : " + _))
+          case (coeff, termString, term) =>
+            term.validate(scenario).map( dExpr => coeff *: dExpr )
+              .leftMap(_.map(s"Term '${termString}' : " + _))
         }.sequenceU.map(_.fold(DExpr.zero(scenario))(_+_))
     }
   }
@@ -94,33 +91,15 @@ object DExpr {
 
   def zero(scenario: Scenario): DExpr = DExpr(scenario, Vec.fillConstant(scenario.shapeP.size)(Rational.zero))
 
-  def vectorSpaceForScenario(scenario: Scenario): VectorSpace[DExpr, Rational] = new VectorSpace[DExpr, Rational] {
-
-    def scalar = spire.math.Rational.RationalAlgebra
-
-    def timesl(r: Rational, v: DExpr): DExpr = {
-      require(v.scenario === scenario)
-      r *: v
-    }
-
-    def negate(x: DExpr): DExpr = {
-      require(x.scenario === scenario)
-      -x
-    }
-
-    def zero: DExpr = DExpr.zero(scenario)
-
-    def plus(x: DExpr, y: DExpr): DExpr = {
-      require(x.scenario === scenario)
-      require(y.scenario === scenario)
-      x + y
-    }
-
+  def one(scenario: Scenario): DExpr = {
+    val ratio = Rational(SafeLong.one, scenario.nInputTuples)
+    val pCoefficients = Vec.fillConstant(scenario.shapeP.size)(ratio)
+    apply(scenario, pCoefficients)
   }
 
-  def properNormalizationTest(scenario: Scenario): DExpr = Expr.constant(scenario).toDExpr
+  def properNormalizationTest(scenario: Scenario): DExpr = Expr.one(scenario).toDExpr
 
-  def normalizedSubspaceTests(scenario: Scenario): Iterable[DExpr] = {
+  def normalizedSubspaceTests(scenario: Scenario): Seq[DExpr] = {
     val sub = new Array[Int](scenario.nParties)
     val buffer = collection.mutable.ArrayBuffer.newBuilder[DExpr]
     cforRange(1 until scenario.shapeSC.size) { ind =>
@@ -133,7 +112,7 @@ object DExpr {
     buffer.result()
   }
 
-  def nonSignalingSubspaceTests(scenario: Scenario): Iterable[DExpr] = {
+  def nonSignalingSubspaceTests(scenario: Scenario): Seq[DExpr] = {
     val sub = new Array[Int](scenario.nParties)
     val buffer = collection.mutable.ArrayBuffer.newBuilder[DExpr]
     cforRange(1 until scenario.shapeSC.size) { ind =>

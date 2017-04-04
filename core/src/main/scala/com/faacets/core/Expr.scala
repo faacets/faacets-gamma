@@ -10,26 +10,16 @@ import scalin.immutable.{Mat, Vec}
 import scala.reflect.classTag
 import cats.data.{Validated, ValidatedNel}
 import com.faacets.core.NDVec.attributes.symmetryGroup
-import spire.syntax.cfor._
 import spire.syntax.eq._
-import scalin.syntax.all._
-import cats.syntax.traverse._
-import cats.instances.vector._
 import com.faacets.core.text._
-
-import scala.collection.mutable.ArrayBuffer
-
-trait GenExpr extends PVec { expr =>
-
-  /** Computes the inner product between this expression and the given behavior. */
-  def inner(corr: Behavior): Rational = expr.coefficients.dot(corr.coefficients)
-
-}
+import spire.algebra.partial.Groupoid
+import spire.util.Opt
+import text.UserVecRational.userVecRationalTextable
 
 /** Describes a Bell expression. */
-class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends NDVec with GenExpr { lhs =>
+class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends NDVec[Expr] with GenExpr[Expr] { lhs =>
 
-  type V = Expr
+  def builder = Expr
 
   def prefix = "Expr"
 
@@ -44,45 +34,20 @@ class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) e
 
   def collinsGisin: Vec[Rational] = inBasis(p => p.matrices.matSPfromSG * p.matrices.matSGfromNG)
 
-  def fullTable: Table = toDExpr.fullTable
+  def fullTable_BA: Table = toDExpr.fullTable_BA
 
-  def collinsGisinTable: Table =
+  def collinsGisinTable_BA: Table =
     if (scenario.nParties == 1) Table(collinsGisin.toRowMat)
     else if (scenario.nParties == 2) Table(collinsGisin.reshape(scenario.parties(0).shapeNG.size, scenario.parties(1).shapeNG.size).t)
     else sys.error("Scenarios with > 2 parties are not supported")
 
-  def correlatorsTable: Table =
+  def correlatorsTable_BA: Table =
     if (scenario.maxNumOutputs > 2) sys.error("Scenarios with > 2 outputs are not supported")
     else if (scenario.nParties == 1) Table(correlators.toRowMat)
     else if (scenario.nParties == 2) Table(correlators.reshape(scenario.parties(0).shapeNC.size, scenario.parties(1).shapeNC.size).t)
     else sys.error("Scenarios with > 2 parties are not supported")
 
-  def *:(r: Rational): Expr = {
-    if (r.isZero) Expr.zero(scenario) else {
-      val res = Expr.applyUnsafe(scenario, coefficients * r)
-      NDVec.attributes.symmetryGroup.get(lhs)(NDVec.attributes.symmetryGroup.forNDVec) match {
-        case Some(grp) => NDVec.attributes.symmetryGroup(res)(grp)
-        case None =>
-      }
-      res
-    }
-  }
-
-  def unary_- : Expr = {
-    val res = Expr.applyUnsafe(scenario, -coefficients)
-    NDVec.attributes.symmetryGroup.get(lhs) match {
-      case Some(grp) => NDVec.attributes.symmetryGroup(res)(grp)
-      case None =>
-    }
-    res
-  }
-
-  def +(rhs: Expr): Expr = {
-    require(lhs.scenario === rhs.scenario)
-    Expr.applyUnsafe(scenario, lhs.coefficients + rhs.coefficients)
-  }
-
-  def fullExpression: String = toDExpr.fullExpression
+  def expression: String = toDExpr.expression
 
   def collinsGisinExpression: String = {
     val cgCoeffs = collinsGisin
@@ -105,7 +70,10 @@ class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) e
 
 }
 
-object Expr extends NDVecBuilder[Expr] {
+
+object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
+
+  implicit def builder: NDVecBuilder[Expr] with GenExprBuilder[Expr] = this
 
   def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, Expr] =
   DExpr.parseExpression(scenario, expression) andThen { dExpr =>
@@ -124,18 +92,12 @@ object Expr extends NDVecBuilder[Expr] {
     res
   }
 
-  def vectorSpace(scenario: Scenario): VectorSpace[Expr, Rational] = new VectorSpace[Expr, Rational] {
-    def scalar = spire.math.Rational.RationalAlgebra
-    def timesl(r: Rational, v: Expr): Expr = r *: v
-    def negate(x: Expr): Expr = -x
-    def zero: Expr = Expr.zero(scenario)
-    def plus(x: Expr, y: Expr): Expr = (x + y)
-  }
-
-  def constant(scenario: Scenario): Expr = {
+  def one(scenario: Scenario): Expr = {
     val ratio = Rational(SafeLong.one, scenario.nInputTuples)
     val pCoefficients = Vec.fillConstant(scenario.shapeP.size)(ratio)
-    apply(scenario, pCoefficients) // TODO use applyUnsafe
+    val res = applyUnsafe(scenario, pCoefficients)
+    symmetryGroup(res)(scenario.group)
+    res
   }
 
   def inNonSignalingSubspace(scenario: Scenario, coefficients: Vec[Rational]): Boolean = {
@@ -163,10 +125,28 @@ object Expr extends NDVecBuilder[Expr] {
     applyUnsafe(scenario, pCoefficients)
   }
 
-  def averageNormalization(scenario: Scenario): Expr = {
-    val pCoefficients =  Vec.fillConstant(scenario.shapeP.size)(Rational(1, scenario.nInputTuples))
-    applyUnsafe(scenario, pCoefficients)
-  }
+  def parseCollinsGisinVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr] =
+    userVecRationalTextable.fromText(coefficientsString) andThen { coeffs =>
+      if (coeffs.length != scenario.shapeNG.size)
+        Validated.invalidNel(s"Incorrect coefficient vector length ${coeffs.length}, should be ${scenario.shapeNG.size}")
+      else
+        Validated.valid(Expr.collinsGisin(scenario, coeffs))
+    }
+
+  def parseCorrelatorsVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr] =
+    userVecRationalTextable.fromText(coefficientsString) andThen { coeffs =>
+      if (scenario.minNumOutputs < 2 || scenario.maxNumOutputs > 2)
+        Validated.invalidNel(s"Correlators are only defined for scenarios with binary outputs")
+      else if (coeffs.length != scenario.shapeNC.size)
+        Validated.invalidNel(s"Incorrect coefficient vector length ${coeffs.length} should be ${scenario.shapeNG.size}")
+      else
+        Validated.valid(Expr.correlators(scenario, coeffs))
+    }
+
+  def parseVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr] =
+    userVecRationalTextable.fromText(coefficientsString) andThen { coeffs => Expr.validate(scenario, coeffs, None) }
+
+  def averageNormalization(scenario: Scenario): Expr = one(scenario)
 
   def CHSH = correlators(Scenario.CHSH, Vec[Rational](0, 0, 0, 0, 1, 1, 0, 1, -1))
 

@@ -2,8 +2,11 @@ package com.faacets
 package core
 package text
 
-class ExpressionSuite extends FaacetsSuite {
+import cats.data.Validated
+import org.scalacheck.Prop
+import org.scalatest.Inside
 
+class ExpressionSuite extends FaacetsSuite with Inside {
 
   val valid =
     Table(
@@ -80,5 +83,67 @@ class ExpressionSuite extends FaacetsSuite {
     }
   }
 
+  locally {
+
+    import com.faacets.laws.Scenarios.Small._
+    import com.faacets.laws.Exprs.arbExpr
+
+    forAll { expr: Expr =>
+      inside(Expr.parseExpression(expr.scenario, expr.collinsGisinExpression)) {
+        case Validated.Valid(e) => e === expr
+        case _ => fail
+      }
+    }
+
+    forAll { expr: Expr =>
+      inside(Expr.parseExpression(expr.scenario, expr.expression)) {
+        case Validated.Valid(e) => e === expr
+        case _ => fail
+      }
+    }
+
+  }
+
+  locally {
+
+    import com.faacets.laws.Scenarios.BipartiteSmall._
+    import com.faacets.laws.Exprs.arbExpr
+
+    forAll { expr: Expr =>
+      inside(Expr.parseCollinsGisinVector(expr.scenario, expr.collinsGisinTable_BA)) {
+        case Validated.Valid(e) => e === expr
+        case _ => Prop.falsified
+      }
+    }
+
+    forAll { expr: Expr =>
+      inside(Expr.parseVector(expr.scenario, expr.fullTable_BA)) {
+        case Validated.Valid(e) => e === expr
+        case _ => Prop.falsified
+      }
+    }
+
+  }
+
+  locally {
+
+    import com.faacets.laws.Scenarios.BinaryOutputs._
+    import com.faacets.laws.Exprs.arbExpr
+
+    forAll { expr: Expr =>
+      inside(Expr.parseCorrelatorsVector(expr.scenario, expr.correlators.toIndexedSeq.mkString("[",",","]"))) {
+        case Validated.Valid(e) => e === expr
+        case _ => Prop.falsified
+      }
+    }
+
+    forAll { expr: Expr =>
+      inside(Expr.parseExpression(expr.scenario, expr.correlatorsExpression)) {
+        case Validated.Valid(e) => e === expr
+        case _ => fail
+      }
+    }
+
+  }
 
 }

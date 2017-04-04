@@ -1,9 +1,8 @@
 package com.faacets
 package laws
 
-import com.faacets.core.{PartyRelabeling, Relabeling, Scenario}
+import com.faacets.core.{PVec, PartyRelabeling, Relabeling, Scenario}
 import org.scalacheck._
-
 import net.alasc.laws._
 import net.alasc.perms.{GrpFixingPartition, Perm}
 import net.alasc.perms.default._
@@ -32,10 +31,9 @@ object Relabelings {
     Relabeling(r.partyRelabelingMap.mapValues(partyRelabelingCloner.make(_)), r.pPerm)
   )
 
-// TODO  def genRelabeling(expr: Expr[_ <: Scenario with Singleton]): Gen[Relabeling] =
-//    genRelabeling(expr.scenario)
+  def genRelabeling[V <: PVec[V]](vec: V): Gen[Relabeling] = genRelabeling(vec.scenario)
 
-// TODO  implicit val relabelingGenerator: OperationGenerator[Expr[_ <: Scenario with Singleton], Relabeling] =
-//    OperationGenerator[Expr[_ <: Scenario with Singleton], Relabeling](genRelabeling)
+  implicit def relabelingGenerator[V <: PVec[V]]: Operations.Generator[V, Relabeling] =
+    Operations.Generator[V, Relabeling](genRelabeling(_))
 
 }

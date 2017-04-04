@@ -60,7 +60,8 @@ case class PartyRelabelingSubgroups(val group: Grp[PartyRelabeling]) {
       (0 until pr.nInputsWithOutputRelabelings).forall(x1 => x1 == x || pr.aPerm(x1).isId)
     def test(preimage: Int, image: Int) = {
       val preimageInput = impShape.blockIndices(preimage)
-      preimageInput == x || preimage == image
+      val imageInput = impShape.blockIndices(image)
+      (preimageInput == x && imageInput == x) || preimage == image
     }
     subgroupFor(test, predicate)
   }
