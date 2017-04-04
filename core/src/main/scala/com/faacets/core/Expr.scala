@@ -97,12 +97,12 @@ class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) e
 
   def fullTable: Table = toDExpr.fullTable
 
-  def collinsGisinTable: Table =
+  def collinsGisinTable_BA: Table =
     if (scenario.nParties == 1) Table(collinsGisin.toRowMat)
     else if (scenario.nParties == 2) Table(collinsGisin.reshape(scenario.parties(0).shapeNG.size, scenario.parties(1).shapeNG.size).t)
     else sys.error("Scenarios with > 2 parties are not supported")
 
-  def correlatorsTable: Table =
+  def correlatorsTable_BA: Table =
     if (scenario.maxNumOutputs > 2) sys.error("Scenarios with > 2 outputs are not supported")
     else if (scenario.nParties == 1) Table(correlators.toRowMat)
     else if (scenario.nParties == 2) Table(correlators.reshape(scenario.parties(0).shapeNC.size, scenario.parties(1).shapeNC.size).t)

@@ -6,28 +6,6 @@ import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.util.Opt
 
 /*
-import spire.algebra.{PartialAction, Group, Groupoid, Semigroup}
-import spire.math.Rational
-import spire.syntax.partialAction._
-import spire.syntax.groupoid._
-import spire.util._
-
-import net.alasc.math.Domain
-
-/** Type class for extractable operations. */ 
-trait Extractor[A] {
-  def canExtract(a: A): Boolean
-}
-
-case class ProductShape(partition: Domain#Partition, shift: Rational)
-
-trait ProductExtractor[A] extends Extractor[A] {
-  implicit def semigroup: Semigroup[A]
-
-  def canExtract(a: A): Boolean = partialExtract(a).nonEmpty
-  def partialExtract(a: A): Nullbox[ProductShape]
-}
-
 object ProductExtractor {
   def allBipartitions(n: Int): IndexedSeq[Domain#Partition] = new IndexedSeq[Domain#Partition] {
     val bitset = scala.collection.immutable.BitSet(0 until n: _*)
@@ -57,6 +35,12 @@ trait OperationExtractor[E, O] { self =>
   def partialExtract(e: E): Opt[O]
 
   def forceExtract(e: E): O = partialExtract(e).getOrElse(identity(e))
+
+}
+
+object OperationExtractor {
+
+  def apply[E, O](implicit ev: OperationExtractor[E, O]): OperationExtractor[E, O] = ev
 
 }
 

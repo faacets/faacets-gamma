@@ -10,6 +10,10 @@ import net.alasc.laws.{AnyRefLaws, Grps, PermutationActionLaws}
 
 class RelabelingSuite extends FaacetsSuite {
 
+  test("Identity are parsed correctly") {
+    assert("".parseUnsafe[Relabeling] === Relabeling.id)
+    assert("".parseUnsafe[PartyRelabeling] === PartyRelabeling.id)
+  }
 
   {
     import Scenarios.Large._
