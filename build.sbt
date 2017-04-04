@@ -22,7 +22,7 @@ lazy val faacets = (project in file("."))
   .settings(moduleName := "faacets")
   .settings(faacetsSettings)
   .settings(noPublishSettings)
-  .aggregate(core, data, laws, tests)
+  .aggregate(core, data, operation, laws, tests)
   .dependsOn(core, data, operation, laws, tests)
 
 lazy val data = (project in file("data"))
