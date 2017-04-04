@@ -1,9 +1,9 @@
 package com.faacets.operation
 
 import cats.kernel.Comparison
-import com.faacets.core.{LexicographicOrder, Relabeling, Scenario}
+import com.faacets.core.{AdditiveGroupoid, LexicographicOrder, Relabeling, Scenario}
 import io.circe.{Encoder, Json}
-import net.alasc.domains.Partition
+import net.alasc.domains.{Partition, PartitionMap}
 import spire.algebra._
 import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.math.Rational
@@ -104,30 +104,59 @@ case class PartitionPolynomial(partition: Partition, coeffs: Map[Set[Int], Ratio
 
 case class PolyProduct[V](pp: PartitionPolynomial, extracted: Vector[CanonicalDec[V]]) {
   def allCanonicals: Seq[V] = extracted.map(_.canonical)
-  def original(additive: Groupoid[V])(implicit A: PartialAction[V, Affine], L: PartialAction[V, Lifting], O: PartialAction[V, Reordering], R: PartialAction[V, Relabeling], P: Tensor[V]): V = {
+  def original(implicit G: AdditiveGroupoid[V], A: PartialAction[V, Affine], L: PartialAction[V, Lifting], O: PartialAction[V, Reordering], R: PartialAction[V, Relabeling], P: Tensor[V]): V = {
     import pp.{partition, coeffs}
     val n = partition.nBlocks
     require(extracted.length == n)
     val originals = extracted.map(_.original)
-    val zeros = originals.map(v => additive.leftId(v))
+    val zeros = originals.map(v => G.groupoid.leftId(v))
     val ones = zeros.map(v => (v <|+|? Affine(1, 1)).get)
     val zero = P(partition, zeros)
     coeffs.foldLeft(zero) {
       case (acc, (in, coeff)) =>
         val exprs = Vector(0 until n: _*).map { b => if (in.contains(b)) originals(b) else ones(b) }
         val expr = (P(partition, exprs) <|+|? Affine(coeff, 0)).get
-        additive.partialOp(acc, expr).get
+        G.groupoid.partialOp(acc, expr).get
     }
   }
 }
 
 object PolyProduct {
 
-  def merge[V](partition: Partition, left: PolyProduct[V], right: PolyProduct[V]): PolyProduct[V] = {
-    require(partition.nBlocks == left.pp.partition.nBlocks + right.pp.partition.nBlocks)
+  def merge2[V](partition: Partition, left: PolyProduct[V], right: PolyProduct[V]): PolyProduct[V] = {
+
+    // we work with these intermediate types
+    type FinalBlock = Set[Int]
+    type Extracteds = Map[FinalBlock, CanonicalDec[V]]
+    type FinalPartition = Set[FinalBlock]
+    type Coeffs = Map[Set[FinalBlock], Rational]
+
+    require(partition.nBlocks == 2)
     require(partition.size == left.pp.partition.size + right.pp.partition.size)
-    ???
+
+    // here is the translation of block indices
+    val leftFinalBlock: Vector[Int] = partition.blocks(0).toVector.sorted
+    val rightFinalBlock: Vector[Int] = partition.blocks(1).toVector.sorted
+
+    val leftExtracteds: Extracteds = (left.pp.partition.blocks.map(block => block.map(leftFinalBlock(_))).toVector zip left.extracted).toMap
+    val rightExtracteds: Extracteds = (right.pp.partition.blocks.map(block => block.map(rightFinalBlock(_))).toVector zip right.extracted).toMap
+    val leftBlocks: FinalPartition = left.pp.partition.blocks.map(block => block.map(leftFinalBlock(_))).toSet
+    val rightBlocks: FinalPartition = right.pp.partition.blocks.map(block => block.map(rightFinalBlock(_))).toSet
+    val leftCoeffs: Coeffs = left.pp.coeffs.map { case (blockInds, r) => (blockInds.map(b => left.pp.partition.blocks(b).map(leftFinalBlock(_))), r) }
+    val rightCoeffs: Coeffs = right.pp.coeffs.map { case (blockInds, r) => (blockInds.map(b => right.pp.partition.blocks(b).map(rightFinalBlock(_))), r) }
+
+    val finalPartition = Partition((leftBlocks ++ rightBlocks).toSeq: _*)
+    val finalBlocksMap = finalPartition.blocks.map(_.toSet).zipWithIndex.toMap
+    val finalCoeffs: Map[Set[Int], Rational] = (for {
+      (leftSet, leftR) <- leftCoeffs
+      (rightSet, rightR) <- rightCoeffs
+    } yield (leftSet.map(finalBlocksMap(_)) ++ rightSet.map(finalBlocksMap(_)), leftR * rightR))
+    val allExtracteds: Extracteds = leftExtracteds ++ rightExtracteds
+    val finalExtracteds = finalPartition.blocks.toVector.map(block => allExtracteds(block.toSet))
+    PolyProduct(PartitionPolynomial(finalPartition, finalCoeffs), finalExtracteds)
   }
+
+  def ofSingle[V](v: V)(implicit cwae: CanonicalWithAffineExtractor[V]): PolyProduct[V] = ofSingle(cwae(v))
 
   def ofSingle[V](cwa: CanonicalDecWithAffine[V]): PolyProduct[V] = {
     val partition = Partition(Set(0 until cwa.originalScenario.nParties: _*))
