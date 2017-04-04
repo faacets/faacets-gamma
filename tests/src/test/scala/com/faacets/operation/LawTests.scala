@@ -22,6 +22,9 @@ import org.scalatest.FunSuite
 class LawTests extends FunSuite with Discipline {
 
   import com.faacets.laws.Groupings._
+  import com.faacets.laws.Liftings._
+  import com.faacets.laws.Reorderings._
+
 
   {
     import com.faacets.laws.Scenarios.Large._
@@ -29,41 +32,36 @@ class LawTests extends FunSuite with Discipline {
     checkAll("Grouping", AnyRefLaws[Grouping]._eq)
   }
 
-  /*
-  import core.laws.Scenarios.Small._
-  import core.laws.Parties.Small._
-  import core.laws.Exprs.NonSignaling._
+  //checkAll("Lifting", AnyRefLaws[Lifting]._eq)
 
-  import Liftings.{arbLifting, liftingGenerator,
-    liftingInstances, liftingCloner}
-  import Affines.{affineGenerator,
-    affineInstances, affineCloner}
-  import Affines.Mixed.arbAffine
-  import Relabelings.{arbRelabeling, relabelingGenerator,
-    relabelingInstances, relabelingCloner}
-  import Reorderings.{arbReordering, reorderingGenerator,
-    reorderingInstances, reorderingCloner}
-  import Redundants.{arbRedundant, redundantGenerator,
-    redundantInstances, redundantCloner}
-  import RepresentationChanges.{arbRepresentationChange,
-    representationChangeGenerator, representationChangeInstances,
-    representationChangeCloner}
+  locally {
+    import com.faacets.laws.Affines.{affineCloner, affineInstances}
+    import com.faacets.laws.Affines.Positive.arbAffine
+    checkAll("Affine", DataLaws[Affine].textable)
+    checkAll("Affine", AnyRefLaws[Affine]._eq)
+    //  checkAll("Affine", OperationLaws[Expr, Affine].groupoid)
+  }
 
-  checkAll("Lifting", DataLaws[Lifting].textable)
-  checkAll("Lifting", AnyRefLaws[Lifting]._eq)
-  checkAll("Lifting", OperationLaws[Expr, Lifting].groupoid)
+  locally {
+    import com.faacets.laws.Reorderings.{arbReordering, reorderingCloner, reorderingInstances}
+    import com.faacets.laws.Scenarios.Large._
+    checkAll("Reordering", DataLaws[Reordering].textable)
+    checkAll("Reordering", AnyRefLaws[Reordering]._eq)
+//    checkAll("Reordering", OperationLaws[Expr, Reordering].groupoid)
+  }
 
-  checkAll("Affine", DataLaws[Affine].textable)
-  checkAll("Affine", AnyRefLaws[Affine]._eq)
-  checkAll("Affine", OperationLaws[Expr, Affine].groupoid)
+  locally {
+    import com.faacets.laws.Liftings.{arbLifting, liftingInstances, liftingCloner}
+    import com.faacets.laws.Scenarios.Large._
+    checkAll("Lifting", DataLaws[Lifting].textable)
+    checkAll("Lifting", AnyRefLaws[Lifting]._eq)
+//    checkAll("Lifting", OperationLaws[Expr, Lifting].groupoid)
+  }
 
-  checkAll("Relabeling", DataLaws[Relabeling].textable)
-  checkAll("Relabeling", AnyRefLaws[Relabeling]._eq)
-  checkAll("Relabeling", OperationLaws[Expr, Relabeling].groupoid)
+  locally {
+//    import Relabelings.{arbRelabeling, relabelingGenerator, relabelingInstances, relabelingCloner}
+//    checkAll("Relabeling", OperationLaws[Expr, Relabeling].groupoid)
 
-  checkAll("Reordering", DataLaws[Reordering].textable)
-  checkAll("Reordering", AnyRefLaws[Reordering]._eq)
-  checkAll("Reordering", OperationLaws[Expr, Reordering].groupoid)
-*/
+  }
 
 }

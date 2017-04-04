@@ -15,16 +15,15 @@ class RelabelingSuite extends FaacetsSuite {
     assert("".parseUnsafe[PartyRelabeling] === PartyRelabeling.id)
   }
 
-  {
+  locally {
     import Scenarios.Large._
     import Relabelings._
-
     checkAll("Relabeling", AnyRefLaws[Relabeling]._eq)
     checkAll("Relabeling", DataLaws[Relabeling].textable)
     checkAll("Relabeling", GroupLaws[Relabeling].group)
   }
 
-  {
+  locally {
     import net.alasc.perms.default._
     import Scenarios.Small._
     import Relabelings.arbRelabeling
@@ -39,7 +38,7 @@ class RelabelingSuite extends FaacetsSuite {
     PermutationActionLaws[Relabeling].faithfulPermutationAction
   }
 
-  {
+  locally {
     import Scenarios.Small._
 
     nestedCheckAll[Scenario]("Relabeling.Marginal", Scenario.CHSH)(
@@ -50,7 +49,7 @@ class RelabelingSuite extends FaacetsSuite {
 
   }
 
-  {
+  locally {
     import Scenarios.Tiny._
 
     nestedCheckAll[Scenario]("Relabeling.Strategy", Scenario.CHSH)(

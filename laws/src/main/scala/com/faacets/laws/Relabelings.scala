@@ -33,7 +33,7 @@ object Relabelings {
 
   def genRelabeling[V <: PVec[V]](vec: V): Gen[Relabeling] = genRelabeling(vec.scenario)
 
-// TODO  implicit val relabelingGenerator: OperationGenerator[Expr[_ <: Scenario with Singleton], Relabeling] =
-//    OperationGenerator[Expr[_ <: Scenario with Singleton], Relabeling](genRelabeling)
+  implicit def relabelingGenerator[V <: PVec[V]]: Operations.Generator[V, Relabeling] =
+    Operations.Generator[V, Relabeling](genRelabeling(_))
 
 }

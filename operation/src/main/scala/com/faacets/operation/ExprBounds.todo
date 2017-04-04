@@ -59,3 +59,41 @@ class ExprBounds(val expr: Expr) extends AnyVal {
   }
 }
 */
+
+/*
+import org.scalatest.FunSuite
+import core._
+
+class VecSuite extends FunSuite {
+  test("Can parse CHSH in correlator form and verify properties") {
+    val s = Scenario.CHSH
+    val expr: Expr = Expr.parseExpression(s)("<A0 B0> + <A0 B1> + <A1 B0> - <A1 B1> - 2 <>")
+    val ((lb, lf), (ub, uf)) = expr.localBoundsAndLocalFacets
+    assert(lb == -4 && lf && ub == 0 && uf)
+  }
+}
+*/
+
+/*
+import org.scalatest.FunSuite
+
+import spire.math.Rational
+
+import qalg.immutable.QVector
+
+import core._
+import data._
+
+import laws._
+
+class ExprBoundsSuite extends FunSuite {
+
+  test("Local bound of CHSH") {
+    assert(Canonical.chsh.localBoundsAndLocalFacets == ((-2, true), (2, true)))
+  }
+
+  test("Local bound of positivity") {
+    assert(Canonical.positivity.localBounds == (-1, 1))
+  }
+}
+*/

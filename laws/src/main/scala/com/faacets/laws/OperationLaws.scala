@@ -1,5 +1,4 @@
 package com.faacets
-package operation
 package laws
 /*
 import org.typelevel.discipline.Laws

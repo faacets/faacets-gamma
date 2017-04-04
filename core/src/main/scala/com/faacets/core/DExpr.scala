@@ -99,7 +99,7 @@ object DExpr extends GenExprBuilder[DExpr] {
 
   def properNormalizationTest(scenario: Scenario): DExpr = Expr.one(scenario).toDExpr
 
-  def normalizedSubspaceTests(scenario: Scenario): Iterable[DExpr] = {
+  def normalizedSubspaceTests(scenario: Scenario): Seq[DExpr] = {
     val sub = new Array[Int](scenario.nParties)
     val buffer = collection.mutable.ArrayBuffer.newBuilder[DExpr]
     cforRange(1 until scenario.shapeSC.size) { ind =>
@@ -112,7 +112,7 @@ object DExpr extends GenExprBuilder[DExpr] {
     buffer.result()
   }
 
-  def nonSignalingSubspaceTests(scenario: Scenario): Iterable[DExpr] = {
+  def nonSignalingSubspaceTests(scenario: Scenario): Seq[DExpr] = {
     val sub = new Array[Int](scenario.nParties)
     val buffer = collection.mutable.ArrayBuffer.newBuilder[DExpr]
     cforRange(1 until scenario.shapeSC.size) { ind =>

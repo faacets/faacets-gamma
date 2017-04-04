@@ -1,26 +1,13 @@
 package com.faacets
-package operation
 package laws
-/*
-import scala.annotation.tailrec
 
-import org.scalacheck._
-
-import spire.math.Rational
-import spire.syntax.action._
-
-import net.alasc.math.{Domain, Perm}
-import net.alasc.laws._
-import net.alasc.std.seq._
-import net.alasc.laws.Permutations
-
-import core._
-import core.perm._
-import core.laws.OperationGenerator
-
-import data._
-
-import lifting._
+import com.faacets.core.{Expr, Scenario}
+import com.faacets.operation.Lifting
+import com.faacets.operation.lifting.{Grouping, InputGrouping, PartyGrouping}
+import net.alasc.laws.{Cloner, Instances}
+import com.faacets.data.syntax.textable._
+import net.alasc.domains.Partition
+import org.scalacheck.{Arbitrary, Gen}
 
 object Liftings {
 
@@ -38,13 +25,13 @@ object Liftings {
     for {
       x <- Gen.oneOf(partyGrouping.inputs.indices)
       newSize <- Gen.choose(2, 4)
-      newInput = InputGrouping(Domain.Partition.fromSeq(Seq.fill(newSize)(0)))
+      newInput = InputGrouping(Partition.fromSeq(Seq.fill(newSize)(0)))
     } yield PartyGrouping((partyGrouping.inputs.take(x) :+ newInput) ++ partyGrouping.inputs.drop(x))
 
   def replaceOutput(partyGrouping: PartyGrouping): Gen[PartyGrouping] =
     for {
       x <- Gen.oneOf(partyGrouping.inputs.indices)
-      newPartition <- genPartitionOfNumBlocks(partyGrouping.inputs(x).partition.numBlocks)
+      newPartition <- genPartitionOfNumBlocks(partyGrouping.inputs(x).partition.nBlocks)
       newInput = InputGrouping(newPartition)
     } yield partyGrouping.updated(x, newInput)
 
@@ -69,16 +56,16 @@ object Liftings {
   implicit def arbLifting(implicit arbScenario: Arbitrary[Scenario]): Arbitrary[Lifting] =
     Arbitrary(arbScenario.arbitrary.flatMap(genLifting(_)))
 
-  implicit val liftingGenerator: OperationGenerator[Expr, Lifting] =
-    OperationGenerator(expr => genLifting(Grouping(expr.scenario, expr.symmetryGroup)))
+  implicit val liftingGenerator: Operations.Generator[Expr, Lifting] =
+    Operations.Generator(expr => genLifting(Grouping(expr.scenario, expr.symmetryGroup)))
 
   implicit val liftingInstances: Instances[Lifting] =
     Instances(Seq(
-      Lifting("[(2 2) (2 2)]".fromText[Grouping], "[({0 0 1} 2) (2 2)]".fromText[Grouping]),
-      Lifting("[({0 0 1 2} 3)]".fromText[Grouping], "[(3 3)]".fromText[Grouping])
+      Lifting("[(2 2) (2 2)]".parseUnsafe[Grouping], "[({0 0 1} 2) (2 2)]".parseUnsafe[Grouping]),
+      Lifting("[({0 0 1 2} 3)]".parseUnsafe[Grouping], "[(3 3)]".parseUnsafe[Grouping])
     ))
 
   implicit val liftingCloner: Cloner[Lifting] =
     Cloner((l: Lifting) => Lifting(groupingCloner.make(l.source), groupingCloner.make(l.target)))
+
 }
-*/
