@@ -91,13 +91,21 @@ case class ExtractedOperation[V, O](val original: V, val operation: O) {
 
 case class PartitionPolynomial(partition: Partition, coeffs: Map[Set[Int], Rational]) {
 
+  val blockStrings = partition.blocks.map(_.toVector.sorted.map(i => ('A' + i).toChar.toString).mkString)
+
   override def toString = {
     import com.faacets.core.text.Term.printSeq
-    val ct = coeffs.toSeq.map {
-      case (in, coeff) => (coeff, in.toVector.sorted.map(b => partition.blocks(b).toVector.sorted.map(i => ('A' + i).toChar.toString).mkString).mkString("x"))
+    val ct = coeffs.toSeq.collect {
+      case (in, coeff) if !coeff.isZero => (coeff, in.toVector.sorted.map(blockStrings(_)).mkString("x"))
     }.sortBy(_._2)
     printSeq(ct)
   }
+
+}
+
+object PartitionPolynomial {
+
+  implicit val encoder: Encoder[PartitionPolynomial] = Encoder.encodeString.contramap(_.toString)
 
 }
 
@@ -121,6 +129,12 @@ case class PolyProduct[V](pp: PartitionPolynomial, extracted: Vector[CanonicalDe
 }
 
 object PolyProduct {
+
+  implicit def encoder[V:Encoder]: Encoder[PolyProduct[V]] = Encoder.instance { polyProd =>
+    val polyJson = "poly" -> polyProd.pp.asJson
+    val componentsJson = (polyProd.pp.blockStrings zip polyProd.extracted.map(_.asJson))
+    Json.obj(polyJson +: componentsJson: _*)
+  }
 
   // should left be < right ??? TODO
   def merge2[V](partition: Partition, left: PolyProduct[V], right: PolyProduct[V], shift: Rational = Rational.zero): PolyProduct[V] = {
@@ -151,15 +165,8 @@ object PolyProduct {
     val lrCoeffs: Map[Set[Int], Rational] = (for {
       (leftSet, leftR) <- leftCoeffs
       (rightSet, rightR) <- rightCoeffs
-    } yield (leftSet.map(finalBlocksMap(_)) ++ rightSet.map(finalBlocksMap(_)), lr * leftR * rightR))
-    // LMN x 1
-    val lCoeffs: Map[Set[Int], Rational] = leftCoeffs.map { case (leftSet, leftR) => (leftSet.map(finalBlocksMap(_)), l * leftR) }
-    // 1 x RQS
-    val rCoeffs: Map[Set[Int], Rational] = rightCoeffs.map { case (rightSet, rightR) => (rightSet.map(finalBlocksMap(_)), r * rightR) }
-    // 1 x 1
-    val cteCoeffs = Map(Set.empty[Int] -> cte)
-    val all: Map[Set[Int], Seq[Rational]] = (lrCoeffs.toSeq ++ lCoeffs.toSeq ++ rCoeffs.toSeq ++ cteCoeffs).groupBy(_._1).map { case (k, kv) => (k, kv.map(_._2)) }.toMap
-    val finalCoeffs = all.mapValues(seq => seq.foldLeft(Rational.zero)(_ + _))
+    } yield (leftSet.map(finalBlocksMap(_)) ++ rightSet.map(finalBlocksMap(_)), leftR * rightR))
+    val finalCoeffs = lrCoeffs.updated(Set.empty[Int], lrCoeffs.getOrElse(Set.empty[Int], Rational.zero) + shift)
     val allExtracteds: Extracteds = leftExtracteds ++ rightExtracteds
     val finalExtracteds = finalPartition.blocks.toVector.map(block => allExtracteds(block.toSet))
     PolyProduct(PartitionPolynomial(finalPartition, finalCoeffs), finalExtracteds)
