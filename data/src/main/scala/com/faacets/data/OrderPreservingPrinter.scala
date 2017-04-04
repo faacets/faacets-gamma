@@ -10,7 +10,6 @@ import org.yaml.snakeyaml.resolver.Resolver
 import org.yaml.snakeyaml.serializer.Serializer
 import scala.collection.JavaConverters._
 
-
 final case class OrderPreservingPrinter(
                                          preserveOrder: Boolean = false,
                                          dropNullKeys: Boolean = false,
@@ -20,7 +19,7 @@ final case class OrderPreservingPrinter(
                                          indicatorIndent: Int = 0,
                                          tags: Map[String, String] = Map.empty,
                                          sequenceStyle: FlowStyle = FlowStyle.Flow,
-                                         mappingStyle: FlowStyle = FlowStyle.Flow,
+                                         mappingStyle: FlowStyle = FlowStyle.Block,
                                          stringStyle: StringStyle = StringStyle.Plain,
                                          lineBreak: LineBreak = LineBreak.Unix,
                                          explicitStart: Boolean = false,
@@ -45,6 +44,10 @@ final case class OrderPreservingPrinter(
     options.setSplitLines(splitLines)
     options.setIndicatorIndent(indicatorIndent)
     options.setTags(tags.asJava)
+    options.setDefaultFlowStyle(sequenceStyle match {
+      case FlowStyle.Block          => DumperOptions.FlowStyle.BLOCK
+      case FlowStyle.Flow           => DumperOptions.FlowStyle.FLOW
+    })
     options.setDefaultScalarStyle(stringStyle match {
       case StringStyle.Plain        => DumperOptions.ScalarStyle.PLAIN
       case StringStyle.DoubleQuoted => DumperOptions.ScalarStyle.DOUBLE_QUOTED
@@ -81,13 +84,14 @@ final case class OrderPreservingPrinter(
   }
   private def jsonToYaml(json: Json): Node = {
     def convertObject(obj: JsonObject) = {
-      val map = if (dropNullKeys)
-        obj.filter(!_._2.isNull).toMap
-      else
-        obj.toMap
-      new MappingNode(Tag.MAP, map.map {
-        case (k, v) => new NodeTuple(scalarNode(Tag.STR, k), jsonToYaml(v))
-      }.toList.asJava, mappingStyle == FlowStyle.Block)
+      val fields = if (preserveOrder) obj.fields else obj.fieldSet
+      val m = obj.toMap
+      val childNodes = fields.flatMap { key =>
+        val value = m(key)
+        if (!dropNullKeys || !value.isNull) Some(new NodeTuple(scalarNode(Tag.STR, key), jsonToYaml(value)))
+        else None
+      }
+      new MappingNode(Tag.MAP, childNodes.toList.asJava, mappingStyle == FlowStyle.Flow)
     }
     json.fold(
       scalarNode(Tag.NULL, "null"),
@@ -102,14 +106,14 @@ final case class OrderPreservingPrinter(
       str =>
         stringNode(str),
       arr =>
-        new SequenceNode(Tag.SEQ, arr.map(jsonToYaml).asJava, sequenceStyle == FlowStyle.Block),
+        new SequenceNode(Tag.SEQ, arr.map(jsonToYaml).asJava, sequenceStyle == FlowStyle.Flow),
       obj =>
         convertObject(obj)
     )
   }
 }
 object OrderPreservingPrinter {
-  val spaces2 = OrderPreservingPrinter()
+  val spaces2 = OrderPreservingPrinter(preserveOrder = true)
   val spaces4 = OrderPreservingPrinter(indent = 4)
   sealed trait FlowStyle
   object FlowStyle {
