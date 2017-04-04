@@ -1,6 +1,6 @@
 package com.faacets
 package operation
-/*
+
 import org.scalacheck._
 import org.scalacheck.Arbitrary._
 import org.scalatest._
@@ -10,7 +10,7 @@ import spire.math.Rational
 import spire.syntax.eq._
 import spire.syntax.action._
 
-import qalg.immutable.QVector
+/*
 
 import net.alasc.math._
 import net.alasc.math.enum.Representative
@@ -39,5 +39,4 @@ class VecSymmetricFormsSliwa4 extends VecSymmetricFormsCheck(Expr.Sliwa4, 2, _.s
 class VecSymmetricFormsSliwa7 extends VecSymmetricFormsCheck(Expr.Sliwa7, 6, _.symmetricRepresentative)
 
 class VecSymmetricFormsSliwa10 extends VecSymmetricFormsCheck(Expr.Sliwa10, 3, _.cyclicRepresentative)
-
 */

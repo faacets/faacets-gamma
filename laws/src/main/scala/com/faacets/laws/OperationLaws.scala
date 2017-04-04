@@ -1,30 +1,26 @@
 package com.faacets
 package laws
-/*
-import org.typelevel.discipline.Laws
 
+import com.faacets.operation.OperationExtractor
+import org.typelevel.discipline.Laws
 import org.scalacheck.{Arbitrary, Prop}
 import org.scalacheck.Prop._
-
-import spire.algebra.{Eq, Groupoid, PartialAction}
-import spire.std.int._
-import spire.std.boolean._
+import spire.algebra.Eq
+import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.syntax.eq._
-import spire.syntax.bool._
-import spire.syntax.action._
+import spire.syntax.partialAction._
 import spire.laws._
-
-import syntax.all._
-
-import core.laws.OperationGenerator
+import com.faacets.operation.syntax.extractor._
 
 object OperationLaws {
+
   def apply[A : Eq : Arbitrary, O : Eq : Arbitrary] = new OperationLaws[A, O] {
     def EquA = Eq[A]
     def EquO = Eq[O]
     def ArbA = implicitly[Arbitrary[A]]
     def ArbO = implicitly[Arbitrary[O]]
   }
+
 }
 
 trait OperationLaws[A, O] extends Laws {
@@ -39,19 +35,19 @@ trait OperationLaws[A, O] extends Laws {
     P: PartialAction[A, O],
     E: OperationExtractor[A, O],
     C: Arbitrary[Canonical[A]],
-    G: OperationGenerator[A, O]) = new OperationProperties(
+    G: Operations.Generator[A, O]) = new OperationProperties(
     name = "operation",
 
     parent = None,
 
-    bases = Seq("groupoid" -> GroupLaws[O].groupoid),
+    bases = Seq("groupoid" -> PartialGroupLaws[O].groupoid),
 
     "extraction after transformation of canonical" -> forAll((canonical: Canonical[A]) => {
       val Canonical(a) = canonical
       forAll(G.gen(a)) { o =>
         val transformed = (a <|+|? o).get
         val operationBack = transformed.forceExtract[O]
-        val back = transformed <|+| operationBack
+        val back = (transformed <|+|? operationBack).get
         a === back
       }
     })
@@ -63,5 +59,5 @@ trait OperationLaws[A, O] extends Laws {
     val bases: Seq[(String, Laws#RuleSet)],
     val props: (String, Prop)*
   ) extends RuleSet with HasOneParent
+
 }
-*/
