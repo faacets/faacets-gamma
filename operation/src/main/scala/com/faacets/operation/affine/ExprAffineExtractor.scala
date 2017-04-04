@@ -17,7 +17,7 @@ class ExprAffineExtractor extends GroupActionOperationExtractor[Expr, Affine] {
 
   def computeShift(expr: Expr): Rational = expr.inner(Behavior.uniformlyRandom(expr.scenario))
 
-  def partialExtract(expr: Expr): Opt[Affine] = {
+  def extractOperation(expr: Expr): Opt[Affine] = {
     val shift = computeShift(expr)
     val withoutShift = expr - shift
     val factor = withoutShift.coefficients.gcd

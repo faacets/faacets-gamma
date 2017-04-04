@@ -16,8 +16,8 @@ class BarneaSuite extends FaacetsSuite {
       val i2 = Expr.collinsGisin(s,
         Vec[Rational](-1,1,-1,0,0,0,0,0,0,1,-1,1,-1,1,-1,0,0,0,-2,-2,2,-2,0,0,0,0,0,0,0,0,
           -2,0,0,2,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
-      val r1 = OperationExtractor[Expr, Relabeling].forceExtract(i1)
-      val r2 = OperationExtractor[Expr, Relabeling].forceExtract(i2)
+      val r1 = OperationExtractor[Expr, Relabeling].forceExtract(i1).operation
+      val r2 = OperationExtractor[Expr, Relabeling].forceExtract(i2).operation
       val j1 = i1 <|+| r1
       val j2 = i2 <|+| r2
       j1 should ===(j2)

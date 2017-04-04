@@ -30,7 +30,7 @@ final class ScenarioReorderingExtractor extends OperationExtractor[Scenario, Reo
 
   def identity(scenario: Scenario) = Reordering(scenario, scenario)
 
-  def partialExtract(source: Scenario): Opt[Reordering] = {
+  def extractOperation(source: Scenario): Opt[Reordering] = {
     val target = Reordering.reorderScenario(source)
 
     if (source =!= target) Opt(Reordering(source, target)) else Opt.empty[Reordering]

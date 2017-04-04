@@ -46,7 +46,7 @@ trait OperationLaws[A, O] extends Laws {
       val Canonical(a) = canonical
       forAll(G.gen(a)) { o =>
         val transformed = (a <|+|? o).get
-        val operationBack = transformed.forceExtract[O]
+        val operationBack = transformed.forceExtract[O].operation
         val back = (transformed <|+|? operationBack).get
         a === back
       }

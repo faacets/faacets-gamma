@@ -37,7 +37,7 @@ class VecRelabelingExtractor[V <: PVec[V]](implicit val partialAction: PartialAc
 
   def group = Relabeling.group
 
-  def partialExtract(e: V): Opt[Relabeling] = {
+  def extractOperation(e: V): Opt[Relabeling] = {
     val r = Seqs.Representatives.ordered(e.scenario.group, e.scenario.probabilityAction, e.coefficients.toIndexedSeq).minimum
     if (r.isId) Opt.empty[Relabeling] else Opt(r)
   }

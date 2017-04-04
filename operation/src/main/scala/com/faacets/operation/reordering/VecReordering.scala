@@ -62,5 +62,5 @@ final class VecReorderingPartialAction[V <: PVec[V]](implicit builder: PVecBuild
 final class VecReorderingExtractor[V <: PVec[V]](implicit val partialAction: PartialAction[V, Reordering]) extends OperationExtractor[V, Reordering] {
   def groupoid = Reordering.groupoid
   def identity(v: V) = Reordering.scenarioReorderingExtractor.identity(v.scenario)
-  def partialExtract(v: V) = Reordering.scenarioReorderingExtractor.partialExtract(v.scenario)
+  def extractOperation(v: V) = Reordering.scenarioReorderingExtractor.extractOperation(v.scenario)
 }

@@ -8,15 +8,13 @@ import spire.util._
 import spire.syntax.partialAction._
 // import net.alasc.math.enum.Representative
 
-final class ExtractorValueOps[A](val lhs: A) extends AnyVal {
+final class ExtractorValueOps[E](val lhs: E) extends AnyVal {
 
-  def partialExtract[O](implicit ev: OperationExtractor[A, O]): Opt[O] = ev.partialExtract(lhs)
+  def partialExtract[O](implicit ev: OperationExtractor[E, O]): Opt[Extracted.Operation[E, O]] = ev.partialExtract(lhs)
 
-  def forceExtract[O](implicit ev: OperationExtractor[A, O]): O = ev.forceExtract(lhs)
+  def forceExtract[O](implicit ev: OperationExtractor[E, O]): Extracted.Operation[E, O] = ev.forceExtract(lhs)
 
-  def extracted[O](implicit ev: OperationExtractor[A, O], ev1: PartialAction[A, O]): (O, A) = ev.extracted(lhs)
-
-  def canExtract[O](implicit ev: OperationExtractor[A, O]): Boolean = ev.canExtract(lhs)
+  def canExtract[O](implicit ev: OperationExtractor[E, O]): Boolean = ev.canExtract(lhs)
 
 }
 

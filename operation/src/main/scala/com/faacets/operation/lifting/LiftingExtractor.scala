@@ -17,7 +17,7 @@ final class ExprLiftingExtractor extends OperationExtractor[Expr, Lifting] {
     Lifting(grouping, grouping)
   }
 
-  def partialExtract(expr: Expr): Opt[Lifting] = {
+  def extractOperation(expr: Expr): Opt[Lifting] = {
     val grouping = Grouping(expr)
     if (grouping.isLifting) Opt(Lifting(grouping, Grouping.noLifting(grouping.minimalScenario)))
     else Opt.empty[Lifting]
