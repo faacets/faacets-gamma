@@ -10,9 +10,9 @@ import spire.syntax.partialAction._
 
 final class ExtractorValueOps[E](val lhs: E) extends AnyVal {
 
-  def partialExtract[O](implicit ev: OperationExtractor[E, O]): Opt[Extracted.Operation[E, O]] = ev.partialExtract(lhs)
+  def partialExtract[O](implicit ev: OperationExtractor[E, O]): Opt[ExtractedOperation[E, O]] = ev.partialExtract(lhs)
 
-  def forceExtract[O](implicit ev: OperationExtractor[E, O]): Extracted.Operation[E, O] = ev.forceExtract(lhs)
+  def forceExtract[O](implicit ev: OperationExtractor[E, O]): ExtractedOperation[E, O] = ev.forceExtract(lhs)
 
   def canExtract[O](implicit ev: OperationExtractor[E, O]): Boolean = ev.canExtract(lhs)
 

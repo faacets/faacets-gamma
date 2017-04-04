@@ -3,7 +3,6 @@ package com.faacets.operation
 import com.faacets.FaacetsSuite
 import com.faacets.core.Expr
 import com.faacets.laws._
-import com.faacets.operation.Extracted.CanonicalWithAffine
 
 class DecompositionSuite extends FaacetsSuite {
 

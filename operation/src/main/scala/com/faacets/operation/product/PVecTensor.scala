@@ -1,12 +1,12 @@
 package com.faacets.operation.product
 
 import com.faacets.core.{PVec, PVecBuilder, Scenario}
-import com.faacets.operation.TensorProduct
+import com.faacets.operation.Tensor
 import net.alasc.domains.Partition
 import spire.math.Rational
 import spire.syntax.cfor._
 
-final class PVecTensorProduct[V <: PVec[V]](implicit builder: PVecBuilder[V]) extends TensorProduct[V] {
+final class PVecTensor[V <: PVec[V]](implicit builder: PVecBuilder[V]) extends Tensor[V] {
 
   def apply(partition: Partition, expressions: Vector[V]): V = {
     val blocks = partition.blocks.map(_.toVector.sorted)

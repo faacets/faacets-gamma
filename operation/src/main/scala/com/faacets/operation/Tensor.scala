@@ -1,12 +1,12 @@
 package com.faacets.operation
 
 import com.faacets.core.{Behavior, DExpr, Expr, Scenario}
-import com.faacets.operation.product.PVecTensorProduct
+import com.faacets.operation.product.PVecTensor
 import net.alasc.domains.Partition
 import spire.algebra.partial.Groupoid
 import spire.util.Opt
 
-trait TensorProduct[V] {
+trait Tensor[V] {
   /** Constructs an expression from a tensor product, possibly unordered.
     *
     * @param partition   Partition of the parties 0 ... p - 1 into blocks corresponding to expressions.
@@ -15,10 +15,10 @@ trait TensorProduct[V] {
   def apply(partition: Partition, expressions: Vector[V]): V
 }
 
-object TensorProduct {
-  def apply[V](implicit V: TensorProduct[V]): TensorProduct[V] = V
-  implicit val expr: TensorProduct[Expr] = new PVecTensorProduct[Expr]
-  implicit val dExpr: TensorProduct[DExpr] = new PVecTensorProduct[DExpr]
-  implicit val behavior: TensorProduct[Behavior] = new PVecTensorProduct[Behavior]
+object Tensor {
+  def apply[V](implicit V: Tensor[V]): Tensor[V] = V
+  implicit val expr: Tensor[Expr] = new PVecTensor[Expr]
+  implicit val dExpr: Tensor[DExpr] = new PVecTensor[DExpr]
+  implicit val behavior: Tensor[Behavior] = new PVecTensor[Behavior]
 }
 

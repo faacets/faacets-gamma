@@ -29,9 +29,9 @@ trait ProductExtractor[V] {
 
   def cwa: CanonicalWithAffineExtractor[V]
 
-  def partialExtract(v: V): Opt[Extracted.Product[V]]
+  def partialExtract(v: V): Opt[PolyProduct[V]]
 
-  def forceExtract(v: V): Extracted.Product[V] = partialExtract(v) getOrElse(Extracted.Product.ofSingle(cwa(v)))
+  def forceExtract(v: V): PolyProduct[V] = partialExtract(v) getOrElse(PolyProduct.ofSingle(cwa(v)))
 
 }
 
@@ -89,12 +89,12 @@ trait OperationExtractor[V, O] extends Extractor[V] { self =>
     */
   def extractOperation(v: V): Opt[O]
 
-  def partialExtract(v: V): Opt[Extracted.Operation[V, O]] = extractOperation(v) match {
-    case Opt(o) => Opt(Extracted.Operation(v, o))
-    case _ => Opt.empty[Extracted.Operation[V, O]]
+  def partialExtract(v: V): Opt[ExtractedOperation[V, O]] = extractOperation(v) match {
+    case Opt(o) => Opt(ExtractedOperation(v, o))
+    case _ => Opt.empty[ExtractedOperation[V, O]]
   }
 
-  def forceExtract(v: V): Extracted.Operation[V, O] = partialExtract(v).getOrElse(Extracted.Operation(v, identity(v)))
+  def forceExtract(v: V): ExtractedOperation[V, O] = partialExtract(v).getOrElse(ExtractedOperation(v, identity(v)))
 
 }
 
