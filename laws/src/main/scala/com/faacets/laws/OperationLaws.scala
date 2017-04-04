@@ -31,11 +31,11 @@ trait OperationLaws[A, O] extends Laws {
   implicit def ArbO: Arbitrary[O]
 
   def groupoid(implicit
-    O: Groupoid[O],
-    P: PartialAction[A, O],
-    E: OperationExtractor[A, O],
-    C: Arbitrary[Canonical[A]],
-    G: Operations.Generator[A, O]) = new OperationProperties(
+               O: Groupoid[O],
+               P: PartialAction[A, O],
+               E: OperationExtractor[A, O],
+               C: Arbitrary[Canonical[A]],
+               G: Operations.Generator[A, O]) = new OperationProperties(
     name = "operation",
 
     parent = None,

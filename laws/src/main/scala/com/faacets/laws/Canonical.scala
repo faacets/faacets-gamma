@@ -8,7 +8,7 @@ import scalin.immutable.Vec
 import scalin.immutable.dense._
 import data.syntax.textable._
 
-case class Canonical[A](a: A)
+case class Canonical[A](value: A)
 
 object Canonical {
 

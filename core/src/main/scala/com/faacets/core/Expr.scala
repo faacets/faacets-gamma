@@ -109,7 +109,7 @@ class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) e
     else if (scenario.nParties == 2) Table(correlators.reshape(scenario.parties(0).shapeNC.size, scenario.parties(1).shapeNC.size).t)
     else sys.error("Scenarios with > 2 parties are not supported")
 
-  def fullExpression: String = toDExpr.fullExpression
+  def expression: String = toDExpr.expression
 
   def collinsGisinExpression: String = {
     val cgCoeffs = collinsGisin

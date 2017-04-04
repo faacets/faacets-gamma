@@ -49,7 +49,7 @@ class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) 
     Expr.applyUnsafe(scenario, nsCoeffs)
   }
 
-  def fullExpression: String = {
+  def expression: String = {
     val coeffTerms = (0 until coefficients.length).filterNot(i => coefficients(i).isZero).map { ind =>
       val (aa, xx) = scenario.ind2subP(ind)
       (coefficients(ind), FullTerm(aa, xx))

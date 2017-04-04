@@ -36,6 +36,12 @@ trait OperationExtractor[E, O] { self =>
 
   def forceExtract(e: E): O = partialExtract(e).getOrElse(identity(e))
 
+  def extracted(e: E)(implicit ev: PartialAction[E, O]): (O, E) = {
+    val op: O = forceExtract(e)
+    val res: E = ev.partialActr(e, op).get
+    (op, res)
+  }
+
 }
 
 object OperationExtractor {

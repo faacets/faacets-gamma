@@ -96,7 +96,7 @@ class ExpressionSuite extends FaacetsSuite with Inside {
     }
 
     forAll { expr: Expr =>
-      inside(Expr.parseExpression(expr.scenario, expr.fullExpression)) {
+      inside(Expr.parseExpression(expr.scenario, expr.expression)) {
         case Validated.Valid(e) => e === expr
         case _ => fail
       }
