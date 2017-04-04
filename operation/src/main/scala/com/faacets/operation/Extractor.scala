@@ -1,10 +1,11 @@
 package com.faacets
 package operation
 
-import com.faacets.core.Relabeling
+import cats.kernel.Comparison
+import com.faacets.core.{Expr, LexicographicOrder, Relabeling}
 import io.circe.{Encoder, Json}
 import net.alasc.domains.Partition
-import spire.algebra.{Action, Eq, Group, Semigroup}
+import spire.algebra._
 import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.math.Rational
 import spire.util.Opt
@@ -13,6 +14,10 @@ import spire.syntax.groupoid._
 import syntax.extractor._
 import io.circe.syntax._
 import com.faacets.data.instances.textable._
+import com.faacets.operation.reordering.LexicographicPartyOrder
+import scalin.immutable.Vec
+import spire.syntax.order._
+import spire.syntax.cfor._
 
 trait Extractor[E] {
 
@@ -84,7 +89,7 @@ object Extracted {
   def someIfNotId[O:Eq:Groupoid](op: O): Option[O] = if (Groupoid[O].isId(op)) None else Some(op)
 
   object CanonicalWithAffine {
-    def apply[V](original: V)(implicit
+    def apply[V:LexicographicOrder](original: V)(implicit
                               A: PartialAction[V, Affine], AE: OperationExtractor[V, Affine],
                               L: PartialAction[V, Lifting], LE: OperationExtractor[V, Lifting],
                               O: PartialAction[V, Reordering], OE: OperationExtractor[V, Reordering],
@@ -93,8 +98,14 @@ object Extracted {
       val (res1, l) = original.forceExtract[Lifting].extractedPair
       val (res2, o) = res1.forceExtract[Reordering].extractedPair
       val (res3, a) = res2.forceExtract[Affine].extractedPair
-      val (res4, r) = res3.forceExtract[Relabeling].extractedPair
-      CanonicalWithAffine(a, l, o, r, res4)
+      val (vPlus, rPlus) = res3.forceExtract[Relabeling].extractedPair
+      val res3neg = (res3 <|+|? Affine(-1, 0)).get
+      val (vMinus, rMinus) = res3neg.forceExtract[Relabeling].extractedPair
+      LexicographicOrder[V].partialComparison(vPlus, vMinus) match {
+        case Some(Comparison.EqualTo) | Some(Comparison.LessThan) => CanonicalWithAffine(a, l, o, rPlus, vPlus)
+        case Some(Comparison.GreaterThan) => CanonicalWithAffine(a.copy(multiplier = -a.multiplier), l, o, rMinus, vMinus)
+        case _ => sys.error("Cannot happen, both are in the same scenario")
+      }
     }
 
     implicit def encoder[V:Encoder]: Encoder[CanonicalWithAffine[V]] = new Encoder[CanonicalWithAffine[V]] {
@@ -110,8 +121,6 @@ object Extracted {
     }
 
   }
-
-
 
 }
 
@@ -201,8 +210,6 @@ trait GroupActionOperationExtractor[E, O] extends GroupOperationExtractor[E, O] 
   }
 
 }
-
-
 
 /*
 trait Decomposition[A] {

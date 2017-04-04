@@ -8,6 +8,7 @@ import spire.syntax.partialAction._
 import spire.syntax.cfor._
 import spire.math.Rational
 import cats.data.{Validated, ValidatedNel}
+import cats.kernel.Comparison
 import com.faacets.consolidate.{Merge, Result}
 import com.faacets.consolidate.syntax.all._
 import net.alasc.perms.default._
@@ -128,6 +129,21 @@ trait PVecBuilder[V <: PVec[V]] {
     */
   protected[faacets] def updatedWithSymmetryGroup(original: V, newScenario: Scenario, newCoefficients: Vec[Rational],
                                                   symGroupF: Grp[Relabeling] => Option[Grp[Relabeling]]): V
+
+  implicit val lexicographicOrder: LexicographicOrder[V] = new LexicographicOrder[V] {
+
+    def partialComparison(xe: V, ye: V): Option[Comparison] = {
+      if (xe.scenario =!= ye.scenario) return None
+      val x = xe.coefficients
+      val y = ye.coefficients
+      cforRange(0 until x.length) { i =>
+        val c = Order[Rational].comparison(x(i), y(i))
+        if (c != Comparison.EqualTo) return Some(c)
+      }
+      Some(Comparison.EqualTo)
+    }
+
+  }
 
 }
 
