@@ -83,14 +83,16 @@ object Term {
     }
   }
 
-  def printExpression(seq: Seq[(Rational, Term)]) = {
+  def printSeq(seq: Seq[(Rational, String)]): String = {
     val sb = StringBuilder.newBuilder
-    if (seq.length > 0) printHeadCoeff(sb, seq(0)._1, seq(0)._2.string)
+    if (seq.length > 0) printHeadCoeff(sb, seq(0)._1, seq(0)._2)
     cforRange(1 until seq.length) { i =>
-      printTailCoeff(sb, seq(i)._1, seq(i)._2.string)
+      printTailCoeff(sb, seq(i)._1, seq(i)._2)
     }
     sb.toString
   }
+
+  def printExpression(seq: Seq[(Rational, Term)]): String = printSeq(seq.map(tuple => tuple.copy(_2 = tuple._2.string)))
 
 }
 

@@ -19,195 +19,19 @@ import scalin.immutable.Vec
 import spire.syntax.order._
 import spire.syntax.cfor._
 
-trait Extractor[E] {
+trait Extractor[V] {
 
-  def canExtract(e: E): Boolean
-
-}
-
-trait Extracted[E] {
-
-  def original: E
+  def canExtract(v: V): Boolean
 
 }
 
-object Extracted {
+trait ProductExtractor[V] {
 
-  case class Product[V](partition: Partition, polynomial: Map[Set[Int], Rational], extracted: IndexedSeq[Canonical[V]])
+  def cwa: CanonicalWithAffineExtractor[V]
 
-  case class Operation[V, O](val original: V, val operation: O) {
-    def extracted(implicit pa: PartialAction[V, O]): V = pa.partialActr(original, operation).get
-    /** Returns a pair (v, op) such that v is nondegenerate and v <|+| op is the original element. */
-    def extractedPair(implicit pa: PartialAction[V, O], g: Groupoid[O]): (V, O) = (extracted, operation.inverse)
-  }
+  def partialExtract(v: V): Opt[Extracted.Product[V]]
 
-  case class Canonical[V](lifting: Lifting, reordering: Reordering, relabeling: Relabeling, canonical: V)
-                         (implicit L: PartialAction[V, Lifting],
-                          O: PartialAction[V, Reordering],
-                          R: PartialAction[V, Relabeling]) {
-    def original: V = {
-      val step1 = (canonical <|+|? relabeling).get
-      val step2 = (step1 <|+|? reordering).get
-      val step3 = (step2 <|+|? lifting).get
-      step3
-    }
-  }
-
-  object Canonical {
-
-    implicit def encoder[V:Encoder]: Encoder[Canonical[V]] = new Encoder[Canonical[V]] {
-      def apply(ld: Canonical[V]): Json = {
-        val fields = Seq(
-          someIfNotId(ld.lifting).map(l => "lifting" -> l.asJson),
-          someIfNotId(ld.reordering).map(o => "reordering" -> o.asJson),
-          someIfNotId(ld.relabeling).map(r => "relabeling" -> r.asJson)
-        ).flatten :+ ("canonical" -> ld.canonical.asJson)
-        Json.obj(fields: _*)
-      }
-    }
-
-  }
-
-  case class CanonicalWithAffine[V](affine: Affine,
-                                    lifting: Lifting,
-                                    reordering: Reordering,
-                                    relabeling: Relabeling,
-                                    canonical: V)
-                                   (implicit A: PartialAction[V, Affine],
-                                    L: PartialAction[V, Lifting],
-                                    O: PartialAction[V, Reordering],
-                                    R: PartialAction[V, Relabeling]) {
-    def original: V = {
-      val step1 = (canonical <|+|? relabeling).get
-      val step2 = (step1 <|+|? reordering).get
-      val step3 = (step2 <|+|? lifting).get
-      val step4 = (step3 <|+|? affine).get
-      step4
-    }
-  }
-
-  def someIfNotId[O:Eq:Groupoid](op: O): Option[O] = if (Groupoid[O].isId(op)) None else Some(op)
-
-  object CanonicalWithAffine {
-    def apply[V:LexicographicOrder](original: V)(implicit
-                              A: PartialAction[V, Affine], AE: OperationExtractor[V, Affine],
-                              L: PartialAction[V, Lifting], LE: OperationExtractor[V, Lifting],
-                              O: PartialAction[V, Reordering], OE: OperationExtractor[V, Reordering],
-                              R: PartialAction[V, Relabeling], RE: OperationExtractor[V, Relabeling])
-    : CanonicalWithAffine[V] = {
-      val (res1, l) = original.forceExtract[Lifting].extractedPair
-      val (res2, o) = res1.forceExtract[Reordering].extractedPair
-      val (res3, a) = res2.forceExtract[Affine].extractedPair
-      val (vPlus, rPlus) = res3.forceExtract[Relabeling].extractedPair
-      val res3neg = (res3 <|+|? Affine(-1, 0)).get
-      val (vMinus, rMinus) = res3neg.forceExtract[Relabeling].extractedPair
-      LexicographicOrder[V].partialComparison(vPlus, vMinus) match {
-        case Some(Comparison.EqualTo) | Some(Comparison.LessThan) => CanonicalWithAffine(a, l, o, rPlus, vPlus)
-        case Some(Comparison.GreaterThan) => CanonicalWithAffine(a.copy(multiplier = -a.multiplier), l, o, rMinus, vMinus)
-        case _ => sys.error("Cannot happen, both are in the same scenario")
-      }
-    }
-
-    implicit def encoder[V:Encoder]: Encoder[CanonicalWithAffine[V]] = new Encoder[CanonicalWithAffine[V]] {
-      def apply(ld: CanonicalWithAffine[V]): Json = {
-        val fields = Seq(
-          someIfNotId(ld.affine).map(a => "affine" -> a.asJson),
-          someIfNotId(ld.lifting).map(l => "lifting" -> l.asJson),
-          someIfNotId(ld.reordering).map(o => "reordering" -> o.asJson),
-          someIfNotId(ld.relabeling).map(r => "relabeling" -> r.asJson)
-        ).flatten :+ ("canonical" -> ld.canonical.asJson)
-        Json.obj(fields: _*)
-      }
-    }
-
-  }
-
-}
-
-/*
-trait ProductExtractor[E] {
-
-  def partialExtract(e: E): Opt[Extracted.Product[E]]
-
-  def forceExtract(e: E): Extracted.Product[E] = partialExtract(e) getOrElse {
-
-  }
-
-}*/
-
-
-/*
-object ProductExtractor {
-  def allBipartitions(n: Int): IndexedSeq[Domain#Partition] = new IndexedSeq[Domain#Partition] {
-    val bitset = scala.collection.immutable.BitSet(0 until n: _*)
-    def length = ((1 << n) - 2)/2 // 2^n possibilities - 2 (we remove the two cases with an empty block)
-    def apply(index: Int) = {
-      val bits = index + 1 // the integer 0 is a bit vector representing a partition with an empty block
-      val (block0, block1) = bitset.partition(b => (bits & (1 << b)) == 0)
-      Domain.Partition(block0, block1)
-    }
-  }
-}
-*/
-
-
-trait OperationExtractor[E, O] extends Extractor[E] { self =>
-
-  implicit def partialAction: PartialAction[E, O]
-
-  implicit def groupoid: Groupoid[O]
-
-  def identity(e: E): O
-
-  def canExtract(e: E): Boolean = partialExtract(e).nonEmpty
-
-  /** If the given element `e` is not reduced, finds an operation `o` such that the reduced
-    * value is given by `u = e <|+| o` and returns Opt(o) or Opt.empty[O]
-    */
-  def extractOperation(e: E): Opt[O]
-
-  def partialExtract(e: E): Opt[Extracted.Operation[E, O]] = extractOperation(e) match {
-    case Opt(o) => Opt(Extracted.Operation(e, o))
-    case _ => Opt.empty[Extracted.Operation[E, O]]
-  }
-
-  def forceExtract(e: E): Extracted.Operation[E, O] = partialExtract(e).getOrElse(Extracted.Operation(e, identity(e)))
-
-}
-
-object OperationExtractor {
-
-  def apply[E, O](implicit ev: OperationExtractor[E, O]): OperationExtractor[E, O] = ev
-
-}
-
-trait GroupOperationExtractor[E, O] extends OperationExtractor[E, O] { self =>
-
-  implicit def group: Group[O]
-
-  def identity(e: E): O = group.empty
-
-  def groupoid = new Groupoid[O] {
-
-    def inverse(o: O): O = group.inverse(o)
-
-    def partialOp(x: O, y: O): Opt[O] = Opt(group.combine(x, y))
-
-  }
-
-}
-
-trait GroupActionOperationExtractor[E, O] extends GroupOperationExtractor[E, O] { self =>
-
-  implicit def action: Action[E, O]
-
-  def partialAction = new PartialAction[E, O] {
-
-    def partialActr(p: E, g: O): Opt[E] = Opt(action.actr(p, g))
-
-    def partialActl(g: O, p: E): Opt[E] = Opt(action.actl(g, p))
-
-  }
+  def forceExtract(v: V): Extracted.Product[V] = partialExtract(v) getOrElse(Extracted.Product.ofSingle(cwa(v)))
 
 }
 
@@ -234,3 +58,78 @@ trait Decomposition[A] {
      return Some((Affine(factor1 * factor2, shift), in1, rExpr1Norm, rExpr2Norm))*/
 }
 */
+
+/*
+object ProductExtractor {
+  def allBipartitions(n: Int): IndexedSeq[Domain#Partition] = new IndexedSeq[Domain#Partition] {
+    val bitset = scala.collection.immutable.BitSet(0 until n: _*)
+    def length = ((1 << n) - 2)/2 // 2^n possibilities - 2 (we remove the two cases with an empty block)
+    def apply(index: Int) = {
+      val bits = index + 1 // the integer 0 is a bit vector representing a partition with an empty block
+      val (block0, block1) = bitset.partition(b => (bits & (1 << b)) == 0)
+      Domain.Partition(block0, block1)
+    }
+  }
+}
+*/
+
+
+trait OperationExtractor[V, O] extends Extractor[V] { self =>
+
+  implicit def partialAction: PartialAction[V, O]
+
+  implicit def groupoid: Groupoid[O]
+
+  def identity(v: V): O
+
+  def canExtract(v: V): Boolean = partialExtract(v).nonEmpty
+
+  /** If the given element `e` is not reduced, finds an operation `o` such that the reduced
+    * value is given by `u = e <|+| o` and returns Opt(o) or Opt.empty[O]
+    */
+  def extractOperation(v: V): Opt[O]
+
+  def partialExtract(v: V): Opt[Extracted.Operation[V, O]] = extractOperation(v) match {
+    case Opt(o) => Opt(Extracted.Operation(v, o))
+    case _ => Opt.empty[Extracted.Operation[V, O]]
+  }
+
+  def forceExtract(v: V): Extracted.Operation[V, O] = partialExtract(v).getOrElse(Extracted.Operation(v, identity(v)))
+
+}
+
+object OperationExtractor {
+
+  def apply[V, O](implicit ev: OperationExtractor[V, O]): OperationExtractor[V, O] = ev
+
+}
+
+trait GroupOperationExtractor[V, O] extends OperationExtractor[V, O] { self =>
+
+  implicit def group: Group[O]
+
+  def identity(v: V): O = group.empty
+
+  def groupoid = new Groupoid[O] {
+
+    def inverse(o: O): O = group.inverse(o)
+
+    def partialOp(x: O, y: O): Opt[O] = Opt(group.combine(x, y))
+
+  }
+
+}
+
+trait GroupActionOperationExtractor[V, O] extends GroupOperationExtractor[V, O] { self =>
+
+  implicit def action: Action[V, O]
+
+  def partialAction = new PartialAction[V, O] {
+
+    def partialActr(v: V, o: O): Opt[V] = Opt(action.actr(v, o))
+
+    def partialActl(o: O, v: V): Opt[V] = Opt(action.actl(o, v))
+
+  }
+
+}
