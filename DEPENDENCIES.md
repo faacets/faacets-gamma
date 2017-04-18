@@ -19,4 +19,4 @@
 - [attributes](http://github.com/denisrosset/attributes)
 - [cyclo](http://github.com/denisrosset/spire-cyclo)
 - [metal](http://github.com/denisrosset/metal)
-- [snakeyaml](www.snakeyaml.org)
+- [snakeyaml](http://www.snakeyaml.org)
