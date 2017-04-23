@@ -28,26 +28,26 @@ lazy val faacets = (project in file("."))
 
 lazy val data = (project in file("data"))
   .settings(moduleName := "faacets-data")
-  .settings(faacetsSettings: _*)
-  .settings(commonJvmSettings: _*)
+  .settings(faacetsSettings)
+  .settings(commonJvmSettings)
 
 lazy val laws = (project in file("laws"))
   .settings(moduleName := "faacets-laws")
-  .settings(faacetsSettings: _*)
-  .settings(lawsSettings:_*)
-  .settings(commonJvmSettings: _*)
+  .settings(faacetsSettings)
+  .settings(lawsSettings)
+  .settings(commonJvmSettings)
   .dependsOn(core, data, operation)
 
 lazy val core = (project in file("core"))
   .settings(moduleName := "faacets-core")
   .settings(faacetsSettings)
-  .settings(commonJvmSettings: _*)
+  .settings(commonJvmSettings)
   .dependsOn(data)
 
 lazy val operation = (project in file("operation"))
   .settings(moduleName := "faacets-operation")
   .settings(faacetsSettings)
-  .settings(commonJvmSettings: _*)
+  .settings(commonJvmSettings)
   .dependsOn(core, data)
 
 
@@ -60,10 +60,10 @@ lazy val docs = (project in file("docs"))
 
 lazy val tests = (project in file("tests"))
   .settings(moduleName := "faacets-tests")
-  .settings(faacetsSettings: _*)
-  .settings(testSettings:_*)
-  .settings(noPublishSettings:_*)
-  .settings(commonJvmSettings: _*)
+  .settings(faacetsSettings)
+  .settings(testSettings)
+  .settings(noPublishSettings)
+  .settings(commonJvmSettings)
   .dependsOn(core, data, laws, operation)
 
 lazy val docsSettings = Seq(
@@ -94,8 +94,11 @@ lazy val docsSettings = Seq(
   fork in tut := true
 )
 
+lazy val faacetsSettings = buildSettings ++ commonSettings ++ publishSettings ++ packSettings
 
-lazy val faacetsSettings = buildSettings ++ commonSettings ++ publishSettings
+lazy val packSettings = packAutoSettings ++ Seq(
+  packMakeTemplate := "Makefile.mustache"
+)
 
 lazy val buildSettings = Seq(
   organization := "com.faacets",
