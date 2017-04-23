@@ -183,6 +183,8 @@ object Relabeling extends RelabelingCompanion {
   implicit val imprimitiveImprimitiveRelabelingRepBuilder: FaithfulPermutationActionBuilder[Relabeling] =
     new ImprimitiveImprimitiveRelabelingRepBuilder
 
+  implicit val tripletAction: Action[(Symbol, Int, Int), Relabeling] = new RelabelingTripletAction
+
   implicit val textable: Textable[Relabeling] = Textable.fromParser[Relabeling](perm.Parsers.relabeling, _.toString)
 
   def unapply(r: Relabeling): Option[(Map[Int, PartyRelabeling], Perm)] =

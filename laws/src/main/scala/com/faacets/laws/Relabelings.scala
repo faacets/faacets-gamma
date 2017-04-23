@@ -36,4 +36,12 @@ object Relabelings {
   implicit def relabelingGenerator[V <: PVec[V]]: Operations.Generator[V, Relabeling] =
     Operations.Generator[V, Relabeling](genRelabeling(_))
 
+  def genTriplet(maxPartyIndex: Int, maxInputIndex: Int, maxOutputIndex: Int): Gen[(Symbol, Int, Int)] = for {
+    p <- Gen.choose(0, maxPartyIndex)
+    x <- Gen.choose(0, maxInputIndex)
+    a <- Gen.choose(0, maxOutputIndex)
+  } yield (Symbol(('A' + p).toChar.toString), x, a)
+
+  implicit val arbTriplets: Arbitrary[(Symbol, Int, Int)] = Arbitrary(genTriplet(25, 9, 9))
+
 }

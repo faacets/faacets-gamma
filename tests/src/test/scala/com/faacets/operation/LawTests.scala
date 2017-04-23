@@ -6,28 +6,13 @@ import com.faacets.laws.{DataLaws, OperationLaws}
 import com.faacets.operation.lifting.Grouping
 import net.alasc.laws.AnyRefLaws
 
-/* TODO
-import scala.reflect.ClassTag
-import spire.algebra._
-import spire.algebra.lattice._
-import spire.math._
-import spire.laws._
-
-*/
-// import scala.{specialized => spec}
 import org.typelevel.discipline.scalatest.Discipline
-// import org.scalacheck.{Arbitrary, Gen, Prop}
-// import org.typelevel.discipline.Laws
 import org.scalatest.FunSuite
 
-class LawTests extends FunSuite with Discipline {
-
-  import com.faacets.laws.Groupings._
-  import com.faacets.laws.Liftings._
-  import com.faacets.laws.Reorderings._
-
+class LawTests extends FaacetsSuite {
 
   {
+    import com.faacets.laws.Groupings._
     import com.faacets.laws.Scenarios.Large._
     checkAll("Grouping", DataLaws[Grouping].textable)
     checkAll("Grouping", AnyRefLaws[Grouping]._eq)
@@ -62,7 +47,6 @@ class LawTests extends FunSuite with Discipline {
   }
 
   locally {
-    import com.faacets.operation.instances.expr._
     import com.faacets.laws.Relabelings.{arbRelabeling, relabelingGenerator}
     import com.faacets.laws.Scenarios.Small._
     import com.faacets.laws.Exprs.arbExpr

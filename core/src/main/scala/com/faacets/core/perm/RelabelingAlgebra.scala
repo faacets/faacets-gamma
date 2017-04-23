@@ -10,6 +10,22 @@ import spire.syntax.cfor._
 
 import net.alasc.perms.Perm
 
+final class RelabelingTripletAction extends Action[(Symbol, Int, Int), Relabeling] {
+
+  override def actl(r: Relabeling, triplet: (Symbol, Int, Int)): (Symbol, Int, Int) = actr(triplet, r.inverse)
+
+  override def actr(triplet: (Symbol, Int, Int), r: Relabeling): (Symbol, Int, Int) = {
+    val p = triplet._1.name.charAt(0) - 'A'
+    val x = triplet._2
+    val a = triplet._3
+    val newA = a <|+| r.aPerm(p, x)
+    val newX = x <|+| r.xPerm(p)
+    val newP = p <|+| r.pPerm
+    (Symbol(('A' + newP).toChar.toString), newX, newA)
+  }
+
+}
+
 final class RelabelingEq extends Eq[Relabeling] {
 
   def eqv(q: Relabeling, r: Relabeling): Boolean = {

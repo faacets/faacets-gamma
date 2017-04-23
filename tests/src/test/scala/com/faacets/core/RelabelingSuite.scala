@@ -1,6 +1,7 @@
 package com.faacets.core
 
-import spire.laws.GroupLaws
+import spire.algebra.{Eq, Group}
+import spire.laws.{ActionLaws, GroupLaws}
 import com.faacets.FaacetsSuite
 import com.faacets.laws._
 import org.typelevel.discipline.Laws
@@ -21,6 +22,13 @@ class RelabelingSuite extends FaacetsSuite {
     checkAll("Relabeling", AnyRefLaws[Relabeling]._eq)
     checkAll("Relabeling", DataLaws[Relabeling].textable)
     checkAll("Relabeling", GroupLaws[Relabeling].group)
+    implicit val eqSymbol: Eq[Symbol] = Eq.fromUniversalEquals[Symbol]
+    import spire.std.tuples._
+    import spire.std.int._
+    checkAll("Relabeling", ActionLaws[Relabeling, (Symbol, Int, Int)].groupAction)
+    forAll( (r: Relabeling) => r === (r.outputPart |+| r.inputPart |+| r.partyPart) )
+    forAll( (r: Relabeling) => r === (r.outputInputPart |+| r.partyPart ) )
+    forAll( (r: Relabeling) => r === Group[Relabeling].combineAll(r.components.map(_.get)) )
   }
 
   locally {
@@ -55,6 +63,10 @@ class RelabelingSuite extends FaacetsSuite {
     nestedCheckAll[Scenario]("Relabeling.Strategy", Scenario.CHSH)(
       relabelingLaws(_.strategyAction)(_))
 
+  }
+
+  test("Action on triplets") {
+    (('A, 0, 1) <|+| (rel"A0(0,1,2) A(0,2) (A,C)")) shouldBe (('C, 2, 2))
   }
 
 }
