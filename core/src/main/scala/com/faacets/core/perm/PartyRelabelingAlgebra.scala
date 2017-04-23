@@ -9,6 +9,20 @@ import spire.syntax.action._
 import spire.syntax.cfor._
 import net.alasc.perms.Perm
 
+final class PartyRelabelingPairAction extends Action[(Int, Int), PartyRelabeling] {
+
+  override def actl(pr: PartyRelabeling, pair: (Int, Int)): (Int, Int) = actr(pair, pr.inverse)
+
+  override def actr(pair: (Int, Int), pr: PartyRelabeling): (Int, Int) = {
+    val x = pair._1
+    val a = pair._2
+    val newA = a <|+| pr.aPerm(x)
+    val newX = x <|+| pr.xPerm
+    (newX, newA)
+  }
+
+}
+
 final class PartyRelabelingEq extends Eq[PartyRelabeling] {
 
   def eqv(q: PartyRelabeling, r: PartyRelabeling): Boolean = {

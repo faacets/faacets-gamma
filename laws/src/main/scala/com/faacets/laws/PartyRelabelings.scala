@@ -36,4 +36,12 @@ object PartyRelabelings {
   implicit val partyRelabelingCloner: Cloner[PartyRelabeling] = Cloner( (pr: PartyRelabeling) =>
     PartyRelabeling(pr.outputRelabelingMap, pr.xPerm) )
 
+  def genPair(maxInputIndex: Int, maxOutputIndex: Int): Gen[(Int, Int)] = for {
+    x <- Gen.choose(0, maxInputIndex)
+    a <- Gen.choose(0, maxOutputIndex)
+  } yield (x, a)
+
+  implicit val arbPairs: Arbitrary[(Int, Int)] = Arbitrary(genPair(9, 9))
+
+
 }

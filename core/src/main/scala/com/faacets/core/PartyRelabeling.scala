@@ -139,6 +139,8 @@ object PartyRelabeling extends PartyRelabelingCompanion {
 
   implicit val equ: Eq[PartyRelabeling] = new PartyRelabelingEq
 
+  implicit val pairAction: Action[(Int, Int), PartyRelabeling] = new PartyRelabelingPairAction
+
   implicit val textable: Textable[PartyRelabeling] = Textable.fromParser[PartyRelabeling](perm.Parsers.partyRelabeling, _.toString)
 
   implicit lazy val imprimitivePartyRelabelingRepBuilder: FaithfulPermutationActionBuilder[PartyRelabeling] =
