@@ -9,6 +9,7 @@
 - [consolidate](http://github.com/denisrosset/consolidate): cats, shapeless
 - [discipline](http://github.com/typelevel/discipline)
 - [FastParse](http://github.com/lihaoyi/fastparse): lihaoyi/sourcecode (no further deps)-
+- [gluon](http://github.com/denisrosset/gluon)
 - [scalin](http://github.com/denisrosset/scalin): spire
 - [shapeless](http://github.com/milessabin/shapeless): standard macro plugins
 - [spire](http://github.com/non/spire): cats, algebra

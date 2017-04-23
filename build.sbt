@@ -8,6 +8,7 @@ val circeVersion = "0.7.0"
 val circeYamlVersion = "0.5.0"
 val consolidateVersion = "0.4"
 val fastParseVersion = "0.4.2"
+val gluonVersion = "0.1"
 val scalinVersion = "0.14.1.0"
 val shapelessVersion = "2.3.2"
 val spireVersion = "0.14.1"
@@ -111,13 +112,14 @@ lazy val commonSettings = Seq(
     Resolver.sonatypeRepo("snapshots"),
     Resolver.sonatypeRepo("releases")
   ),
-  libraryDependencies ++= Seq(
+  libraryDependencies ++= Seq( // update DEPENDENCIES.md on change
     "net.alasc" %% "alasc-core" % alascVersion,
     "org.typelevel" %% "cats" % catsVersion,
     "io.circe" %% "circe-core" % circeVersion,
     "io.circe" %% "circe-yaml" % circeYamlVersion,
     "com.faacets" %% "consolidate" % consolidateVersion,
     "com.lihaoyi" %% "fastparse" % fastParseVersion,
+    "com.faacets" %% "gluon" % gluonVersion,
     "net.alasc" %% "scalin-core" % scalinVersion,
     "com.chuusai" %% "shapeless" % shapelessVersion,
     "org.typelevel" %% "spire" % spireVersion

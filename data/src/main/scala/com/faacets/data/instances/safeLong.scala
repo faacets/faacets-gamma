@@ -4,7 +4,9 @@ package instances
 import scala.util.Try
 import spire.math.SafeLong
 import com.faacets.consolidate.Merge
+import com.faacets.gluon.{AdapterException, ArgAdapter, ResAdapter}
 import io.circe._
+import spire.syntax.eq._
 
 trait SafeLongInstances {
   import scala.util.{Left, Right}
@@ -39,5 +41,13 @@ trait SafeLongInstances {
   implicit val safeLongMerge: Merge[SafeLong] = Merge.fromEquals[SafeLong]
 
   implicit val safeLongTextable: Textable[SafeLong] = Textable.fromParser[SafeLong](Parsers.safeLong, _.toString)
+
+  implicit val safeLongArgAdapter: ArgAdapter[SafeLong] = ArgAdapter[BigInt].map("SafeLong")(SafeLong(_))
+
+  implicit val safeLongResAdapter: ResAdapter[SafeLong, Double] = ResAdapter[SafeLong, Double]("SafeLong") { sl =>
+    if (sl =!= SafeLong(BigDecimal(sl.toBigInt.toDouble).toBigInt))
+      throw new AdapterException(s"Integer $sl does not fit in Double")
+    sl.toDouble
+  }
 
 }
