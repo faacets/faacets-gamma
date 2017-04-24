@@ -2,15 +2,14 @@ global gluon_loaded;
 if (~exist('gluon_loaded')) || (~isequal(gluon_loaded, 1))
     tic;
     disp('Gluon: adding JARs to path');
-    javaaddpath([pwd '/lib/scala-compiler-2.12.1.jar']);
-    javaaddpath([pwd '/lib/scala-library-2.12.1.jar']);
-    javaaddpath([pwd '/lib/scala-reflect-2.12.1.jar']);
-    javaaddpath([pwd '/lib/scala-xml_2.12-1.0.6.jar']);
-    % look for all Gluon releases in the current directory
-    % and load the most recent
-    gluonjarfiles = dir('lib/gluon_2.12*.jar');
-    gluonjarnames = sort({gluonjarfiles.name});
-    javaaddpath(['lib/' gluonjarnames{length(gluonjarnames)}]);
+    files = dir([pwd '/lib/*.jar']);
+    if length(files) == 0
+        error('Please run gluon_init when the current path has a lib/ subfolder with the required JARs');
+    end
+    for i = 1:length(files)
+	jarname = files(i).name;
+        javaaddpath([pwd '/lib/' jarname]);
+    end
     disp('Gluon: initializing');
     import com.faacets.gluon.*
     i = Interface.compile(Interface.squareCode);
