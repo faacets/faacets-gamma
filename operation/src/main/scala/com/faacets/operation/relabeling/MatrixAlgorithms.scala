@@ -1,22 +1,22 @@
 package com.faacets
 package operation
 package relabeling
-/*
+
+import net.alasc.algebra.PermutationAction
+import net.alasc.bsgs.{BaseGuideLex, Chain, GrpChain, GrpChainPermutationAction, Node, Term, TrivialNode}
+import net.alasc.domains.Partition
+import net.alasc.finite.Grp
+
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
-
-import spire.algebra.Action
+import spire.algebra.{Action, Group}
 import spire.syntax.cfor._
 import spire.syntax.group._
 import spire.syntax.action._
 import spire.util._
-
-import net.alasc.algebra.{FaithfulPermutationAction, FiniteGroup, InversePair, Representation}
-import net.alasc.math.{Grp, Domain}
-import net.alasc.math.bsgs.{Chain, Node, TrivialNode, Term}
-import net.alasc.math.guide.{BaseGuideLex, BaseGuideSeq}
-import net.alasc.math.enum.{Algorithms => EnumAlgorithms}
-import net.alasc.syntax.finiteGroup._
+import net.alasc.syntax.group._
+import net.alasc.perms.default._
+import net.alasc.perms.orbits.RepresentativesArrayInt
 
 object MatrixAlgorithms {
   /** Returns the row and columns permutations that brings a matrix to its minimal lexicographic representatives, when the matrix is enumerated in
@@ -27,20 +27,20 @@ object MatrixAlgorithms {
     * @param matrix   Function that returns the element (r,c) of the matrix as an (ordered) integer >= 0
     * @param rGrp     Group whose action permutes the rows
     * @param cGrp     Group whose action permutes the columns
-    * @param rRep     Permutation representation of the group `rGrp` on the rows of the matrix
-    * @param cRep     Permtuation representation of the group `cGrp` on the columns of the matrix
+    * @param rAction  Action of the group `rGrp` on the rows of the matrix
+    * @param cAction  Action of the group `cGrp` on the columns of the matrix
     * @param firstCol Optional fast function to compute the minimal representative of a column under the full group rGrp.
     * 
     * @return permutations (rPerm, cPerm) such that matrix'(r, c) = matrix(r <|+| rPerm, cPerm <|+|) is lexicographically minimal when
     *         enumerated in row-major order
     */
-  def findMinimalPermutation[R, C](nrows: Int, ncols: Int, matrix: (Int, Int) => Int, rGrp: Grp[R], cGrp: Grp[C], rRep: Representation[R], cRep: Representation[C], firstCol: Option[(Int => Int) => R] = None): (R, C) = {
-    implicit def rFiniteGroup: FiniteGroup[R] = rGrp.algebra
-    implicit def cFiniteGroup: FiniteGroup[C] = cGrp.algebra
-    implicit def rAction: FaithfulPermutationAction[R] = rRep.action
-    implicit def rClassTag: ClassTag[R] = rGrp.gClassTag
-    implicit def cClassTag: ClassTag[C] = cGrp.gClassTag
-    implicit def cAction: FaithfulPermutationAction[C] = cRep.action
+  def findMinimalPermutation[R:ClassTag:GrpChainPermutationAction, C:ClassTag:GrpChainPermutationAction](nrows: Int, ncols: Int, matrix: (Int, Int) => Int,
+                                   rGrp: Grp[R], cGrp: Grp[C],
+                                   rAction: PermutationAction[R], cAction: PermutationAction[C], firstCol: Option[(Int => Int) => R] = None): (R, C) = {
+    implicit def rGroup: Group[R] = rGrp.group
+    implicit def cGroup: Group[C] = cGrp.group
+    implicit def rActionImplicit: rAction.type = rAction
+    implicit def cActionImplicit: cAction.type = cAction
 
     // keeps a flat copy of the best minimal representative found so far, valid for the columns up to minimalCorrectBefore
     val minimal = new Array[Int](nrows * ncols)
@@ -53,8 +53,8 @@ object MatrixAlgorithms {
     // for each column c, stores the subgroup of rGrp that leaves the columns 0 to c included invariant
     val minimalSub = new Array[Grp[R]](ncols)
     // permutations of rows and columns that give the best minimal representative stored in minimal
-    var minimalR = rFiniteGroup.id
-    var minimalC = cFiniteGroup.id
+    var minimalR = Group[R].id
+    var minimalC = Group[C].id
     // compares the column c1, with its rows permuted by rPerm1 to the minimal column stored at minimalC2 (convention: permutedseq(i) = seq(i <|+| perm))
     def compareToMinimal(c1: Int, rPerm1: R, minimalC2: Int): Int = {
       cforRange(0 until nrows) { r =>
@@ -64,20 +64,17 @@ object MatrixAlgorithms {
       0
     }
     // returns the intersection fo grp with the symmetry subgroup of the c-th column permuted by rPerm (convention: permutedseq(i) = seq(i <|+| perm))
-    def symmetrySubgroup(grp: Grp[R], rPerm: R, c: Int) = {
-      implicit def representations = grp.representations
-      implicit def algorithms = grp.algorithms
-      Grp.fromChain(FixingSeq.fixing(grp.chain(rRep), nrows, r => matrix(r <|+| rPerm, c)), Nullbox(rRep))
-    }
+    def symmetrySubgroup(grp: Grp[R], rPerm: R, c: Int) =
+      GrpChainPermutationAction[R].fixingPartition(grp, rAction, Partition.fromSeq(Seq.tabulate(nrows)(r => matrix(r <|+| rPerm, c))))
     // recurses column by column to find the best minimal representative
-    def rec(level: Int, toLevel: Int, rPerm: R, cPerm: C, rSubGrp: Grp[R], cChain: Chain[C], cSymGrp: Grp[C]): Unit = cChain match {
-      case node: Node[C] if level <= toLevel =>
-        val candidatesRPerm = debox.Buffer.empty[R]
-        val candidatesCPerm = debox.Buffer.empty[C]
+    def rec(level: Int, toLevel: Int, rPerm: R, cPerm: C, rSubGrp: Grp[R], cChain: Chain[C, cAction.type], cSymGrp: Grp[C]): Unit = cChain match {
+      case node: Node[C, cAction.type] if level <= toLevel =>
+        val candidatesRPerm = metal.mutable.Buffer.empty[R]
+        val candidatesCPerm = metal.mutable.Buffer.empty[C]
         val beta = node.beta
         val nextBeta = node.next match {
-          case nextNode: Node[C] => nextNode.beta
-          case _: Term[C] => ncols
+          case nextNode: Node[C, cAction.type] => nextNode.beta
+          case _: Term[C, cAction.type] => ncols
         }
         if (nextBeta > minimalCorrectBefore) {
           @tailrec def populateRec(c: Int, rSubGrp1: Grp[R]): Unit =
@@ -103,9 +100,9 @@ object MatrixAlgorithms {
               val newRPerm1 = firstCol match {
                 case Some(fun) if c == 0 => fun(r => matrix(r, ccp))
                 case _ =>
-                  val rLexChain1 = rSubGrp1.chain(rRep, BaseGuideLex(nrows))
+                  val rLexChain1 = GrpChainPermutationAction[R].fromGrp(rSubGrp1, rAction, Opt(BaseGuideLex(nrows)))
                   val rSymGrp1 = symmetrySubgroup(rSubGrp1, rPerm1, ccp)
-                  EnumAlgorithms.findMinimalPermutation(nrows, r => matrix(r <|+| rPerm1, ccp), rLexChain1, rSymGrp1, rRep) |+| rPerm1
+                  RepresentativesArrayInt.findPermutationToMinimal(Array.tabulate(nrows)(r => matrix(r <|+| rPerm1, ccp)), rLexChain1, rSymGrp1) |+| rPerm1 // or inverse of RepArrayInt ??? TODO
               }
               val comp = compareToMinimal(ccp, newRPerm1, c)
               if (comp < 0 || isBetter) {
@@ -132,7 +129,7 @@ object MatrixAlgorithms {
         cforRange(0 until candidatesCPerm.length) { i =>
           val nextCPerm = candidatesCPerm(i)
           val ccp = beta <|+| nextCPerm
-          val (nextCSymGrp, transversal) = cSymGrp.stabilizer(ccp, cRep)
+          val (nextCSymGrp, transversal) = GrpChainPermutationAction[C].stabilizerTransversal(cSymGrp, cAction, ccp)
           if (transversal.orbitMin == ccp) {
             val nextRPerm = candidatesRPerm(i)
             val nextRSub = minimalSub(nextBeta - 1)
@@ -141,16 +138,16 @@ object MatrixAlgorithms {
         }
       case _ =>
     }
-    val cLexChain = cGrp.chain(cRep, BaseGuideLex(ncols)) match {
-      case node: Node[C] if node.beta == 0 => node
-      case other => TrivialNode(0, cFiniteGroup.id, other)
+    val cLexChain = GrpChainPermutationAction[C].fromGrp(cGrp, cAction, Opt(BaseGuideLex(ncols))).chain match {
+      case node: Node[C, cAction.type] if node.beta == 0 => node
+      case other => TrivialNode[C, cAction.type](0, other)
     }
     val cols = (0 until ncols).map(c => Seq.tabulate(nrows)(r => matrix(r, c)))
-    val cSym = cGrp.fixingPartition(Domain.Partition.fromSeq(cols), cRep)
+    val cSym = cGrp.fixingPartition(cAction, Partition.fromSeq(cols))
     cforRange(0 until cLexChain.length) { i =>
-      rec(0, i, rFiniteGroup.id, cFiniteGroup.id, rGrp, cLexChain, cSym)
+      rec(0, i, Group[R].id, Group[C].id, rGrp, cLexChain, cSym)
     }
     (minimalR, minimalC)
   }
+
 }
-*/
