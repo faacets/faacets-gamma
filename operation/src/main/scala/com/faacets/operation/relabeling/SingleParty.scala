@@ -1,17 +1,12 @@
 package com.faacets
 package operation
 package relabeling
-/*
-import scala.collection.immutable
-import scala.collection.mutable
 
 import spire.algebra.{Action, Order}
 import spire.syntax.group._
 import spire.syntax.action._
-
-import net.alasc.math.Perm
-
 import core._
+import net.alasc.perms.Perm
 import perm._
 
 /** Single party marginals
@@ -23,10 +18,9 @@ object SingleParty {
   type Value = Int
   /** Returns the party relabeling `pr` such that `(seq <|+| pr.inverse)` is minimal. */
   def findMinimalPermutation(party: Party)(seqF: Int => Value): PartyRelabeling = {
-    implicit def representation = party.probabilityRepresentation
     implicit def action = party.probabilityAction
 
-    val length = representation.size
+    val length = party.shapeP.size
     val n = party.inputs.length
     val inputOffset: Array[Int] = party.shape.imprimitive.offsets
     def inputIndices(x: Int): Seq[Int] = inputOffset(x) until inputOffset(x + 1)
@@ -42,7 +36,7 @@ object SingleParty {
       val outputPerms = sortedInputInd.map( images =>
         Perm.fromImages(images)
       )
-      PartyRelabeling(outputPerms, Perm.Algebra.id)
+      PartyRelabeling(outputPerms, Perm.id)
     }
 
     val inputPerm: PartyRelabeling = {
@@ -68,4 +62,3 @@ object SingleParty {
     inputPerm |+| outputPerm
   }
 }
-*/
