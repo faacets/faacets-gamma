@@ -2,10 +2,10 @@ package com.faacets
 package operation
 
 import com.faacets.core.perm.ShapeLattice
+
 import scala.collection.immutable
 import scala.collection.mutable
 import scala.annotation.tailrec
-import spire.math.Rational
 import spire.syntax.group._
 import spire.syntax.action._
 import spire.syntax.eq._
@@ -15,33 +15,34 @@ import net.alasc.bsgs.{GrpChain, GrpChainPermutationAction, Node}
 import net.alasc.finite.Grp
 import net.alasc.perms.default._
 import net.alasc.perms.Perm
+import spire.algebra.partial.PartialAction
 import spire.util.Opt
 
-/*
 // notes: http://groupprops.subwiki.org/wiki/Coset_intersection_problem
 // http://groupprops.subwiki.org/wiki/Double_coset_membership_testing_problem
+trait SymmetricForms[A] {
 
-trait SymmetricForms[A] extends Any {
-  def action: NullboxPartialAction[A, Relabeling]
+  implicit def action: PartialAction[A, Relabeling]
 
   def symmetryGroup(a: A): Grp[Relabeling]
 
-  def symmetricRepresentative(a: A): Representative[A, Relabeling] =
-    new Representative[A, Relabeling] {
-      val actionTG = action
-      val original = a
-      val element = SymmetricForms.findSymmetricForm(symmetryGroup(a))
-    }
+  def symmetricRepresentative(a: A): ExtractedOperation[A, Relabeling] =
+    ExtractedOperation(a, SymmetricForms.findSymmetricForm(symmetryGroup(a)))
 
-  def cyclicRepresentative(a: A): Representative[A, Relabeling] =
-    new Representative[A, Relabeling] {
-      val actionTG = action
-      val original = a
-      val element = SymmetricForms.findCyclicForm(symmetryGroup(a))
-    }
-}*/
+  def cyclicRepresentative(a: A): ExtractedOperation[A, Relabeling] =
+    ExtractedOperation(a, SymmetricForms.findCyclicForm(symmetryGroup(a)))
+
+}
 
 object SymmetricForms {
+
+  implicit val exprSymmetricForms: SymmetricForms[Expr] = new SymmetricForms[Expr] {
+
+    def action = instances.expr.operationExprRelabelingPartialAction
+
+    def symmetryGroup(a: Expr) = a.symmetryGroup
+
+  }
 
   def findSymmetricForm(symGrp: Grp[Relabeling]): Relabeling = {
     val nParties = symGrp.generators.map(_.nParties).fold(1)(_ max _)

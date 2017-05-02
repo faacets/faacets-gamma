@@ -25,7 +25,7 @@ class MatrixAlgorithmsSuite extends FaacetsSuite {
     val ncols = 4
     val rGrp = Grp(Perm(0, 1), Perm(0, 1, 2, 3))
     val cGrp = Grp(Perm(0, 1), Perm(0, 1, 2, 3))
-    val (permR, permC) = MatrixAlgorithms.findMinimalPermutation(nrows, ncols, (r, c) => matrix(r)(c), rGrp, cGrp, Perm.algebra, Perm.algebra)
+    val (permR, permC) = MatrixAlgorithmsMaybeBroken.findMinimalPermutation(nrows, ncols, (r, c) => matrix(r)(c), rGrp, cGrp, Perm.algebra, Perm.algebra)
     val matrixMin = Seq.tabulate[Int](nrows, ncols)((r, c) => matrix(r <|+| permR)(c <|+| permC))
     val matrixMinShouldBe = Seq(Seq(1, 2, 3, 4), Seq(1, 2, 3, 4), Seq(1, 2, 3, 4), Seq(1, 2, 3, 4))
     assert(matrixMin == matrixMinShouldBe)
@@ -61,8 +61,8 @@ class MatrixAlgorithmsSuite extends FaacetsSuite {
 
         val matrix1 = Seq.tabulate[Int](nrows, ncols)((r, c) => matrix(r <|+| randR)(c <|+| randC))
 
-        val (permR, permC) = MatrixAlgorithms.findMinimalPermutation(nrows, ncols, (r, c) => matrix(r)(c), rGrp, cGrp, permAction, permAction)
-        val (permR1, permC1) = MatrixAlgorithms.findMinimalPermutation(nrows, ncols, (r, c) => matrix1(r)(c), rGrp, cGrp, permAction, permAction)
+        val (permR, permC) = MatrixAlgorithmsMaybeBroken.findMinimalPermutation(nrows, ncols, (r, c) => matrix(r)(c), rGrp, cGrp, permAction, permAction)
+        val (permR1, permC1) = MatrixAlgorithmsMaybeBroken.findMinimalPermutation(nrows, ncols, (r, c) => matrix1(r)(c), rGrp, cGrp, permAction, permAction)
 
         val res = Seq.tabulate[Int](nrows, ncols)((r, c) => matrix(r <|+| permR)(c <|+| permC))
         val res1 = Seq.tabulate[Int](nrows, ncols)((r, c) => matrix1(r <|+| permR1)(c <|+| permC1))

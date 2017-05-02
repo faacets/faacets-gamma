@@ -2,11 +2,8 @@ package com.faacets
 package operation
 package syntax
 
-import spire.algebra.partial.PartialAction
+import com.faacets.core.Relabeling
 import spire.util._
-
-import spire.syntax.partialAction._
-// import net.alasc.math.enum.Representative
 
 final class ExtractorValueOps[E](val lhs: E) extends AnyVal {
 
@@ -18,9 +15,10 @@ final class ExtractorValueOps[E](val lhs: E) extends AnyVal {
 
 }
 
-/*
 final class SymmetricFormsOps[T](val lhs: T)(implicit ev: SymmetricForms[T]) {
-  def symmetricRepresentative: Representative[T, Relabeling] = ev.symmetricRepresentative(lhs)
-  def cyclicRepresentative: Representative[T, Relabeling] = ev.cyclicRepresentative(lhs)
+
+  def symmetricRepresentative: ExtractedOperation[T, Relabeling] = ev.symmetricRepresentative(lhs)
+
+  def cyclicRepresentative: ExtractedOperation[T, Relabeling] = ev.cyclicRepresentative(lhs)
+
 }
-*/

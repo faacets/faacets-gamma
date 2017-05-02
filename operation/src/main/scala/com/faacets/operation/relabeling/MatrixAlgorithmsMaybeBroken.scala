@@ -18,7 +18,7 @@ import net.alasc.syntax.group._
 import net.alasc.perms.default._
 import net.alasc.perms.orbits.RepresentativesArrayInt
 
-object MatrixAlgorithms {
+object MatrixAlgorithmsMaybeBroken {
   /** Returns the row and columns permutations that brings a matrix to its minimal lexicographic representatives, when the matrix is enumerated in
     * row-major order.
     * 
@@ -102,7 +102,7 @@ object MatrixAlgorithms {
                 case _ =>
                   val rLexChain1 = GrpChainPermutationAction[R].fromGrp(rSubGrp1, rAction, Opt(BaseGuideLex(nrows)))
                   val rSymGrp1 = symmetrySubgroup(rSubGrp1, rPerm1, ccp)
-                  RepresentativesArrayInt.findPermutationToMinimal(Array.tabulate(nrows)(r => matrix(r <|+| rPerm1, ccp)), rLexChain1, rSymGrp1) |+| rPerm1 // or inverse of RepArrayInt ??? TODO
+                  RepresentativesArrayInt.findPermutationToMinimal(Array.tabulate(nrows)(r => matrix(r <|+| rPerm1, ccp)), rLexChain1, rSymGrp1).inverse |+| rPerm1 // or inverse of RepArrayInt ??? TODO
               }
               val comp = compareToMinimal(ccp, newRPerm1, c)
               if (comp < 0 || isBetter) {
