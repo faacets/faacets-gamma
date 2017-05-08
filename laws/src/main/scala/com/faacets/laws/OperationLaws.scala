@@ -10,6 +10,7 @@ import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.syntax.eq._
 import spire.syntax.partialAction._
 import spire.laws._
+import spire.std.boolean._
 import com.faacets.operation.syntax.extractor._
 
 object OperationLaws {
@@ -42,7 +43,7 @@ trait OperationLaws[A, O] extends Laws {
 
     bases = Seq("groupoid" -> PartialGroupLaws[O].groupoid),
 
-    "extraction after transformation of canonical" -> forAll((canonical: Canonical[A]) => {
+    "extraction after transformation of canonical" -> forAll { (canonical: Canonical[A]) =>
       val Canonical(a) = canonical
       forAll(G.gen(a)) { o =>
         val transformed = (a <|+|? o).get
@@ -50,7 +51,16 @@ trait OperationLaws[A, O] extends Laws {
         val back = (transformed <|+|? operationBack).get
         a === back
       }
-    })
+    },
+
+    "cannot extract twice" -> forAll { (canonical: Canonical[A]) =>
+      val Canonical(a) = canonical
+      forAll(G.gen(a)) { o =>
+        val transformed = (a <|+|? o).get
+        val operationBack = transformed.forceExtract[O].extracted
+        operationBack.canExtract[O] === false
+      }
+    }
   )
 
   class OperationProperties(
