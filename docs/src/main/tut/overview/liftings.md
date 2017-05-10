@@ -6,11 +6,11 @@ section: "overview"
 
 # Liftings
 
-Any Bell inequality is attached to a [Bell scenario](scenario.html): different Bell scenarios admit different Bell inequalities. However, some inequalities belonging to different scenarios are strongly related to each other. The operation consisting in _lifting a Bell inequality_ to a more complete scenario gives rise to such strongly related Bell inequalities.
+Every Bell inequality is defined in a [Bell scenario](scenario.html). Different Bell scenarios admit different Bell inequalities. However, inequalities belonging to different scenarios can sometime be strongly related to each other. The operation consisting in _lifting a Bell inequality_ to a more complete scenario gives rise to such strongly related Bell inequalities.
 
 ## Outcomes Lifting
 
-This case concerns the situation in which an new scenario is created by the adjunction of possible outcomes to some of the settings, as in `[(2 2) (2 3)]` compared to `[(2 2) (2 2)]`.
+The output lifting of an inequality concerns the situation in which an new scenario is created by the adjunction of possible outcomes to some of the settings, as in `[(2 2) (2 3)]` compared to `[(2 2) (2 2)]`.
 
 Here, any Bell inequality defined in the simpler scenario remains valid in the larger scenario (i.e. with zero coefficients assigned to probabilities involving the new outcomes), but stronger inequalities can also be obtained. Namely, it was shown in [this paper](https://arxiv.org/abs/quant-ph/0503179) that assigning to the new outcome the same role as one of the existing outcome lead to an inequality which preserved the facet property of the original Bell inequality. The inequality obtained in this way is referred to as an _outcome lifted_ Bell inequality.
 
