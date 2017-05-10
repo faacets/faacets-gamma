@@ -10,7 +10,7 @@ Oriented Bell expressions are described by a Bell expression along with a direct
 
 Each direction `lower` and `upper` can have the following properties:
 
-##bounds
+## bounds
 
 Bounds corresponding to different sets of interest can be listed here through a mapping list. The mapping keys `local`, `quantum` and `no-signaling` are reserved for the usual accordingly named sets. The mapping values are given by a string expression made of:
 
@@ -33,7 +33,7 @@ bounds:
 
 Here, the `[-inf, 2.828427124746191]` interval expression for the quantum bound interval signifies that we have obtained an approximation for the quantum bound through relaxations, so that the real upper bound is below `2.828427124746191`. The `-inf` side of the interval could be replaced by finding an explicit state and measurements that achieve a quantum value.
 
-##keywords
+## keywords
 
 Keywords can also be associated to an oriented Bell expression. For now, no keywords are reserved, nor is any keywords automatically computed for oriented expressions. Keywords here respect the same syntax as the ones for Bell expressions mentioned above.
 
