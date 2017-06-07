@@ -57,39 +57,38 @@ For both methods, first install git / SBT  as detailed in [Getting started with 
 
 1) Clone the faacets *website* repository.
 
-   git clone https://github.com/denisrosset/faacets-playnew
-   cd faacets-playnew
-   
-   
-2) The first time the `sbt` command is called, several software modules will be downloaded.
-   This download takes several minutes. When this is finished, type
-   
-       run
-   
-   This launches the Faacets server on your local computer.
-   
-3) Open a web browser at the address http://localhost:9000 .
+    git clone https://github.com/denisrosset/faacets-playnew
+    cd faacets-playnew
 
-Note: additional lengthy downloads may occur at steps 2) and 3), and are subsequently cached by the local Ivy/Maven repository on your computer.
+
+2) The first time the `sbt` command is called, several software modules will be downloaded and cached in the local Ivy/Maven repository on your computer. This download takes several minutes. When this is finished, type
+
+    run
+
+When all downloads are finished, this launches the Faacets server on your local computer.
+
+3) Open a web browser at the address [http://localhost:9000](http://localhost:9000).
+
 
 ### Production mode (Docker)
 
 The website is packaged using Docker containers.
 
-Install Docker: follow the instructions on the Docker website, including
+Install Docker: follow the instructions on the [Docker website](https://www.docker.com), including
 "Manage Docker as a non-root user" in the post-installation steps.
 
-1) Clone the Git repository
+1) Clone the Git repository with `git clone https://github.com/denisrosset/faacets-playnew`
+
 2) Run `sbt docker:publishLocal` to create a local Docker container with the version
+
 3) Run `docker run -e APPLICATION_SECRET=1234 --net="host" faacets-playnew:0.14.1.0-SNAPSHOT`
    where `1234` is the application secret (does not matter much, as all the website is public)
    and where `0.14.1.0-SNAPSHOT` is the version you want to run. By default, we run the networking
    on the host (i.e. the port 9000 will be opened on the host).
-4) Connect to http://localhost:9000
+
+4) Connect to [http://localhost:9000](http://localhost:9000)
 
 ## How to use Faacets in Matlab
 
 As of March 2017, there are no bindings for Matlab. 
 The previous solution (Java adapters) has too high maintenance burden, we will consider lighter alternatives in the future. 
-
-[TODO]

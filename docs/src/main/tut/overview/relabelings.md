@@ -8,7 +8,7 @@ section: "overview"
 
 In a Bell experiment, no preferential importance is attached to any particular party, measurement setting or outcome. Therefore, any two inequalities which can be related by a relabelling of the parties, inputs or outputs that is compatible with the Bell scenario are viewed as equivalent.
 
-Any relabeling is a permutation of parties, inputs and outputs. As such, it can be specified by describing the permutation acting at each level.
+A relabeling is a permutation of parties, inputs and outputs. As such, it can be specified by describing the permutation acting at each level.
 
 A _permutation of parties_ is written in the [cycle notation](https://en.wikipedia.org/wiki/Permutation#Cycle_notation), using letters. For example, the permutation of Alice and Bob (the first two parties) is written `(A, B)`.
 
