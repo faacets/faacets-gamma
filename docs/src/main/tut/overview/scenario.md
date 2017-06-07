@@ -35,3 +35,6 @@ In general, the following notation characterizes an arbitrary Bell scenario: $$[
 Notice that parties `(3 2)` and `(2 3)` have essentially the same measurement structure: the only difference lies in a reordering of the measurement settings. We thus define a party description as _canonical_ when its successive numbers of outcomes are non-increasing. The canonical form of `(2 3)` is then `(3 2)`.
 
 Similarly, notice that scenarios `[(2 2) (3 3)]` and `[(3 3) (2 2)]` are identical up to a reordering of the parties. The canonical form of a scenario is then defined as the one in which all its parties' structures are themselves canonical and ordered lexicographically. Hence, in a canonical scenario, we have either $$m_{i}<j$$ or $$k_{i,j} \geq k_{i',j}$$ for all parties $$i,i'$$ with $$i'>i$$ and any measurement setting $$j$$. The canonical form of `[(2 3 4) (5 6)]` is thus `[(6 5) (4 3 2)]`.
+
+## Note
+Scenarios can also be specified using a more detailed 'partition' notation, as explained [here](liftings.html). This notation is also suited to describe the relation between two scenarios.
