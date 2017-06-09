@@ -7,7 +7,7 @@ import spire.algebra.Group
 import net.alasc.perms.{Cycle, Cycles, Perm}
 import net.alasc.syntax.all._
 import spire.math.interval.{Bound, Closed, Unbound}
-import spire.math.{Interval, Rational, SafeLong}
+import spire.math.{Interval, Point, Rational, SafeLong}
 
 object Parsers {
 
@@ -112,18 +112,18 @@ object Parsers {
     val scalar: P[Scalar] = P( decimalScalar | exactScalar )
   }
 
-  object value {
-    val exactValue: P[Value] = P( scalar.scalar ).map(Value.Exact(_))
+  object intervalScalar {
+    val point: P[Point[Scalar]] = P( scalar.exactScalar ).map(s => Point(s))
     val lowerClosedBound: P[Bound[Scalar]] = P( "[" ~ scalar.scalar ).map(x => Closed(x))
     val upperClosedBound: P[Bound[Scalar]] = P( scalar.scalar ~ "]" ).map(x => Closed(x))
     val lowerUnbound: P[Bound[Scalar]] = P("]" ~ "-" ~ "inf").map(x => Unbound[Scalar])
     val upperUnbound: P[Bound[Scalar]] = P("+".? ~ "inf" ~ "[").map(x => Unbound[Scalar])
     val lowerBound: P[Bound[Scalar]] = P(lowerUnbound | lowerClosedBound)
     val upperBound: P[Bound[Scalar]] = P(upperUnbound | upperClosedBound)
-    val intervalValue: P[Value] = P( lowerBound ~ "," ~ upperBound ).map {
-      case (l, u) => Value.Range(Interval.fromBounds(l, u))
+    val bracketIntervalScalar: P[Interval[Scalar]] = P( lowerBound ~ "," ~ upperBound ).map {
+      case (l, u) => Interval.fromBounds(l, u)
     }
-    val value: P[Value] = P( intervalValue | exactValue )
+    val intervalScalar: P[Interval[Scalar]] = P( bracketIntervalScalar | point )
   }
 
 }

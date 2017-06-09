@@ -25,19 +25,27 @@ object Textable {
     * @param toText0 toString function
     */
   def fromParser[T](phrase: Parser[T], toText0: T => String): Textable[T] = new Textable[T] {
-
     import Parsers.White._
-
-    val untilEnd = phrase ~ End
-
+    val untilEnd = Start ~ phrase ~ End
     def toText(t: T): String = toText0(t)
-
     def fromText(string: String): ValidatedNel[String, T] =
       untilEnd.parse(string) match {
         case Parsed.Success(t, _) => Validated.valid(t)
         case f => Validated.invalidNel(f.toString)
       }
+  }
 
+  def fromParserAndValidation[T, U](phrase: Parser[T],
+                                    validation: T => ValidatedNel[String, U],
+                                    toText0: U => String): Textable[U] = new Textable[U] {
+    import Parsers.White._
+    val untilEnd = Start ~ phrase ~ End
+    def toText(u: U): String = toText0(u)
+    def fromText(string: String): ValidatedNel[String, U] =
+      untilEnd.parse(string) match {
+        case Parsed.Success(t, _) => validation(t)
+        case f => Validated.invalidNel(f.toString)
+      }
   }
 
 }

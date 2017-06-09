@@ -18,11 +18,6 @@ class ValueSuite extends FaacetsSuite with Inside {
       "cos(-pi/4)",
       "cos(-pi/3) + 1/2",
       "3*sqrt(3) + 2*sqrt(5)/3",
-      // implicit intervals
-      "2 * 3.14",
-      "2*3.14/3 - 3/4",
-      "-3.14/5 + 1",
-      "-2*3.14/4 + 4/5",
       // intervals
       "[1, 2.3]",
       "[2*sin(3*pi/2)/3, 101.4]",
@@ -39,7 +34,8 @@ class ValueSuite extends FaacetsSuite with Inside {
       "2 cos(3)", // the * operator is required
       "2.3 + 4.5", // arithmetic of decimals is not allowed
       "sqrt(-3)", // negative square root are imaginary and not allowed
-      "2*[1, 2] + 3/4" // arithmetic on intervals is not supported
+      "2*[1, 2] + 3/4", // arithmetic on intervals is not supported
+      "2 * 3.14" // decimal numbers are only supported in intervals
     )
 
   test("Valid examples") {

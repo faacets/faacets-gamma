@@ -1,87 +1,99 @@
 package com.faacets.data
 
-import cats.data.NonEmptyList
+import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import cyclo.RealCyclo
-import spire.ClassTag
 import spire.algebra.Order
 import spire.math.{Above, All, Below, Bounded, Empty, Interval, Point, Rational, SafeLong}
 import spire.math.interval.{Closed, Unbound}
 import com.faacets.consolidate.{Merge, Path, Result}
-import spire.syntax.eq._
 
+case class Value(interval: Interval[Scalar]) {
+  def toRealCycloInterval: Interval[RealCyclo] = interval.mapBounds(_.toRealCyclo)
+  require {
+    interval match {
+      case Point(s) => !s.isDecimal
+      case Empty() => false
+      case b: Bounded[Scalar] => b.lowerBound.isClosed && b.upperBound.isClosed
+      case a: Above[Scalar] => a.lowerBound.isClosed
+      case b: Below[Scalar] => b.upperBound.isClosed
+      case All() => true
+    }
+  }
 
-/** Knowledge about a quantity, either as an exact value or an interval. */
-trait Value {
-  def toInterval: Interval[RealCyclo]
+  override def toString = interval match {
+    case All() => "]-inf, inf["
+    case Above(lower, flags) => s"[$lower, inf["
+    case Below(upper, flags) => s"]-inf, $upper]"
+    case Bounded(lower, upper, flags) => s"[$lower, $upper]"
+    case Point(s) => s.toString
+    case Empty() => sys.error("Impossible case")
+  }
 }
 
 object Value {
 
-  case class Exact(scalar: Scalar) extends Value {
-    override def toString = scalar.toString
-    def toInterval = scalar.toInterval
-  }
-
-  case class Range(interval: Interval[Scalar]) extends Value {
-    require(!interval.isEmpty)
-    require(!interval.isPoint)
-    override def toString = interval match {
-      case All() => "]-inf, inf["
-      case Above(lower, flags) => s"[$lower, inf["
-      case Below(upper, flags) => s"]-inf, $upper]"
-      case Bounded(lower, upper, flags) => s"[$lower, $upper]"
-      case _: Point[Scalar] | _: Empty[Scalar] => sys.error("Impossible case")
+  def validate(interval: Interval[Scalar]): ValidatedNel[String, Value] = {
+    def valid = Validated.Valid(Value(interval))
+    interval match {
+      case All() => valid
+      case Empty() => Validated.invalidNel("Intervals cannot be empty, check lower bound < upper bound")
+      case Point(s) if s.isDecimal => Validated.invalidNel("Decimal numbers can only enter intervals with lower bound < upper bound")
+      case Point(s) => valid
+      // remains Above/Below/Bounded
+      case a: Above[Scalar] if a.lowerBound.isClosed => valid
+      case b: Below[Scalar] if b.upperBound.isClosed => valid
+      case b: Bounded[Scalar] if b.lowerBound.isClosed && b.upperBound.isClosed => valid
+      case _ => Validated.invalidNel("Open bounds are only supported on the values +/- inf")
     }
-    def toInterval = Interval.fromBounds(
-      interval.lowerBound.map(_.lowerBound),
-      interval.upperBound.map(_.upperBound)
-    )
   }
 
   implicit val valueMerge: Merge[Value] = new Merge[Value] {
     def merge(base: Value, other: Value): Result[Value] = {
-      val baseI = base.toInterval
-      val otherI = other.toInterval
+      val baseI = base.toRealCycloInterval
+      val otherI = other.toRealCycloInterval
       if (otherI.isSupersetOf(baseI)) Result.same(base)
       else if (!baseI.intersects(otherI)) Result.failed(NonEmptyList.of(Path.empty -> s"Values $base and $other do not overlap"))
       else {
         if (baseI.isSupersetOf(otherI)) Result.updated(other, NonEmptyList.of(Path.empty -> s"Refined value $base into $other"))
-        def extractLB(v: Value): Option[Scalar] = v match {
-          case Exact(s) => Some(s)
-          case Range(Above(s, _)) => Some(s)
-          case Range(Bounded(s, _, _)) => Some(s)
+        def extractLB[A](i: Interval[A]): Option[A] = i match {
+          case Point(s) => Some(s)
+          case Above(s, _) => Some(s)
+          case Bounded(s, _, _) => Some(s)
           case _ => None
         }
-        def extractUB(v: Value): Option[Scalar] = v match {
-          case Exact(s) => Some(s)
-          case Range(Below(s, _)) => Some(s)
-          case Range(Bounded(_, s, _)) => Some(s)
+        def extractUB[A](i: Interval[A]): Option[A] = i match {
+          case Point(s) => Some(s)
+          case Below(s, _) => Some(s)
+          case Bounded(_, s, _) => Some(s)
           case _ => None
         }
-        val lbs: Seq[Scalar] = extractLB(base).toSeq ++ extractLB(other).toSeq
-        val ubs: Seq[Scalar] = extractUB(base).toSeq ++ extractUB(other).toSeq
+        val lbs: Seq[Scalar] = extractLB(base.interval).toSeq ++ extractLB(other.interval).toSeq
+        val ubs: Seq[Scalar] = extractUB(base.interval).toSeq ++ extractUB(other.interval).toSeq
         implicit val rcOrdering: Ordering[RealCyclo] = Order[RealCyclo].toOrdering
-        val lb = if (lbs.isEmpty) Unbound[Scalar] else Closed(lbs.maxBy(_.lowerBound))
-        val ub = if (ubs.isEmpty) Unbound[Scalar] else Closed(ubs.minBy(_.upperBound))
+        val lb = if (lbs.isEmpty) Unbound[Scalar] else Closed(lbs.maxBy(_.toRealCyclo))
+        val ub = if (ubs.isEmpty) Unbound[Scalar] else Closed(ubs.minBy(_.toRealCyclo))
         println(lb -> ub)
-        val newValue = Value.Range(Interval.fromBounds(lb, ub))
-        Result.updated(newValue, NonEmptyList.of(Path.empty -> s"Refined values $base and $other into $newValue"))
+        Value.validate(Interval.fromBounds(lb, ub)) match {
+          case Validated.Valid(newValue) =>
+            Result.updated(newValue, NonEmptyList.of(Path.empty -> s"Refined values $base and $other into $newValue"))
+          case Validated.Invalid(errors) => Result.failed(errors.map(Path.empty -> _))
+        }
       }
     }
   }
 
-  implicit val valueTextable: Textable[Value] = Textable.fromParser(Parsers.value.value, _.toString)
+  implicit val valueTextable: Textable[Value] =
+    Textable.fromParserAndValidation(Parsers.intervalScalar.intervalScalar, Value.validate,_.toString)
 
 }
+
 
 /** Scalar value written either using a member of the real cyclotomic field, or a
   * scaled and shifted decimal approximation.
   */
 trait Scalar {
-  def lowerBound: RealCyclo
-  def midPoint: RealCyclo
-  def upperBound: RealCyclo
-  def toInterval: Interval[RealCyclo]
+  def isDecimal: Boolean
+  def toRealCyclo: RealCyclo
   def *(rhs: Rational): Scalar
   def /(rhs: Rational): Scalar
   def +(rhs: Rational): Scalar
@@ -90,7 +102,7 @@ trait Scalar {
 
 object Scalar {
 
-  implicit val scalarOrder: Order[Scalar] = Order[RealCyclo].on[Scalar](_.midPoint)
+  implicit val scalarOrder: Order[Scalar] = Order[RealCyclo].on[Scalar](_.toRealCyclo)
 
   def apply(bd: BigDecimal): Scalar = Decimal(1, bd, 0)
   def apply(r: Rational): Scalar = Exact(RealCyclo(r))
@@ -101,6 +113,7 @@ object Scalar {
 
   /** Represents a value of the form "factor * decimal + shift". */
   case class Decimal(factor: Rational, decimal: BigDecimal, shift: Rational) extends Scalar {
+    def isDecimal = true
     require(decimal.signum > 0)
     override def toString = {
       val sb = new StringBuilder
@@ -120,12 +133,7 @@ object Scalar {
       }
       sb.result()
     }
-    val asRational = Rational(decimal)
-    val halfWidth = Rational(BigDecimal(5, decimal.scale + 1))
-    def lowerBound = RealCyclo((asRational - halfWidth)*factor + shift)
-    def midPoint = RealCyclo(asRational)
-    def upperBound = RealCyclo((asRational + halfWidth)*factor + shift)
-    def toInterval = Interval.closed(lowerBound, upperBound)
+    lazy val toRealCyclo = RealCyclo(Rational(decimal))
     def *(rhs: Rational): Scalar = copy(factor = factor*rhs, shift = shift*rhs)
     def /(rhs: Rational): Scalar = copy(factor = factor/rhs, shift = shift/rhs)
     def +(rhs: Rational): Scalar = copy(shift = shift + rhs)
@@ -134,11 +142,9 @@ object Scalar {
 
   /** Represents a value with an exact real cyclotomic number. */
   case class Exact(cyclo: RealCyclo) extends Scalar {
+    def isDecimal = false
     override def toString = cyclo.toString
-    def lowerBound = cyclo
-    def upperBound = cyclo
-    def midPoint = cyclo
-    def toInterval = Interval.point(cyclo)
+    def toRealCyclo = cyclo
     def *(rhs: Rational): Scalar = Exact(cyclo * RealCyclo(rhs))
     def /(rhs: Rational): Scalar = Exact(cyclo / RealCyclo(rhs))
     def +(rhs: Rational): Scalar = Exact(cyclo + RealCyclo(rhs))
