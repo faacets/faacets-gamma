@@ -4,10 +4,11 @@ package data
 import org.scalacheck.Arbitrary
 import Arbitrary.arbitrary
 import spire.math.{Rational, SafeLong}
-
 import scalin.immutable.Vec
 import spire.algebra.Eq
-import com.faacets.laws.DataLaws
+import com.faacets.laws.{DataLaws, RealCyclos}
+import cyclo.RealCyclo
+import RealCyclos.arbRealCyclo
 
 class LawTests extends FaacetsSuite {
 
@@ -32,5 +33,7 @@ class LawTests extends FaacetsSuite {
   checkAll("DataLaws[Rational].textable", DataLaws[Rational].textable)
 
   checkAll("DataLaws[SafeLong].textable", DataLaws[SafeLong].textable)
+
+  checkAll("DataLaws[RealCyclo].textable", DataLaws[RealCyclo].textable)
 
 }

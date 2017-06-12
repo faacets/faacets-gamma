@@ -5,6 +5,7 @@ trait AllInstances
     with JsonObjectInstances
     with PermInstances
     with RationalInstances
+    with RealCycloInstances
     with SafeLongInstances
     with TextableInstances
     with VecInstances

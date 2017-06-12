@@ -17,9 +17,5 @@ trait TextableInstances {
       ForcedStringDecoder.accumulating(c) andThen ( str => Textable[T].fromText(str).toAccumulatingDecoderResult )
 
   }
-  /*
-    Decoder.instance[T] { cursor =>
-    ForcedStringDecoder(cursor).andThen( str => Textable[T].fromText(str).toAccumulatingDecoderResult )
-  }*/
 
 }
