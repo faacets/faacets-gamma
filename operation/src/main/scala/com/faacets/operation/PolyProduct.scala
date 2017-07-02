@@ -1,102 +1,157 @@
 package com.faacets.operation
 
-import com.faacets.core.{AdditiveGroupoid, Relabeling}
+import com.faacets.core.{AdditiveGroupoid, Expr, Relabeling}
+import com.faacets.operation.product.{PartitionHelpers, Rank1}
 import io.circe.{Encoder, Json}
-import net.alasc.domains.Partition
+import net.alasc.domains.{Partition, PartitionMap}
 import spire.algebra.partial.PartialAction
 import spire.math.Rational
 import io.circe.syntax._
+import scalin.immutable.Mat
+import spire.algebra.Action
+import spire.syntax.action._
 import spire.syntax.partialAction._
+import spire.syntax.group._
+import spire.util.Opt
 
-case class PartitionPolynomial(partition: Partition, coeffs: Map[Set[Int], Rational]) {
+import scala.collection.immutable.BitSet
 
-  val blockStrings = partition.blocks.map(_.toVector.sorted.map(i => ('A' + i).toChar.toString).mkString)
+/** Represents a sum of tensor products of expressions of type A. */
+case class PolyProduct[A](components: Map[Set[Int], A], coeffs: Map[Set[Set[Int]], Rational]) {
 
-  override def toString = {
+  override def toString = polyString + ";" + components.toString
+
+  require(coeffs.values.forall(!_.isZero))
+
+  def +(r: Rational): PolyProduct[A] = {
+    val newCoeffs = coeffs.updated(Set.empty[Set[Int]], coeffs.getOrElse(Set.empty[Set[Int]], Rational.zero) + r).filterNot(_._2.isZero)
+    PolyProduct(components, newCoeffs)
+  }
+
+  def polyString: String = {
     import com.faacets.core.text.Term.printSeq
-    val ct = coeffs.toSeq.collect {
-      case (in, coeff) if !coeff.isZero => (coeff, in.toVector.sorted.map(blockStrings(_)).mkString("x"))
+    val ct = coeffs.toSeq.map {
+      case (in, coeff) => (coeff, PolyProduct.partsString(in))
     }.sortBy(_._2)
     printSeq(ct)
   }
 
-}
-
-object PartitionPolynomial {
-
-  implicit val encoder: Encoder[PartitionPolynomial] = Encoder.encodeString.contramap(_.toString)
-
-}
-
-case class PolyProduct[V](pp: PartitionPolynomial, extracted: Vector[CanonicalDec[V]]) {
-  def allCanonicals: Seq[V] = extracted.map(_.canonical)
-  def original(implicit G: AdditiveGroupoid[V], A: PartialAction[V, Affine], L: PartialAction[V, Lifting], O: PartialAction[V, Reordering], R: PartialAction[V, Relabeling], P: Tensor[V]): V = {
-    import pp.{coeffs, partition}
-    val n = partition.nBlocks
-    require(extracted.length == n)
-    val originals = extracted.map(_.original)
-    val zeros = originals.map(v => G.groupoid.leftId(v))
-    val ones = zeros.map(v => (v <|+|? Affine(1, 1)).get)
-    val zero = P(partition, zeros)
+  def original(implicit G: AdditiveGroupoid[A], A: Action[A, Affine], T: Tensor[A]): A = {
+    val zeros = components.mapValues(G.groupoid.leftId)
+    val ones = zeros.mapValues(_ <|+| Affine(Rational.one, Rational.one))
+    val allParts = components.keySet
+    val zero = Tensor[A].apply(allParts.map( part => (part -> zeros(part)) ).toMap)
     coeffs.foldLeft(zero) {
-      case (acc, (in, coeff)) =>
-        val exprs = Vector(0 until n: _*).map { b => if (in.contains(b)) originals(b) else ones(b) }
-        val expr = (P(partition, exprs) <|+|? Affine(coeff, 0)).get
-        G.groupoid.partialOp(acc, expr).get
+      case (acc, (partsPresent, coeff)) =>
+        val componentsForCoeff: Map[Set[Int], A] = allParts.map { part =>
+          val component: A = if (partsPresent.contains(part)) components(part) else ones(part)
+          (part -> component)
+        }.toMap
+        val newTerm = Tensor[A].apply(componentsForCoeff) <|+| Affine(coeff, Rational.zero)
+        G.groupoid.partialOp(acc, newTerm).get
     }
   }
+
+  def map[B](f: A => B): PolyProduct[B] = PolyProduct(components.mapValues(f), coeffs)
+
+//  def toProductTree: Option[ProductTree[A]] = ???
+
+  def toProductTreeOption: Option[ProductTree[A]] =
+    if (components.size == 1) {
+      val Seq((allSet, a)) = components.toSeq
+      val mult = coeffs.getOrElse(Set(allSet), Rational.zero)
+      val shift = coeffs.getOrElse(Set.empty[Set[Int]], Rational.zero)
+      Some(ProductTree.Leaf(a, allSet.size, Affine(mult, shift)))
+    } else
+      SetPartition.nonTrivialBipartitions(components.keySet).toStream.flatMap(bip => trySplit(bip)).headOption
+
+
+  def trySplit(bipartition: SetPartition[Set[Int]]): Option[ProductTree[A]] = {
+    val Seq(row: Set[Set[Int]], col: Set[Set[Int]]) = bipartition.parts.toSeq
+    val rowAllO: Seq[Int] = row.flatten.toSeq.sorted
+    val colAllO: Seq[Int] = col.flatten.toSeq.sorted
+    val rowO = row.toSeq
+    val colO = col.toSeq
+    val rowIndices: Seq[Set[Set[Int]]] = (0 until (1 << row.size)).map(i => BitSet.fromBitMask(Array(i)).map(i => rowO(i)))
+    val colIndices: Seq[Set[Set[Int]]] = (0 until (1 << col.size)).map(i => BitSet.fromBitMask(Array(i)).map(i => colO(i)))
+    import scalin.immutable.dense._
+    val matrix = Mat.tabulate[Rational](rowIndices.size, colIndices.size) { (r, c) =>
+      val rowSet = rowIndices(r)
+      val colSet = colIndices(c)
+      coeffs.getOrElse(rowSet ++ colSet, Rational.zero)
+    }
+    Rank1.decompositionWithShift(matrix).flatMap {
+      case (shift, (c, r)) =>
+        val rowTranslation: Map[Int, Int] = rowAllO.zipWithIndex.toMap
+        val colTranslation: Map[Int, Int] = colAllO.zipWithIndex.toMap
+        val rowCoeffs: Map[Set[Set[Int]], Rational] =
+          (rowIndices.map(_.map(_.map(rowTranslation))) zip r.toIndexedSeq).filterNot(_._2.isZero).toMap
+        val colCoeffs: Map[Set[Set[Int]], Rational] =
+          (colIndices.map(_.map(_.map(colTranslation))) zip c.toIndexedSeq).filterNot(_._2.isZero).toMap
+        val rowComponents: Map[Set[Int], A] = row.map(b => b.map(rowTranslation) -> components(b)).toMap
+        val colComponents: Map[Set[Int], A] = col.map(b => b.map(colTranslation) -> components(b)).toMap
+        val rowPolyProduct = PolyProduct(rowComponents, rowCoeffs)
+        val colPolyProduct = PolyProduct(colComponents, colCoeffs)
+        for {
+          rpt <- rowPolyProduct.toProductTreeOption
+          cpt <- colPolyProduct.toProductTreeOption
+        } yield ProductTree.Node(Map(row.flatten -> rpt, col.flatten -> cpt), Affine(Rational.one, shift))
+    }
+  }
+
 }
 
 object PolyProduct {
 
-  implicit def encoder[V:Encoder]: Encoder[PolyProduct[V]] = Encoder.instance { polyProd =>
-    val polyJson = "poly" -> polyProd.pp.asJson
-    val componentsJson = (polyProd.pp.blockStrings zip polyProd.extracted.map(_.asJson))
+  def partString(set: Set[Int]) = set.toVector.sorted.map(i => ('A' + i).toChar.toString).mkString
+
+  def partsString(set: Set[Set[Int]]) = set.toVector.sortBy(_.min).map(partString).mkString("x")
+
+  implicit def affineAction[A]: Action[PolyProduct[A], Affine] = new Action[PolyProduct[A], Affine] {
+    def actr(pp: PolyProduct[A], a: Affine): PolyProduct[A] = {
+      val ct = pp.coeffs.getOrElse(Set.empty[Set[Int]], Rational.zero)
+      val rest = pp.coeffs.filterKeys(_.nonEmpty)
+      val coeffs = rest.mapValues(_ * a.multiplier) ++ Some(ct).filterNot(_.isZero).map(Set.empty[Set[Int]] -> _)
+      PolyProduct(pp.components, coeffs)
+    }
+    def actl(a: Affine, p: PolyProduct[A]): PolyProduct[A] = actr(p, a.inverse)
+  }
+
+  implicit def encoder[A:Encoder]: Encoder[PolyProduct[A]] = Encoder.instance { polyProd =>
+    val polyJson = "poly" -> Json.fromString(polyProd.polyString)
+    val componentsJson = polyProd.components.toSeq.map { case (part, a) => (partString(part) -> a.asJson) }.sortBy(_._1)
     Json.obj(polyJson +: componentsJson: _*)
   }
 
-  // should left be < right ??? TODO
-  def merge2[V](partition: Partition, left: PolyProduct[V], right: PolyProduct[V], shift: Rational = Rational.zero): PolyProduct[V] = {
-
-    // we work with these intermediate types
-    type FinalBlock = Set[Int]
-    type Extracteds = Map[FinalBlock, CanonicalDec[V]]
-    type FinalPartition = Set[FinalBlock]
-    type Coeffs = Map[Set[FinalBlock], Rational]
-
-    require(partition.nBlocks == 2)
-    require(partition.size == left.pp.partition.size + right.pp.partition.size)
-
-    // here is the translation of block indices
-    val leftFinalBlock: Vector[Int] = partition.blocks(0).toVector.sorted
-    val rightFinalBlock: Vector[Int] = partition.blocks(1).toVector.sorted
-
-    val leftExtracteds: Extracteds = (left.pp.partition.blocks.map(block => block.map(leftFinalBlock(_))).toVector zip left.extracted).toMap
-    val rightExtracteds: Extracteds = (right.pp.partition.blocks.map(block => block.map(rightFinalBlock(_))).toVector zip right.extracted).toMap
-    val leftBlocks: FinalPartition = left.pp.partition.blocks.map(block => block.map(leftFinalBlock(_))).toSet
-    val rightBlocks: FinalPartition = right.pp.partition.blocks.map(block => block.map(rightFinalBlock(_))).toSet
-    val leftCoeffs: Coeffs = left.pp.coeffs.map { case (blockInds, r) => (blockInds.map(b => left.pp.partition.blocks(b).map(leftFinalBlock(_))), r) }
-    val rightCoeffs: Coeffs = right.pp.coeffs.map { case (blockInds, r) => (blockInds.map(b => right.pp.partition.blocks(b).map(rightFinalBlock(_))), r) }
-
-    val finalPartition = Partition((leftBlocks ++ rightBlocks).toSeq: _*)
-    val finalBlocksMap = finalPartition.blocks.map(_.toSet).zipWithIndex.toMap
-    // LMN x RQS
-    val lrCoeffs: Map[Set[Int], Rational] = (for {
-      (leftSet, leftR) <- leftCoeffs
-      (rightSet, rightR) <- rightCoeffs
-    } yield (leftSet.map(finalBlocksMap(_)) ++ rightSet.map(finalBlocksMap(_)), leftR * rightR))
-    val finalCoeffs = lrCoeffs.updated(Set.empty[Int], lrCoeffs.getOrElse(Set.empty[Int], Rational.zero) + shift)
-    val allExtracteds: Extracteds = leftExtracteds ++ rightExtracteds
-    val finalExtracteds = finalPartition.blocks.toVector.map(block => allExtracteds(block.toSet))
-    PolyProduct(PartitionPolynomial(finalPartition, finalCoeffs), finalExtracteds)
+  implicit def tensor[A]: Tensor[PolyProduct[A]] = new Tensor[PolyProduct[A]] {
+    def apply(components: Map[Set[Int], PolyProduct[A]]): PolyProduct[A] = {
+      // translation from 0..n-1 indices to final indices for each part
+      val translation: Map[Set[Int], Map[Int, Int]] = components.keySet.map { set =>
+        set -> set.toSeq.sorted.zipWithIndex.map(_.swap).toMap
+      }.toMap
+      def tensorCoeffs(current: Map[Set[Set[Int]], Rational], add: Map[Set[Set[Int]], Rational]): Map[Set[Set[Int]], Rational] =
+        for {
+          (sets, coeff1) <- current
+          (set, coeff2) <- add
+        } yield ((sets ++ set) -> coeff1 * coeff2)
+      val translatedCoeffs: Seq[Map[Set[Set[Int]], Rational]] = components.toSeq.map {
+        case (part, PolyProduct(_, coeffs)) => coeffs.map { case (k,v) => k.map(_.map(translation(part).apply(_))) -> v }
+      }
+      val newCoeffs = translatedCoeffs.tail.foldLeft(translatedCoeffs.head)(tensorCoeffs)
+      val newComponents: Map[Set[Int], A] = components.flatMap {
+        case (part, PolyProduct(partComponents, _)) => partComponents.map { case (k,v) => k.map(translation(part).apply(_)) -> v }
+      }
+      PolyProduct(newComponents, newCoeffs)
+    }
   }
 
-  def ofSingle[V](v: V)(implicit cwae: CanonicalWithAffineExtractor[V]): PolyProduct[V] = ofSingle(cwae(v))
-
-  def ofSingle[V](cwa: CanonicalDecWithAffine[V]): PolyProduct[V] = {
-    val partition = Partition(Set(0 until cwa.originalScenario.nParties: _*))
+  def ofSingle[A](a: A)(implicit cwae: CanonicalWithAffineExtractor[A]): PolyProduct[CanonicalDec[A]] = {
+    val cwa = cwae(a)
+    val allSet = Set(0 until cwa.originalScenario.nParties: _*)
     val (Affine(m, s), c) = cwa.withoutAffine
-    val poly = Map(Set.empty[Int] -> s, Set(0) -> m)
-    PolyProduct(PartitionPolynomial(partition, poly), Vector(c))
+    val coeffs = Map(Set.empty[Set[Int]] -> s, Set(allSet) -> m).filterNot(_._2.isZero)
+    PolyProduct(Map(allSet -> c), coeffs)
   }
+
 }
+

@@ -14,31 +14,30 @@ import instances.expr._
 
 final class ExprProductExtractor extends ProductExtractor[Expr] {
 
-  def cwa = CanonicalWithAffineExtractor.forV[Expr]
+  implicit def cwa = CanonicalWithAffineExtractor.forV[Expr]
 
-  import ProductExtractor.{integerToVector, nonTrivialBipartitions, allBipartitions, sub2ind, ind2sub}
+//  import ProductExtractor.{integerToVector, nonTrivialBipartitions, sub2ind, ind2sub}
 
-  // def isComposite(e: Expr) = !findPartition(e).isEmpty
-
-  def partialExtract(expr: Expr): Opt[PolyProduct[Expr]] = {
+  def partialExtract(expr: Expr): Opt[PolyProduct[CanonicalDec[Expr]]] = {
     val scenario = expr.scenario
     val sizes = expr.scenario.parties.map(_.shapeNC.size)
     val cCoefficients = expr.correlators
-    allBipartitions(scenario.nParties).foreach { partition =>
-      testPartition(expr, partition) match {
-        case Opt((shift, (expr0, expr1))) => return Opt(create(partition, shift, expr0, expr1))
+    SetPartition.nonTrivialBipartitions(Set(0 until scenario.nParties: _*)).foreach { setPartition =>
+      val Seq(b0, b1) = setPartition.parts.toSeq
+      testPartition(expr, b0, b1) match {
+        case Opt((shift, (expr0, expr1))) => return Opt(create(b0, b1, expr0, expr1, shift))
         case _ =>
       }
     }
-    Opt.empty[PolyProduct[Expr]]
+    Opt.empty[PolyProduct[CanonicalDec[Expr]]]
   }
 
   // tests if the expression can be split around the given partition,
   // and returns the constant factor to be added to the original expression
   // for it to be a genuine product
-  def testPartition(expr: Expr, partition: Partition): Opt[(Rational, (Expr, Expr))] = {
-    val block0 = partition.blocks(0).toSeq.sorted
-    val block1 = partition.blocks(1).toSeq.sorted
+  def testPartition(expr: Expr, part0: Set[Int], part1: Set[Int]): Opt[(Rational, (Expr, Expr))] = {
+    val block0 = part0.toSeq.sorted
+    val block1 = part1.toSeq.sorted
     val scenario0 = Scenario(block0.map(expr.scenario.parties(_)))
     val scenario1 = Scenario(block1.map(expr.scenario.parties(_)))
     val n = expr.scenario.nParties
@@ -68,26 +67,10 @@ final class ExprProductExtractor extends ProductExtractor[Expr] {
     }
   }
 
-  protected def create(partition: Partition, shift: Rational, expr0: Expr, expr1: Expr): PolyProduct[Expr] = {
+  protected def create(block0: Set[Int], block1: Set[Int], expr0: Expr, expr1: Expr, shift: Rational): PolyProduct[CanonicalDec[Expr]] = {
     val factor0 = forceExtract(expr0)
     val factor1 = forceExtract(expr1)
-    PolyProduct.merge2(partition, factor0, factor1, shift)
+    Tensor[PolyProduct[CanonicalDec[Expr]]].apply(Map(block0 -> factor0, block1 -> factor1)) + shift
   }
 
 }
-
-
-/*
-  def partialExtract(expr: Expr): Nullbox[ProductShape] = {
-    val testExpr = expr.to(testRepresentation(expr.representation))
-    val partitions = ProductExtractor.allBipartitions(expr.scenario.nParties)
-      .sortBy(_.blocks.map(_.size).min)
-
-    for (partition <- partitions) {
-      testPartition(testExpr, partition) match {
-        case Nullbox(shift) => return Nullbox(ProductShape(partition, shift))
-        case _ =>
-      }
-    }
-    Nullbox.empty[ProductShape]
-  }*/
