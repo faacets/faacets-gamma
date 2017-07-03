@@ -1,33 +1,20 @@
 package com.faacets
 package operation
 package relabeling
-/*
-import spire.algebra.{PartialAction, Action}
-import spire.syntax.group._
-import spire.syntax.action._
-import spire.syntax.partialOrder._
-import spire.util._
-
-import polyta._
-
-import net.alasc.algebra.InversePair
-import net.alasc.math.Grp
-import net.alasc.util._
 
 import core._
-import perm.{Relabeling, ShapeLattice}
-import relabeling._
+import spire.algebra.partial.PartialAction
+import spire.util.Opt
+import net.alasc.perms.default._
+import net.alasc.perms.orbits.Seqs
 
-class VecRelabelingExtractor[V <: Vec[V]](
-  implicit builder: VecBuilder[V],
-  val action: PartialAction[V, Relabeling],
-  rep: VecRepresentatives[V]) extends GroupOperationExtractor[V, Relabeling] {
-  def group = Relabeling.Algebra
-  def partialExtract(vec: V): Nullbox[Relabeling] = {
-    val p = rep.representatives(vec).head.element
-    // TODO: do minimal right coset with fixed based sym. subgroup to have always
-    // the same answer for the permutation
-    if (vec.symmetryGroup.contains(p)) Nullbox.empty[Relabeling] else Nullbox(p) // TODO: check if it is not the inverse that is required
+class VecRelabelingExtractor[V <: NDVec[V]](implicit val partialAction: PartialAction[V, Relabeling]) extends GroupOperationExtractor[V, Relabeling] {
+
+  def group = Relabeling.group
+
+  def extractOperation(e: V): Opt[Relabeling] = {
+    val r = Seqs.Representatives.ordered(e.scenario.group, e.scenario.probabilityAction, e.coefficients.toIndexedSeq, Opt(e.symmetryGroup)).minimum
+    if (e.symmetryGroup.contains(r)) Opt.empty[Relabeling] else Opt(r)
   }
+
 }
-*/

@@ -32,13 +32,3 @@ class VecRelabelingPartialAction[V <: PVec[V]](implicit builder: PVecBuilder[V])
 
 }
 
-class VecRelabelingExtractor[V <: NDVec[V]](implicit val partialAction: PartialAction[V, Relabeling]) extends GroupOperationExtractor[V, Relabeling] {
-
-  def group = Relabeling.group
-
-  def extractOperation(e: V): Opt[Relabeling] = {
-    val r = Seqs.Representatives.ordered(e.scenario.group, e.scenario.probabilityAction, e.coefficients.toIndexedSeq, Opt(e.symmetryGroup)).minimum
-    if (e.symmetryGroup.contains(r)) Opt.empty[Relabeling] else Opt(r)
-  }
-
-}
