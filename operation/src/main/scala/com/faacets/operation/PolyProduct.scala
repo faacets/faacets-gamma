@@ -54,8 +54,6 @@ case class PolyProduct[A](components: Map[Set[Int], A], coeffs: Map[Set[Set[Int]
 
   def map[B](f: A => B): PolyProduct[B] = PolyProduct(components.mapValues(f), coeffs)
 
-//  def toProductTree: Option[ProductTree[A]] = ???
-
   def toProductTreeOption: Option[ProductTree[A]] =
     if (components.size == 1) {
       val Seq((allSet, a)) = components.toSeq
