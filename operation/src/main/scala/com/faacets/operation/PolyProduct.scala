@@ -1,19 +1,14 @@
 package com.faacets.operation
 
 import com.faacets.core.{AdditiveGroupoid, Expr, Relabeling}
-import com.faacets.operation.product.{PartitionHelpers, Rank1}
+import com.faacets.operation.product.Rank1
 import io.circe.{Encoder, Json}
-import net.alasc.domains.{Partition, PartitionMap}
-import spire.algebra.partial.PartialAction
 import spire.math.Rational
 import io.circe.syntax._
 import scalin.immutable.Mat
 import spire.algebra.Action
 import spire.syntax.action._
-import spire.syntax.partialAction._
 import spire.syntax.group._
-import spire.util.Opt
-
 import scala.collection.immutable.BitSet
 
 /** Represents a sum of tensor products of expressions of type A. */

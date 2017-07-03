@@ -9,8 +9,6 @@ import spire.algebra.partial.PartialAction
 
 trait ExprInstances {
 
-  implicit val operationExprSemigroup: Semigroup[Expr] = new ExprTensorSemigroup
-
   implicit val operationExprRelabelingPartialAction: PartialAction[Expr, Relabeling] =
     new VecRelabelingPartialAction[Expr]
 

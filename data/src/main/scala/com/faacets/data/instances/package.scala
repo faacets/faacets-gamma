@@ -6,6 +6,7 @@ package object instances {
 
   object grp extends GrpInstances
   object jsonObject extends JsonObjectInstances
+  object listMap extends ListMapInstances
   object perm extends PermInstances
   object rational extends RationalInstances
   object safeLong extends SafeLongInstances

@@ -28,6 +28,8 @@ case class Value(interval: Interval[Scalar]) {
     case Point(s) => s.toString
     case Empty() => sys.error("Impossible case")
   }
+
+  def opposite: Value = Value(interval.mapBounds(_.opposite))
 }
 
 object Value {
@@ -98,6 +100,7 @@ trait Scalar {
   def /(rhs: Rational): Scalar
   def +(rhs: Rational): Scalar
   def -(rhs: Rational): Scalar
+  def opposite: Scalar
 }
 
 object Scalar {
@@ -138,6 +141,7 @@ object Scalar {
     def /(rhs: Rational): Scalar = copy(factor = factor/rhs, shift = shift/rhs)
     def +(rhs: Rational): Scalar = copy(shift = shift + rhs)
     def -(rhs: Rational): Scalar = copy(shift = shift - rhs)
+    def opposite: Scalar = Decimal(-factor, decimal, -shift)
   }
 
   /** Represents a value with an exact real cyclotomic number. */
@@ -149,6 +153,7 @@ object Scalar {
     def /(rhs: Rational): Scalar = Exact(cyclo / RealCyclo(rhs))
     def +(rhs: Rational): Scalar = Exact(cyclo + RealCyclo(rhs))
     def -(rhs: Rational): Scalar = Exact(cyclo - RealCyclo(rhs))
+    def opposite: Scalar = Exact(-cyclo)
   }
 
 }
