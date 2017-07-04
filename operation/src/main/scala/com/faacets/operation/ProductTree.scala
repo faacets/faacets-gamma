@@ -14,6 +14,11 @@ sealed trait ProductTree[A] {
   def merged(implicit A: Action[A, Affine], T: Tensor[A]): A
   def toPolyProduct: PolyProduct[A]
   def map[B](f: A => B): ProductTree[B]
+  /** Extracts a possible affine transform from the elements A.
+    *
+    * @param f Function such that f(a) = (f, b) and "a = b <|+| f" (in spirit)
+    */
+  def mapAffine[B](f: A => (Affine, B)): ProductTree[B]
 }
 
 object ProductTree {
@@ -33,6 +38,9 @@ object ProductTree {
       Tensor[PolyProduct[A]].apply(parts.mapValues(_.toPolyProduct)) <|+| affine
 
     def map[B](f: A => B): Node[B] = Node(parts.mapValues(_.map(f)), affine)
+
+    def mapAffine[B](f: (A) => (Affine, B)): ProductTree[B] =
+      Node(parts.mapValues(_.mapAffine(f)), affine)
   }
 
   final case class Leaf[A](a: A, n: Int, affine: Affine) extends ProductTree[A] {
@@ -44,6 +52,12 @@ object ProductTree {
       PolyProduct(Map(part -> a), coeffs)
     }
     def map[B](f: A => B): Leaf[B] = Leaf(f(a), n, affine)
+    def mapAffine[B](f: (A) => (Affine, B)): ProductTree[B] = {
+      val (affine1, b) = f(a)
+      // m*(m1 * b + s1) + s = m*m1*b + s1*m + s
+      val newAffine = Affine(affine.multiplier*affine1.multiplier, affine1.shift*affine.multiplier + affine.shift)
+      Leaf(b, n, newAffine)
+    }
   }
 
 }
