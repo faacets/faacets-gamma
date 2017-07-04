@@ -3,17 +3,26 @@ package operation
 package instances
 
 import com.faacets.core.{Expr, Relabeling}
+import com.faacets.data.Value
 import com.faacets.operation.relabeling.{VecRelabelingExtractor, VecRelabelingPartialAction}
-import spire.algebra.Semigroup
+import spire.algebra.{Action}
 import spire.algebra.partial.PartialAction
 
-trait ExprInstances {
+trait RelabelingInstances {
 
-  implicit val operationExprRelabelingPartialAction: PartialAction[Expr, Relabeling] =
+  implicit lazy val operationExprRelabelingPartialAction: PartialAction[Expr, Relabeling] =
     new VecRelabelingPartialAction[Expr]
 
-  implicit val operationExprRelabelingExtractor: GroupOperationExtractor[Expr, Relabeling] =
+  implicit lazy val operationExprRelabelingExtractor: GroupOperationExtractor[Expr, Relabeling] =
     new VecRelabelingExtractor[Expr]
+
+  implicit val valueAction: Action[Value, Relabeling] = new Action[Value, Relabeling] {
+    def actl(o: Relabeling, v: Value): Value = v
+    def actr(v: Value, o: Relabeling): Value = v
+  }
+
+  implicit val bellExpressionAction: PartialAction[BellExpression, Relabeling] =
+    BellExpression.constructPartialAction[Relabeling](BellExpression.stdPreserved)
 
   /* TODO
 

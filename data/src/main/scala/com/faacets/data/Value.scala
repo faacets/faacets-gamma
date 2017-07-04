@@ -28,11 +28,21 @@ case class Value(interval: Interval[Scalar]) {
     case Point(s) => s.toString
     case Empty() => sys.error("Impossible case")
   }
+  def *(rhs: Rational): Value =
+    if (rhs.isZero) Value(Point(Scalar.Exact(RealCyclo.zero): Scalar)) else Value(interval.mapBounds(_ * rhs))
+  def /(rhs: Rational): Value = Value(interval.mapBounds(_ / rhs))
+  def +(rhs: Rational): Value = Value(interval.mapBounds(_ + rhs))
+  def -(rhs: Rational): Value = Value(interval.mapBounds(_ - rhs))
 
   def opposite: Value = Value(interval.mapBounds(_.opposite))
 }
 
 object Value {
+
+  def apply(s: Scalar.Exact): Value = Value(Point(s: Scalar))
+  def apply(rc: RealCyclo): Value = apply(Scalar.Exact(rc))
+  def apply(i: Int): Value = apply(RealCyclo(i))
+  def apply(r: Rational): Value = apply(RealCyclo(r))
 
   def validate(interval: Interval[Scalar]): ValidatedNel[String, Value] = {
     def valid = Validated.Valid(Value(interval))
@@ -137,7 +147,8 @@ object Scalar {
       sb.result()
     }
     lazy val toRealCyclo = RealCyclo(Rational(decimal))
-    def *(rhs: Rational): Scalar = copy(factor = factor*rhs, shift = shift*rhs)
+    def *(rhs: Rational): Scalar =
+      if (rhs.isZero) Exact(RealCyclo.zero) else copy(factor = factor*rhs, shift = shift*rhs)
     def /(rhs: Rational): Scalar = copy(factor = factor/rhs, shift = shift/rhs)
     def +(rhs: Rational): Scalar = copy(shift = shift + rhs)
     def -(rhs: Rational): Scalar = copy(shift = shift - rhs)

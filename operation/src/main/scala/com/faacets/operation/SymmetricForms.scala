@@ -38,7 +38,7 @@ object SymmetricForms {
 
   implicit val exprSymmetricForms: SymmetricForms[Expr] = new SymmetricForms[Expr] {
 
-    def action = instances.expr.operationExprRelabelingPartialAction
+    def action = instances.relabeling.operationExprRelabelingPartialAction
 
     def symmetryGroup(a: Expr) = a.symmetryGroup
 

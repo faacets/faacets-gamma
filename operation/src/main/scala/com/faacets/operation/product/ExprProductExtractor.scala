@@ -10,7 +10,7 @@ import scalin.immutable.dense._
 import spire.math.Rational
 import spire.syntax.cfor._
 import scalin.syntax.all._
-import instances.expr._
+import instances.relabeling._
 
 final class ExprProductExtractor extends ProductExtractor[Expr] {
 

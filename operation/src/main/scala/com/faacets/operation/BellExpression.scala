@@ -1,18 +1,28 @@
 package com.faacets.operation
 
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
+import cats.kernel.Comparison
 import com.faacets.consolidate.{Merge, Result}
-import com.faacets.core.{Expr, NDVec, Relabeling, Scenario}
+import com.faacets.core._
 import com.faacets.data.Value
 import com.faacets.data.instances.all._
 import com.faacets.data.syntax.all._
 import io.circe.{AccumulatingDecoder, Decoder, Encoder, HCursor}
 import com.faacets.consolidate.instances.all._
+import cyclo.RealCyclo
 import net.alasc.perms.default._
 import net.alasc.finite.Grp
 import scalin.immutable.Vec
+import spire.algebra.{Action, Group}
+import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.math.Rational
+import spire.syntax.partialAction._
+import spire.syntax.action._
+import spire.syntax.groupoid._
+import spire.syntax.group._
 import spire.math.interval.Overlap
+import spire.util.Opt
+import scalin.immutable.dense._
 
 import scala.collection.immutable.{ListMap, ListSet}
 
@@ -22,6 +32,66 @@ case class BellExpression(expr: Expr,
                          )
 
 object BellExpression {
+
+  val CHSH = BellExpression(
+    Expr.CHSH,
+    LowerOrientation(ListMap("local" -> Value(-2), "quantum" -> Value(-RealCyclo.sqrt2*2), "nonsignaling" -> Value(-4)), ListMap("local" -> true)),
+    UpperOrientation(ListMap("local" -> Value(2), "quantum" -> Value(RealCyclo.sqrt2*2), "nonsignaling" -> Value(4)), ListMap("local" -> true))
+  )
+
+  val CH = BellExpression(
+    Expr.collinsGisin(Scenario.CHSH, Vec[Rational](0,0,-1,-1,1,1,0,-1,1)),
+    LowerOrientation.empty,
+    UpperOrientation(ListMap("local" -> Value(0)), ListMap.empty[String, Boolean])
+  )
+
+  val stdPreserved = Set("local", "quantum", "nonsignaling")
+
+  def constructPartialAction[O:Groupoid](preservedBoundsAndFacetOf: Set[String])
+                                 (implicit exprPA: PartialAction[Expr, O],
+                                  valueA: Action[Value, O]): PartialAction[BellExpression, O] =
+    new PartialAction[BellExpression, O] {
+
+      def partialActr(be: BellExpression, o: O): Opt[BellExpression] = {
+        def valueF(v: Value): Value = v <|+| o
+        val newLower = be.lower.filterBoundsAndFacetOf(preservedBoundsAndFacetOf).mapBounds(valueF)
+        val newUpper = be.upper.filterBoundsAndFacetOf(preservedBoundsAndFacetOf).mapBounds(valueF)
+        (be.expr <|+|? o) match {
+          case Opt(newExpr) =>
+            Opt(BellExpression(newExpr, newLower, newUpper))
+          case _ => Opt.empty[BellExpression]
+        }
+      }
+
+      def partialActl(o: O, be: BellExpression): Opt[BellExpression] = partialActr(be, o.inverse)
+
+    }
+
+  def constructAction[O:Group](preservedBoundsAndFacetOf: Set[String])
+                                        (implicit exprA: Action[Expr, O],
+                                         valueA: Action[Value, O]): Action[BellExpression, O] =
+    new Action[BellExpression, O] {
+
+      def actr(be: BellExpression, o: O): BellExpression = {
+        def valueF(v: Value): Value = v <|+| o
+        val newLower = be.lower.filterBoundsAndFacetOf(preservedBoundsAndFacetOf).mapBounds(valueF)
+        val newUpper = be.upper.filterBoundsAndFacetOf(preservedBoundsAndFacetOf).mapBounds(valueF)
+        val newExpr = be.expr <|+| o
+        BellExpression(newExpr, newLower, newUpper)
+      }
+
+      def actl(o: O, be: BellExpression): BellExpression = actr(be, o.inverse)
+
+    }
+
+  implicit def constructExtractor[O:Groupoid](implicit O: OperationExtractor[Expr, O],
+                                     pa: PartialAction[BellExpression, O]): OperationExtractor[BellExpression, O] =
+    new OperationExtractor[BellExpression, O] {
+      def partialAction: PartialAction[BellExpression, O] = pa
+      def groupoid: Groupoid[O] = implicitly
+      def identity(be: BellExpression): O = O.identity(be.expr)
+      def extractOperation(be: BellExpression): Opt[O] = O.extractOperation(be.expr)
+    }
 
   def validate(expr: Expr, lower: LowerOrientation, upper: UpperOrientation): ValidatedNel[String, BellExpression] =
     Validated.Valid(BellExpression(expr, lower, upper))
@@ -48,6 +118,11 @@ object BellExpression {
       }
   }
 
+  implicit val lexicographicOrder: LexicographicOrder[BellExpression] = new LexicographicOrder[BellExpression] {
+    def partialComparison(x: BellExpression, y: BellExpression): Option[Comparison] =
+      LexicographicOrder[Expr].partialComparison(x.expr, y.expr)
+  }
+
 }
 
 sealed trait Orientation[O <: Orientation[O, N], N <: Orientation[N, O]] {
@@ -55,12 +130,24 @@ sealed trait Orientation[O <: Orientation[O, N], N <: Orientation[N, O]] {
   def bounds: ListMap[String, Value]
   def facetOf: ListMap[String, Boolean]
   def opposite: N
+  def filterBoundsAndFacetOf(preserved: Set[String]): O =
+    builder.apply(
+      bounds.filter { case (k,v) => preserved.contains(k) },
+      facetOf.filter { case (k,v) => preserved.contains(k) }
+    )
+  def mapBounds(f: Value => Value): O =
+    builder.apply(
+      bounds.map { case (k,v) => (k, f(v)) },
+      facetOf
+    )
 }
 
 trait OrientationBuilder[O <: Orientation[O, _]] { self =>
 
   /** Lists all bounds which obey an ordering relation. Contains (b1, b2) if b1 <= b2. */
   def boundLTE: Set[(String, String)]
+
+  def empty: O = apply(ListMap.empty[String, Value], ListMap.empty[String, Boolean])
 
   def apply(bounds: ListMap[String, Value], facetOf: ListMap[String, Boolean]): O
 

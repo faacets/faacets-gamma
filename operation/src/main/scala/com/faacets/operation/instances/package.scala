@@ -4,6 +4,6 @@ package object instances {
 
   object all extends AllInstances
 
-  object expr extends ExprInstances
+  object relabeling extends RelabelingInstances
 
 }

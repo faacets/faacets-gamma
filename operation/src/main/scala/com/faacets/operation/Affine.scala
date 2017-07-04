@@ -4,7 +4,7 @@ package operation
 import spire.algebra.{Group, Eq, Action}
 import spire.math.Rational
 import spire.syntax.eq._
-
+import spire.syntax.group._
 import data._
 import core._
 
@@ -48,6 +48,14 @@ object Affine {
   implicit val equ: Eq[Affine] = new AffineEq
 
   implicit val exprAction: Action[Expr, Affine] = new VecAffineAction[Expr]
+
+  implicit val valueAction: Action[Value, Affine] = new Action[Value, Affine] {
+    def actl(a: Affine, v: Value): Value = actr(v, a.inverse)
+    def actr(v: Value, a: Affine): Value = v * a.multiplier + a.shift
+  }
+
+  implicit val bellExpressionAction: Action[BellExpression, Affine] =
+    BellExpression.constructAction[Affine](BellExpression.stdPreserved)
 
   implicit val exprExtractor: OperationExtractor[Expr, Affine] = new ExprAffineExtractor
 
