@@ -49,6 +49,34 @@ case class PolyProduct[A](components: Map[Set[Int], A], coeffs: Map[Set[Set[Int]
 
   def map[B](f: A => B): PolyProduct[B] = PolyProduct(components.mapValues(f), coeffs)
 
+  /** Extracts a possible affine transform from the elements A.
+    *
+    * @param f Function such that f(a) = (f, b) and "a = b <|+| f" (in spirit)
+    */
+  def mapAffine[B](f: A => (Affine, B)): PolyProduct[B] = {
+    val trans: Map[Set[Int], (Affine, B)] = components.mapValues(f)
+    val affines: Map[Set[Int], Affine] = trans.mapValues(_._1)
+    val newComp: Map[Set[Int], B] = trans.mapValues(_._2)
+    type CoeffSeq = Seq[(Set[Set[Int]], Rational)]
+    val startCoeff: CoeffSeq = Seq(Set.empty[Set[Int]] -> Rational.one)
+    // for each original coefficient
+    val newCoeffsSeq = coeffs.toSeq.flatMap {
+      // we do the development of (a*x + b) * (c*y + d) ...
+      case (parts, coeff) => parts.foldLeft(startCoeff) { (seq, newPart) =>
+        seq.flatMap { case (part1, r) =>
+          val affine = affines(newPart)
+          val shiftRes = part1 -> (r * affine.shift)
+          val multRes = (part1 + newPart) -> (r * affine.multiplier)
+          Seq(shiftRes, multRes)
+        }
+      }
+    }
+    val newCoeffs = newCoeffsSeq.groupBy(_._1).mapValues { seq =>
+      seq.map(_._2).fold(Rational.zero)(_ + _)
+    }
+    PolyProduct(newComp, newCoeffs)
+  }
+
   def toProductTreeOption: Option[ProductTree[A]] =
     if (components.size == 1) {
       val Seq((allSet, a)) = components.toSeq
@@ -138,13 +166,19 @@ object PolyProduct {
     }
   }
 
+  def ofSingle[A](affine: Affine, a: A, n: Int): PolyProduct[A] = {
+    val allSet = Set(0 until n: _*)
+    val shiftSet = Set.empty[Set[Int]]
+    val multSet = Set(allSet)
+    val coeffs = Map(shiftSet -> affine.shift, multSet -> affine.multiplier)
+    PolyProduct(Map(allSet -> a), coeffs)
+  }
+
   def ofSingle[A](a: A)(implicit cwae: CanonicalWithAffineExtractor[A]): PolyProduct[CanonicalDec[A]] = {
     val cwa = cwae(a)
-    val allSet = Set(0 until cwa.originalScenario.nParties: _*)
-    val (Affine(m, s), c) = cwa.withoutAffine
-    val coeffs = Map(Set.empty[Set[Int]] -> s, Set(allSet) -> m).filterNot(_._2.isZero)
-    PolyProduct(Map(allSet -> c), coeffs)
+    val n = cwa.originalScenario.nParties
+    val (affine, c) = cwa.withoutAffine
+    ofSingle(affine, c, n)
   }
 
 }
-
