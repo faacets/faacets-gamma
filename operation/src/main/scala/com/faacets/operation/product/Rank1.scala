@@ -58,9 +58,9 @@ object Rank1 {
 
   /** Finds a rank-1 decomposition of a QMatrix, with possible shift.
     * 
-    * Returns optionally a decomposition in the form of a tuple (s, (c, r)) such that:
+    * Returns optionally a decomposition in the form of a tuple (s, (r, c)) such that:
     * 
-    * (c * r.t) + s * [1 0 ... 0; 0 ... 0 ; ... ; 0 ... 0] = original matrix,
+    * (r * c.t) + s * [1 0 ... 0; 0 ... 0 ; ... ; 0 ... 0] = original matrix,
     * and c and r are vectors with integer coefficients.
     */
   def decompositionWithShift[A:Eq:Field:VecEngine:MatEngine](matrix: Mat[A]): Option[(A, (Vec[A], Vec[A]))] = {

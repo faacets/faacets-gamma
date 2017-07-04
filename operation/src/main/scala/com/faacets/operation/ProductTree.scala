@@ -11,7 +11,7 @@ import spire.syntax.action._
 sealed trait ProductTree[A] {
   def size: Int
   /** Applies tensoring and shifts to compute the represented expression. */
-  def merged(implicit A: Action[A, Affine], T: Tensor[A]): A
+  def original(implicit A: Action[A, Affine], T: Tensor[A]): A
   def toPolyProduct: PolyProduct[A]
   def map[B](f: A => B): ProductTree[B]
   /** Extracts a possible affine transform from the elements A.
@@ -31,8 +31,8 @@ object ProductTree {
     require(parts.forall { case (k,v) => k.size == v.size })
     def size = parts.keySet.flatten.size
 
-    def merged(implicit A: Action[A, Affine], T: Tensor[A]): A =
-      T(parts.mapValues(_.merged)) <|+| affine
+    def original(implicit A: Action[A, Affine], T: Tensor[A]): A =
+      T(parts.mapValues(_.original)) <|+| affine
 
     def toPolyProduct: PolyProduct[A] =
       Tensor[PolyProduct[A]].apply(parts.mapValues(_.toPolyProduct)) <|+| affine
@@ -45,7 +45,7 @@ object ProductTree {
 
   final case class Leaf[A](a: A, n: Int, affine: Affine) extends ProductTree[A] {
     def size = n
-    def merged(implicit A: Action[A, Affine], T: Tensor[A]): A = a <|+| affine
+    def original(implicit A: Action[A, Affine], T: Tensor[A]): A = a <|+| affine
     def toPolyProduct: PolyProduct[A] = {
       val part = Set(0 until n: _*)
       val coeffs = Map(Set(part) -> affine.multiplier, Set.empty[Set[Int]] -> affine.shift).filterNot(_._2.isZero)

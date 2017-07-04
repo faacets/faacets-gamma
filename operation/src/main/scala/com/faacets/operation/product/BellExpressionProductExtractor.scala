@@ -7,12 +7,12 @@ import com.faacets.operation.instances.relabeling._
 
 final class BellExpressionProductExtractor extends ProductExtractor[BellExpression] {
 
-  def cwa: CanonicalWithAffineExtractor[BellExpression] = CanonicalWithAffineExtractor.forV[BellExpression]
+  def nParties(be: BellExpression) = be.expr.scenario.nParties
 
-  def partialExtract(v: BellExpression): Opt[PolyProduct[CanonicalDec[BellExpression]]] = {
+  def partialExtract(v: BellExpression): Opt[PolyProduct[BellExpression]] = {
     ProductExtractor[Expr].partialExtract(v.expr) match {
-      case Opt(cde) => Opt(cde.map(_.map(expr => BellExpression(expr))))
-      case _ => Opt.empty[PolyProduct[CanonicalDec[BellExpression]]]
+      case Opt(pp) => Opt(pp.map(expr => BellExpression(expr)))
+      case _ => Opt.empty[PolyProduct[BellExpression]]
     }
   }
 

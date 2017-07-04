@@ -14,22 +14,22 @@ import instances.relabeling._
 
 final class ExprProductExtractor extends ProductExtractor[Expr] {
 
-  implicit def cwa = CanonicalWithAffineExtractor.forV[Expr]
+  def nParties(e: Expr) = e.scenario.nParties
 
-//  import ProductExtractor.{integerToVector, nonTrivialBipartitions, sub2ind, ind2sub}
-
-  def partialExtract(expr: Expr): Opt[PolyProduct[CanonicalDec[Expr]]] = {
+  def partialExtract(expr: Expr): Opt[PolyProduct[Expr]] = {
     val scenario = expr.scenario
     val sizes = expr.scenario.parties.map(_.shapeNC.size)
     val cCoefficients = expr.correlators
     SetPartition.nonTrivialBipartitions(Set(0 until scenario.nParties: _*)).foreach { setPartition =>
       val Seq(b0, b1) = setPartition.parts.toSeq
       testPartition(expr, b0, b1) match {
-        case Opt((shift, (expr0, expr1))) => return Opt(create(b0, b1, expr0, expr1, shift))
+        case Opt((shift, (expr0, expr1))) =>
+          val coeffs = Map(Set(b0, b1) -> Rational.one, Set.empty[Set[Int]] -> shift).filterNot(_._2.isZero)
+          return Opt(PolyProduct(Map(b0 -> expr0, b1 -> expr1), coeffs))
         case _ =>
       }
     }
-    Opt.empty[PolyProduct[CanonicalDec[Expr]]]
+    Opt.empty[PolyProduct[Expr]]
   }
 
   // tests if the expression can be split around the given partition,
@@ -65,12 +65,6 @@ final class ExprProductExtractor extends ProductExtractor[Expr] {
       case Some((shift, (coeffs0, coeffs1))) => Opt((shift, (Expr.correlators(scenario0, coeffs0), Expr.correlators(scenario1, coeffs1))))
       case _ => Opt.empty[(Rational, (Expr, Expr))]
     }
-  }
-
-  protected def create(block0: Set[Int], block1: Set[Int], expr0: Expr, expr1: Expr, shift: Rational): PolyProduct[CanonicalDec[Expr]] = {
-    val factor0 = forceExtract(expr0)
-    val factor1 = forceExtract(expr1)
-    Tensor[PolyProduct[CanonicalDec[Expr]]].apply(Map(block0 -> factor0, block1 -> factor1)) + shift
   }
 
 }

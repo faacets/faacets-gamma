@@ -102,7 +102,7 @@ case class PolyProduct[A](components: Map[Set[Int], A], coeffs: Map[Set[Set[Int]
       coeffs.getOrElse(rowSet ++ colSet, Rational.zero)
     }
     Rank1.decompositionWithShift(matrix).flatMap {
-      case (shift, (c, r)) =>
+      case (shift, (r, c)) =>
         val rowTranslation: Map[Int, Int] = rowAllO.zipWithIndex.toMap
         val colTranslation: Map[Int, Int] = colAllO.zipWithIndex.toMap
         val rowCoeffs: Map[Set[Set[Int]], Rational] =
@@ -170,7 +170,7 @@ object PolyProduct {
     val allSet = Set(0 until n: _*)
     val shiftSet = Set.empty[Set[Int]]
     val multSet = Set(allSet)
-    val coeffs = Map(shiftSet -> affine.shift, multSet -> affine.multiplier)
+    val coeffs = Map(shiftSet -> affine.shift, multSet -> affine.multiplier).filterNot(_._2.isZero)
     PolyProduct(Map(allSet -> a), coeffs)
   }
 

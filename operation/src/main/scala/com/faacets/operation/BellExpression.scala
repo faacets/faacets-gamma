@@ -34,13 +34,15 @@ case class BellExpression(expr: Expr,
                          ) {
 
   def reconstructBounds: BellExpression = {
-    val pp = ProductExtractor[BellExpression].forceExtract(BellExpression(expr)).map(_.map { be =>
+    val pp = ProductExtractor[BellExpression].forceExtract(BellExpression(expr))
+      .mapAffine(be => CanonicalWithAffineExtractor[BellExpression].apply(be).withoutAffine)
+    val pprec = pp.map(_.map { be =>
       BellExpression.canonicals.get(be.expr) match {
         case Some(c) => c
         case None => be
       }
     })
-    pp.toProductTreeOption.fold(pp.map(_.original).original)(_.map(_.original).merged)
+    pprec.toProductTreeOption.fold(pp.map(_.original).original)(_.map(_.original).original)
   }
 
 }

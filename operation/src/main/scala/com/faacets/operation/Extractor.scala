@@ -13,13 +13,15 @@ trait Extractor[V] {
 
 }
 
-trait ProductExtractor[V] {
+trait ProductExtractor[V] extends Extractor[V] {
 
-  implicit def cwa: CanonicalWithAffineExtractor[V]
+  def nParties(v: V): Int
 
-  def partialExtract(v: V): Opt[PolyProduct[CanonicalDec[V]]]
+  def canExtract(v: V): Boolean = partialExtract(v).nonEmpty
 
-  def forceExtract(v: V): PolyProduct[CanonicalDec[V]] = partialExtract(v) getOrElse(PolyProduct.ofSingle(v))
+  def partialExtract(v: V): Opt[PolyProduct[V]]
+
+  def forceExtract(v: V): PolyProduct[V] = partialExtract(v) getOrElse(PolyProduct.ofSingle(Affine.group.empty, v, nParties(v)))
 
 }
 
