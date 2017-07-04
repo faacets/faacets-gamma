@@ -23,7 +23,7 @@ case class CanonicalDecWithAffine[V](affine: Affine,
   }
   def originalScenario: Scenario = lifting.target.scenario
   def canonicalScenario: Scenario = reordering.source
-  def withoutAffine: (Affine, CanonicalDec[V]) = (affine, CanonicalDec(lifting, reordering, relabeling, canonical))
+  def splitAffine: (Affine, CanonicalDec[V]) = (affine, CanonicalDec(lifting, reordering, relabeling, canonical))
   def map[B](f: V => B): CanonicalDec[B] = CanonicalDec(lifting, reordering, relabeling, f(canonical))
 }
 

@@ -2,12 +2,12 @@ package com.faacets.data
 package syntax
 
 import io.circe.Encoder
-import io.circe.yaml.OrderPreservingPrinter
-
+import io.circe.yaml.Printer
 
 final class YamlOps[A](val lhs: A) extends AnyVal {
 
-  def asYaml(implicit ev: Encoder[A]): String = OrderPreservingPrinter.spaces2.pretty(ev(lhs))
+  def asYaml(implicit ev: Encoder[A]): String =
+    Printer(preserveOrder = true, dropNullKeys = true, sequenceStyle = Printer.FlowStyle.Flow).pretty(ev.apply(lhs))
 
 }
 

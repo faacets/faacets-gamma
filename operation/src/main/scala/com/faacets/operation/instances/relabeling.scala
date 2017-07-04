@@ -21,8 +21,8 @@ trait RelabelingInstances {
     def actr(v: Value, o: Relabeling): Value = v
   }
 
-  implicit val bellExpressionAction: PartialAction[BellExpression, Relabeling] =
-    BellExpression.constructPartialAction[Relabeling](BellExpression.stdPreserved)
+  implicit val boundedExprAction: PartialAction[BoundedExpr, Relabeling] =
+    BoundedExpr.constructPartialAction[Relabeling](BoundedExpr.stdPreserved)
 
   /* TODO
 

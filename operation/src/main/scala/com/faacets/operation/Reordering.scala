@@ -43,7 +43,7 @@ object Reordering {
     def actl(o: Reordering, v: Value): Value = v
     def actr(v: Value, o: Reordering): Value = v
   }
-  implicit val bellExpressionAction: PartialAction[BellExpression, Reordering] =
-    BellExpression.constructPartialAction[Reordering](BellExpression.stdPreserved)
+  implicit val boundedExprAction: PartialAction[BoundedExpr, Reordering] =
+    BoundedExpr.constructPartialAction[Reordering](BoundedExpr.stdPreserved)
 
 }

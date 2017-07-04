@@ -51,6 +51,11 @@ lazy val operation = (project in file("operation"))
   .settings(commonJvmSettings: _*)
   .dependsOn(core, data)
 
+lazy val comp = (project in file("comp"))
+  .settings(moduleName := "faacets-comp")
+  .settings(faacetsSettings)
+  .settings(commonJvmSettings: _*)
+  .dependsOn(core, data, operation)
 
 lazy val docs = (project in file("docs"))
   .enablePlugins(MicrositesPlugin)

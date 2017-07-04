@@ -2,7 +2,8 @@ package com.faacets.core
 
 import cats.data.{Validated, ValidatedNel}
 import com.faacets.consolidate.{Merge, Result}
-import io.circe.{AccumulatingDecoder, Decoder, Encoder, HCursor}
+import io.circe._
+import io.circe.syntax._
 import net.alasc.attributes.Attributes
 import net.alasc.bsgs.FixingPartition
 import net.alasc.domains.Partition
@@ -88,17 +89,12 @@ trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] { self =>
 
   }
 
-  lazy val encodeWithGroup: Encoder[(V, Grp[Relabeling])] =
-    Encoder.forProduct3[Scenario, Vec[Rational], Grp[Relabeling], (V, Grp[Relabeling])]("scenario", "coefficients", "symmetryGroup")( pair => (pair._1.scenario, pair._1.coefficients, pair._2) )
-
-  lazy val encodeWithoutGroup: Encoder[V] =
-    Encoder.forProduct2("scenario", "coefficients")( (v: V) => (v.scenario: Scenario, v.coefficients) )
-
   implicit val encode: Encoder[V] = Encoder.instance[V] { v =>
-    NDVec.attributes.symmetryGroup.get(v) match {
-      case Some(grp) => encodeWithGroup( (v, grp) )
-      case None => encodeWithoutGroup(v)
-    }
+    Json.obj(
+      "scenario" -> v.scenario.asJson,
+      "coefficients" -> v.coefficients.asJson,
+      "symmetryGroup" -> NDVec.attributes.symmetryGroup.get(v).fold(Json.Null)(_.asJson)
+    )
   }
 
   implicit val decode: Decoder[V] = new Decoder[V] {

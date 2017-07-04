@@ -34,7 +34,7 @@ object Lifting {
     def actl(o: Lifting, v: Value): Value = v
     def actr(v: Value, o: Lifting): Value = v
   }
-  implicit val bellExpressionAction: PartialAction[BellExpression, Lifting] =
-    BellExpression.constructPartialAction[Lifting](BellExpression.stdPreserved)
+  implicit val boundedExprAction: PartialAction[BoundedExpr, Lifting] =
+    BoundedExpr.constructPartialAction[Lifting](BoundedExpr.stdPreserved)
 
 }

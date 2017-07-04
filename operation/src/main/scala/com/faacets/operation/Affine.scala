@@ -54,8 +54,8 @@ object Affine {
     def actr(v: Value, a: Affine): Value = v * a.multiplier + a.shift
   }
 
-  implicit val bellExpressionAction: Action[BellExpression, Affine] =
-    BellExpression.constructAction[Affine](BellExpression.stdPreserved)
+  implicit val boundedExprAction: Action[BoundedExpr, Affine] =
+    BoundedExpr.constructAction[Affine](BoundedExpr.stdPreserved)
 
   implicit val exprExtractor: OperationExtractor[Expr, Affine] = new ExprAffineExtractor
 

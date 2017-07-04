@@ -2,7 +2,7 @@ package com.faacets.operation.product
 
 import com.faacets.core.Expr
 import com.faacets.data.{Scalar, Value}
-import com.faacets.operation.{BellExpression, LowerOrientation, Tensor, UpperOrientation}
+import com.faacets.operation.{BoundedExpr, LowerOrientation, Tensor, UpperOrientation}
 import cyclo.RealCyclo
 import spire.math.{Bounded, Interval, Point}
 import cats.syntax.traverse._
@@ -10,7 +10,7 @@ import cats.instances.all._
 
 import scala.collection.immutable.ListMap
 
-final class BellExpressionTensor extends Tensor[BellExpression] {
+final class BoundedExprTensor extends Tensor[BoundedExpr] {
 
   def exactBoundsProduct(components: Vector[Interval[RealCyclo]]): Interval[RealCyclo] =
     components.fold(Interval.point(RealCyclo.one))(_ * _)
@@ -29,14 +29,14 @@ final class BellExpressionTensor extends Tensor[BellExpression] {
     }
   }
 
-  def apply(components: Map[Set[Int], BellExpression]): BellExpression = {
+  def apply(components: Map[Set[Int], BoundedExpr]): BoundedExpr = {
     val exprs = components.mapValues(_.expr)
     val newExpr: Expr = Tensor[Expr].apply(exprs)
     if (components.size == 1) {
       val be = components.head._2
-      BellExpression(newExpr,
-        be.lower.filterBoundsAndFacetOf(BellExpression.stdPreserved),
-        be.upper.filterBoundsAndFacetOf(BellExpression.stdPreserved)
+      BoundedExpr(newExpr,
+        be.lower.filterBoundsAndFacetOf(BoundedExpr.stdPreserved),
+        be.upper.filterBoundsAndFacetOf(BoundedExpr.stdPreserved)
       )
     } else {
       val lbs = components.map(_._2.lower.bounds.keySet).reduce((x: Set[String], y: Set[String]) => x intersect y)
@@ -47,7 +47,7 @@ final class BellExpressionTensor extends Tensor[BellExpression] {
       val newBounds: Map[String, (Value, Value)] = bounds.flatMap { case (k, v) => boundsProduct(v.toVector).map(nv => (k -> nv)) }
       val newLowers = ListMap(newBounds.map { case (k, (l, _)) => (k -> l) }.toSeq: _*)
       val newUppers = ListMap(newBounds.map { case (k, (_, u)) => (k -> u) }.toSeq: _*)
-      BellExpression(newExpr,
+      BoundedExpr(newExpr,
         LowerOrientation(newLowers, ListMap.empty[String, Boolean]),
         UpperOrientation(newUppers, ListMap.empty[String, Boolean])
       )

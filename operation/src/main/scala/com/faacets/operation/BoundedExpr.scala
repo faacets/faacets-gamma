@@ -8,9 +8,10 @@ import com.faacets.data.Value
 import com.faacets.data.instances.all._
 import com.faacets.operation.instances.relabeling._
 import com.faacets.data.syntax.all._
-import io.circe.{AccumulatingDecoder, Decoder, Encoder, HCursor}
+import io.circe._
+import io.circe.syntax._
 import com.faacets.consolidate.instances.all._
-import com.faacets.operation.product.BellExpressionTensor
+import com.faacets.operation.product.BoundedExprTensor
 import cyclo.RealCyclo
 import net.alasc.perms.default._
 import net.alasc.finite.Grp
@@ -28,16 +29,16 @@ import scalin.immutable.dense._
 
 import scala.collection.immutable.{ListMap, ListSet}
 
-case class BellExpression(expr: Expr,
-                          lower: LowerOrientation = LowerOrientation.empty,
-                          upper: UpperOrientation = UpperOrientation.empty
+case class BoundedExpr(expr: Expr,
+                       lower: LowerOrientation = LowerOrientation.empty,
+                       upper: UpperOrientation = UpperOrientation.empty
                          ) {
 
-  def reconstructBounds: BellExpression = {
-    val pp = ProductExtractor[BellExpression].forceExtract(BellExpression(expr))
-      .mapAffine(be => CanonicalWithAffineExtractor[BellExpression].apply(be).withoutAffine)
+  def reconstructBounds: BoundedExpr = {
+    val pp = ProductExtractor[BoundedExpr].forceExtract(BoundedExpr(expr))
+      .mapAffine(be => CanonicalWithAffineExtractor[BoundedExpr].apply(be).splitAffine)
     val pprec = pp.map(_.map { be =>
-      BellExpression.canonicals.get(be.expr) match {
+      BoundedExpr.canonicals.get(be.expr) match {
         case Some(c) => c
         case None => be
       }
@@ -47,23 +48,23 @@ case class BellExpression(expr: Expr,
 
 }
 
-object BellExpression {
+object BoundedExpr {
 
-  val canonicalPositivity = BellExpression(
+  val canonicalPositivity = BoundedExpr(
     Expr(Scenario(Seq(Party(Seq(2)))), Vec[Rational](-1,1)),
     LowerOrientation(ListMap("local" -> Value(-1), "quantum" -> Value(-1), "nonsignaling" -> Value(-1)), ListMap.empty[String, Boolean]),
     UpperOrientation(ListMap("local" -> Value(1), "quantum" -> Value(1), "nonsignaling" -> Value(1)), ListMap.empty[String, Boolean])
   )
 
-  val canonicalCHSH = BellExpression(
+  val canonicalCHSH = BoundedExpr(
     Expr(Scenario.CHSH, Vec[Rational](-1, 1, -1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1, -1, -1, 1)),
     LowerOrientation(ListMap("local" -> Value(-2), "quantum" -> Value(-RealCyclo.sqrt2*2), "nonsignaling" -> Value(-4)), ListMap("local" -> true)),
     UpperOrientation(ListMap("local" -> Value(2), "quantum" -> Value(RealCyclo.sqrt2*2), "nonsignaling" -> Value(4)), ListMap("local" -> true))
   )
 
-  val canonicals: Map[Expr, BellExpression] = Map(canonicalPositivity.expr -> canonicalPositivity, canonicalCHSH.expr -> canonicalCHSH)
+  val canonicals: Map[Expr, BoundedExpr] = Map(canonicalPositivity.expr -> canonicalPositivity, canonicalCHSH.expr -> canonicalCHSH)
 
-  val CH = BellExpression(
+  val CH = BoundedExpr(
     Expr.collinsGisin(Scenario.CHSH, Vec[Rational](0,0,-1,-1,1,1,0,-1,1)),
     LowerOrientation.empty,
     UpperOrientation(ListMap("local" -> Value(0)), ListMap.empty[String, Boolean])
@@ -73,88 +74,94 @@ object BellExpression {
 
   def constructPartialAction[O:Groupoid](preservedBoundsAndFacetOf: Set[String])
                                  (implicit exprPA: PartialAction[Expr, O],
-                                  valueA: Action[Value, O]): PartialAction[BellExpression, O] =
-    new PartialAction[BellExpression, O] {
+                                  valueA: Action[Value, O]): PartialAction[BoundedExpr, O] =
+    new PartialAction[BoundedExpr, O] {
 
-      def partialActr(be: BellExpression, o: O): Opt[BellExpression] = {
+      def partialActr(be: BoundedExpr, o: O): Opt[BoundedExpr] = {
         def valueF(v: Value): Value = v <|+| o
         val newLower = be.lower.filterBoundsAndFacetOf(preservedBoundsAndFacetOf).mapBounds(valueF)
         val newUpper = be.upper.filterBoundsAndFacetOf(preservedBoundsAndFacetOf).mapBounds(valueF)
         (be.expr <|+|? o) match {
           case Opt(newExpr) =>
-            Opt(BellExpression(newExpr, newLower, newUpper))
-          case _ => Opt.empty[BellExpression]
+            Opt(BoundedExpr(newExpr, newLower, newUpper))
+          case _ => Opt.empty[BoundedExpr]
         }
       }
 
-      def partialActl(o: O, be: BellExpression): Opt[BellExpression] = partialActr(be, o.inverse)
+      def partialActl(o: O, be: BoundedExpr): Opt[BoundedExpr] = partialActr(be, o.inverse)
 
     }
 
   def constructAction[O:Group](preservedBoundsAndFacetOf: Set[String])
                                         (implicit exprA: Action[Expr, O],
-                                         valueA: Action[Value, O]): Action[BellExpression, O] =
-    new Action[BellExpression, O] {
+                                         valueA: Action[Value, O]): Action[BoundedExpr, O] =
+    new Action[BoundedExpr, O] {
 
-      def actr(be: BellExpression, o: O): BellExpression = {
+      def actr(be: BoundedExpr, o: O): BoundedExpr = {
         def valueF(v: Value): Value = v <|+| o
         val newLower = be.lower.filterBoundsAndFacetOf(preservedBoundsAndFacetOf).mapBounds(valueF)
         val newUpper = be.upper.filterBoundsAndFacetOf(preservedBoundsAndFacetOf).mapBounds(valueF)
         val newExpr = be.expr <|+| o
-        BellExpression(newExpr, newLower, newUpper)
+        BoundedExpr(newExpr, newLower, newUpper)
       }
 
-      def actl(o: O, be: BellExpression): BellExpression = actr(be, o.inverse)
+      def actl(o: O, be: BoundedExpr): BoundedExpr = actr(be, o.inverse)
 
     }
 
   implicit def constructExtractor[O:Groupoid](implicit O: OperationExtractor[Expr, O],
-                                     pa: PartialAction[BellExpression, O]): OperationExtractor[BellExpression, O] =
-    new OperationExtractor[BellExpression, O] {
-      def partialAction: PartialAction[BellExpression, O] = pa
+                                     pa: PartialAction[BoundedExpr, O]): OperationExtractor[BoundedExpr, O] =
+    new OperationExtractor[BoundedExpr, O] {
+      def partialAction: PartialAction[BoundedExpr, O] = pa
       def groupoid: Groupoid[O] = implicitly
-      def identity(be: BellExpression): O = O.identity(be.expr)
-      def extractOperation(be: BellExpression): Opt[O] = O.extractOperation(be.expr)
+      def identity(be: BoundedExpr): O = O.identity(be.expr)
+      def extractOperation(be: BoundedExpr): Opt[O] = O.extractOperation(be.expr)
     }
 
-  implicit val tensor: Tensor[BellExpression] = new BellExpressionTensor
+  implicit val tensor: Tensor[BoundedExpr] = new BoundedExprTensor
 
-  def validate(expr: Expr, lower: LowerOrientation, upper: UpperOrientation): ValidatedNel[String, BellExpression] =
-    Validated.Valid(BellExpression(expr, lower, upper))
+  def validate(expr: Expr, lower: LowerOrientation, upper: UpperOrientation): ValidatedNel[String, BoundedExpr] =
+    Validated.Valid(BoundedExpr(expr, lower, upper))
 
-  implicit lazy val encode: Encoder[BellExpression] = Encoder.forProduct5[Scenario, Vec[Rational], Option[Grp[Relabeling]], LowerOrientation, UpperOrientation, BellExpression](
-    "scenario", "coefficients", "symmetryGroup", "lower", "upper"
-  )( (b: BellExpression) => (b.expr.scenario, b.expr.coefficients, NDVec.attributes.symmetryGroup.get(b.expr), b.lower, b.upper))
+  implicit lazy val encode: Encoder[BoundedExpr] = Encoder.instance[BoundedExpr] { be =>
+    Json.obj(
+      "scenario" -> be.expr.scenario.asJson,
+      "coefficients" -> be.expr.coefficients.asJson,
+      "symmetryGroup" -> NDVec.attributes.symmetryGroup.get(be.expr).fold(Json.Null)(_.asJson),
+      "lower" -> (if (be.lower.isEmpty) Json.Null else be.lower.asJson),
+      "upper" -> (if (be.upper.isEmpty) Json.Null else be.upper.asJson)
+    )
+  }
 
-  implicit lazy val decode: Decoder[BellExpression] = new Decoder[BellExpression] {
+  implicit lazy val decode: Decoder[BoundedExpr] = new Decoder[BoundedExpr] {
 
-    def apply(c: HCursor): Decoder.Result[BellExpression] = decodeAccumulating(c).leftMap(_.head).toEither
+    def apply(c: HCursor): Decoder.Result[BoundedExpr] = decodeAccumulating(c).leftMap(_.head).toEither
 
-    override def decodeAccumulating(c: HCursor): AccumulatingDecoder.Result[BellExpression] =
+    override def decodeAccumulating(c: HCursor): AccumulatingDecoder.Result[BoundedExpr] =
       AccumulatingDecoder.resultInstance.map5(
         Decoder[Scenario].tryDecodeAccumulating(c.downField("scenario")),
         Decoder[Vec[Rational]].tryDecodeAccumulating(c.downField("coefficients")),
         Decoder[Option[Grp[Relabeling]]].tryDecodeAccumulating(c.downField("symmetryGroup")),
-        Decoder[LowerOrientation].tryDecodeAccumulating(c.downField("lower")),
-        Decoder[UpperOrientation].tryDecodeAccumulating(c.downField("upper"))
+        Decoder[Option[LowerOrientation]].tryDecodeAccumulating(c.downField("lower")).map(_.getOrElse(LowerOrientation.empty)),
+        Decoder[Option[UpperOrientation]].tryDecodeAccumulating(c.downField("upper")).map(_.getOrElse(UpperOrientation.empty))
       )( (_, _, _, _, _) ).andThen {
         case (s: Scenario, c: Vec[Rational], sg: Option[Grp[Relabeling]], lower: LowerOrientation, upper: UpperOrientation) =>
           Expr.validate(s, c, sg).toAccumulatingDecoderResult
-            .andThen { expr => BellExpression.validate(expr, lower, upper).toAccumulatingDecoderResult }
+            .andThen { expr => BoundedExpr.validate(expr, lower, upper).toAccumulatingDecoderResult }
       }
   }
 
-  implicit val lexicographicOrder: LexicographicOrder[BellExpression] = new LexicographicOrder[BellExpression] {
-    def partialComparison(x: BellExpression, y: BellExpression): Option[Comparison] =
+  implicit val lexicographicOrder: LexicographicOrder[BoundedExpr] = new LexicographicOrder[BoundedExpr] {
+    def partialComparison(x: BoundedExpr, y: BoundedExpr): Option[Comparison] =
       LexicographicOrder[Expr].partialComparison(x.expr, y.expr)
   }
 
-  implicit val additiveGroupoid: AdditiveGroupoid[BellExpression] = AdditiveGroupoid(new Groupoid[BellExpression] {
-    def inverse(a: BellExpression): BellExpression = BellExpression(AdditiveGroupoid[Expr].groupoid.inverse(a.expr))
-    def partialOp(x: BellExpression, y: BellExpression): Opt[BellExpression] = {
+  implicit val additiveGroupoid: AdditiveGroupoid[BoundedExpr] = AdditiveGroupoid(new Groupoid[BoundedExpr] {
+    def inverse(a: BoundedExpr): BoundedExpr = BoundedExpr(AdditiveGroupoid[Expr].groupoid.inverse(a.expr))
+    def partialOp(x: BoundedExpr, y: BoundedExpr): Opt[BoundedExpr] = {
       AdditiveGroupoid[Expr].groupoid.partialOp(x.expr, y.expr) match {
-        case Opt(r) => Opt(BellExpression(r))
-        case _ => Opt.empty[BellExpression]
+        case Opt(r) => Opt(BoundedExpr(r))
+        case _ => Opt.empty[BoundedExpr]
       }
     }
   })
@@ -162,6 +169,7 @@ object BellExpression {
 }
 
 sealed trait Orientation[O <: Orientation[O, N], N <: Orientation[N, O]] {
+  def isEmpty: Boolean = bounds.isEmpty && facetOf.isEmpty
   def builder: OrientationBuilder[O]
   def bounds: ListMap[String, Value]
   def facetOf: ListMap[String, Boolean]
@@ -204,22 +212,22 @@ trait OrientationBuilder[O <: Orientation[O, _]] { self =>
     NonEmptyList.fromList(inconsistencies).fold(Validated.Valid(apply(bounds, facetOf)): ValidatedNel[String, O])(Validated.invalid(_))
   }
 
-  implicit val encode: Encoder[O] = Encoder.forProduct2("bounds", "facetOf")(
-    (o: O) => (o.bounds: ListMap[String, Value], o.facetOf: ListMap[String, Boolean])
-  )
+  implicit val encode: Encoder[O] = Encoder.instance[O] { o =>
+    Json.obj(
+      "bounds" -> (if (o.bounds.isEmpty) Json.Null else o.bounds.asJson),
+      "facetOf" -> (if (o.facetOf.isEmpty) Json.Null else o.facetOf.asJson)
+    )
+  }
 
   implicit val decode: Decoder[O] = new Decoder[O] {
-
     def apply(c: HCursor): Decoder.Result[O] = decodeAccumulating(c).leftMap(_.head).toEither
-
     override def decodeAccumulating(c: HCursor): AccumulatingDecoder.Result[O] =
       AccumulatingDecoder.resultInstance.map2(
-        Decoder[ListMap[String, Value]].tryDecodeAccumulating(c.downField("bounds")),
-        Decoder[ListMap[String, Boolean]].tryDecodeAccumulating(c.downField("facetOf"))
+        Decoder[Option[ListMap[String, Value]]].tryDecodeAccumulating(c.downField("bounds")).map(_.getOrElse(ListMap.empty[String, Value])),
+        Decoder[Option[ListMap[String, Boolean]]].tryDecodeAccumulating(c.downField("facetOf")).map(_.getOrElse(ListMap.empty[String, Boolean]))
        )( (_, _) ).andThen {
         case (b: ListMap[String, Value], f: ListMap[String, Boolean]) => self.validate(b, f).toAccumulatingDecoderResult
       }
-
   }
 
   implicit val merge: Merge[O] = new Merge[O] {
