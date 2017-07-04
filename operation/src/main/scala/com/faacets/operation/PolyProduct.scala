@@ -174,11 +174,4 @@ object PolyProduct {
     PolyProduct(Map(allSet -> a), coeffs)
   }
 
-  def ofSingle[A](a: A)(implicit cwae: CanonicalWithAffineExtractor[A]): PolyProduct[CanonicalDec[A]] = {
-    val cwa = cwae(a)
-    val n = cwa.originalScenario.nParties
-    val (affine, c) = cwa.withoutAffine
-    ofSingle(affine, c, n)
-  }
-
 }
