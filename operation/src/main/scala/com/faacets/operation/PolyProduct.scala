@@ -1,34 +1,48 @@
 package com.faacets.operation
 
 import com.faacets.core.{AdditiveGroupoid, Expr, Relabeling}
+import com.faacets.data.Textable
 import com.faacets.operation.product.Rank1
-import io.circe.{Encoder, Json}
+import io.circe._
 import spire.math.Rational
 import io.circe.syntax._
 import scalin.immutable.Mat
 import spire.algebra.Action
 import spire.syntax.action._
-import spire.syntax.group._
+import cats.instances.all._
+import com.faacets.data.instances.all._
+import cats.syntax.all._
+
 import scala.collection.immutable.BitSet
+
+case class PolyExpr(coeffs: Map[Set[Set[Int]], Rational]) {
+
+  override def toString: String = {
+    import com.faacets.core.text.Term.printSeq
+    val ct = coeffs.toSeq.map {
+      case (in, coeff) => (coeff, PolyProduct.partsString(in))
+    }.sortBy(_._2)
+    printSeq(ct)
+  }
+
+}
+
+object PolyExpr {
+
+  implicit val textable: Textable[PolyExpr] = Textable.fromParser(Parsers.polyExpr, _.toString)
+
+}
 
 /** Represents a sum of tensor products of expressions of type A. */
 case class PolyProduct[A](components: Map[Set[Int], A], coeffs: Map[Set[Set[Int]], Rational]) {
 
-  override def toString = polyString + ";" + components.toString
+  override def toString = PolyExpr(coeffs).toString + ";" + components.toString
 
   require(coeffs.values.forall(!_.isZero))
 
   def +(r: Rational): PolyProduct[A] = {
     val newCoeffs = coeffs.updated(Set.empty[Set[Int]], coeffs.getOrElse(Set.empty[Set[Int]], Rational.zero) + r).filterNot(_._2.isZero)
     PolyProduct(components, newCoeffs)
-  }
-
-  def polyString: String = {
-    import com.faacets.core.text.Term.printSeq
-    val ct = coeffs.toSeq.map {
-      case (in, coeff) => (coeff, PolyProduct.partsString(in))
-    }.sortBy(_._2)
-    printSeq(ct)
   }
 
   def original(implicit G: AdditiveGroupoid[A], A: Action[A, Affine], T: Tensor[A]): A = {
@@ -139,9 +153,25 @@ object PolyProduct {
   }
 
   implicit def encoder[A:Encoder]: Encoder[PolyProduct[A]] = Encoder.instance { polyProd =>
-    val polyJson = "poly" -> Json.fromString(polyProd.polyString)
+    val polyJson = "poly" -> PolyExpr(polyProd.coeffs).asJson
     val componentsJson = polyProd.components.toSeq.map { case (part, a) => (partString(part) -> a.asJson) }.sortBy(_._1)
     Json.obj(polyJson +: componentsJson: _*)
+  }
+
+  implicit def decoder[A:Decoder]: Decoder[PolyProduct[A]] = new Decoder[PolyProduct[A]] {
+
+    def apply(c: HCursor): Decoder.Result[PolyProduct[A]] = decodeAccumulating(c).leftMap(_.head).toEither
+
+    override def decodeAccumulating(c: HCursor): AccumulatingDecoder.Result[PolyProduct[A]] =
+      Decoder[PolyExpr].tryDecodeAccumulating(c.downField("poly")) andThen { poly =>
+        val partSets = poly.coeffs.keySet.flatten
+        val parts: Vector[Set[Int]] = partSets.toVector
+        val res: Vector[AccumulatingDecoder.Result[(Set[Int], A)]] =
+          parts.map( b => Decoder[A].tryDecodeAccumulating(c.downField(partString(b))).map( r => (b -> r) ) )
+        val res1: AccumulatingDecoder.Result[Vector[(Set[Int], A)]] = res.sequenceU
+        res1.map( components => PolyProduct(components.toMap, poly.coeffs) )
+      }
+
   }
 
   implicit def tensor[A]: Tensor[PolyProduct[A]] = new Tensor[PolyProduct[A]] {

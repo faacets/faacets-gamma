@@ -134,7 +134,6 @@ object BoundedExpr {
   }
 
   implicit lazy val decode: Decoder[BoundedExpr] = new Decoder[BoundedExpr] {
-
     def apply(c: HCursor): Decoder.Result[BoundedExpr] = decodeAccumulating(c).leftMap(_.head).toEither
 
     override def decodeAccumulating(c: HCursor): AccumulatingDecoder.Result[BoundedExpr] =

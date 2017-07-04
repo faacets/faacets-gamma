@@ -6,41 +6,36 @@ import spire.algebra.partial.PartialAction
 import io.circe.{Encoder, Json}
 import io.circe.syntax._
 import spire.syntax.partialAction._
+import spire.syntax.groupoid._
 import syntax.extractor._
 import com.faacets.data.instances.textable._
 
 case class CanonicalDecWithAffine[V](affine: Affine,
-                                     lifting: Lifting,
-                                     reordering: Reordering,
+                                     lifting: Option[Lifting],
+                                     reordering: Option[Reordering],
                                      relabeling: Relabeling,
                                      canonical: V) {
   def original(implicit A: PartialAction[V, Affine], L: PartialAction[V, Lifting], O: PartialAction[V, Reordering], R: PartialAction[V, Relabeling]): V = {
     val step1 = (canonical <|+|? relabeling).get
-    val step2 = (step1 <|+|? reordering).get
-    val step3 = (step2 <|+|? lifting).get
+    val step2 = reordering.fold(step1)(ro => (step1 <|+|? ro).get)
+    val step3 = lifting.fold(step2)(li => (step2 <|+|? li).get)
     val step4 = (step3 <|+|? affine).get
     step4
   }
-  def originalScenario: Scenario = lifting.target.scenario
-  def canonicalScenario: Scenario = reordering.source
   def splitAffine: (Affine, CanonicalDec[V]) = (affine, CanonicalDec(lifting, reordering, relabeling, canonical))
   def map[B](f: V => B): CanonicalDec[B] = CanonicalDec(lifting, reordering, relabeling, f(canonical))
 }
 
 object CanonicalDecWithAffine {
 
-  import CanonicalDec.someIfNotId
-
-  implicit def encoder[V:Encoder]: Encoder[CanonicalDecWithAffine[V]] = new Encoder[CanonicalDecWithAffine[V]] {
-    def apply(ld: CanonicalDecWithAffine[V]): Json = {
-      val fields = Seq(
-        someIfNotId(ld.affine).map(a => "affine" -> a.asJson),
-        someIfNotId(ld.lifting).map(l => "lifting" -> l.asJson),
-        someIfNotId(ld.reordering).map(o => "reordering" -> o.asJson),
-        someIfNotId(ld.relabeling).map(r => "relabeling" -> r.asJson)
-      ).flatten :+ ("canonical" -> ld.canonical.asJson)
-      Json.obj(fields: _*)
-    }
+  implicit def encoder[V:Encoder]: Encoder[CanonicalDecWithAffine[V]] = Encoder.instance[CanonicalDecWithAffine[V]] { cd =>
+    Json.obj(
+      "affine" -> cd.affine.asJson,
+      "lifting" -> cd.lifting.asJson,
+      "reordering" -> cd.reordering.asJson,
+      "relabeling" -> cd.relabeling.asJson,
+      "canonical" -> cd.canonical.asJson
+    )
   }
 
 }
@@ -70,8 +65,12 @@ object CanonicalWithAffineExtractor {
         val res3neg = (res3 <|+|? Affine(-1, 0)).get
         val (vMinus, rMinus) = res3neg.forceExtract[Relabeling].extractedPair
         LexicographicOrder[V].partialComparison(vPlus, vMinus) match {
-          case Some(Comparison.EqualTo) | Some(Comparison.LessThan) => CanonicalDecWithAffine(a, l, o, rPlus, vPlus)
-          case Some(Comparison.GreaterThan) => CanonicalDecWithAffine(a.copy(multiplier = -a.multiplier), l, o, rMinus, vMinus)
+          case Some(Comparison.EqualTo) | Some(Comparison.LessThan) =>
+            CanonicalDecWithAffine(a,
+              if (l.isId) None else Some(l), if (o.isId) None else Some(o), rPlus, vPlus)
+          case Some(Comparison.GreaterThan) =>
+            CanonicalDecWithAffine(a.copy(multiplier = -a.multiplier),
+              if (l.isId) None else Some(l), if (o.isId) None else Some(o), rMinus, vMinus)
           case _ => sys.error("Cannot happen, both are in the same scenario")
         }
       }

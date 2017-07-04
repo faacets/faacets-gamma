@@ -5,6 +5,7 @@ import com.faacets.operation.CanonicalDecWithAffine
 import com.faacets.operation.{Affine, Lifting, OperationExtractor, Reordering}
 import spire.algebra.partial.PartialAction
 import spire.syntax.partialAction._
+import spire.syntax.groupoid._
 
 object Operations {
 
@@ -24,6 +25,6 @@ object Operations {
       o <- OG.gen(canonical)
       after = (((canonical <|+|? a).get <|+|? r).get <|+|? o).get
       l <- LG.gen(after)
-    } yield CanonicalDecWithAffine(a, l, o, r, canonical)
+    } yield CanonicalDecWithAffine(a, if (l.isId) None else Some(l), if (o.isId) None else Some(o), r, canonical)
 
 }
