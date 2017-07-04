@@ -6,9 +6,11 @@ import com.faacets.consolidate.{Merge, Result}
 import com.faacets.core._
 import com.faacets.data.Value
 import com.faacets.data.instances.all._
+import com.faacets.operation.instances.relabeling._
 import com.faacets.data.syntax.all._
 import io.circe.{AccumulatingDecoder, Decoder, Encoder, HCursor}
 import com.faacets.consolidate.instances.all._
+import com.faacets.operation.product.BellExpressionTensor
 import cyclo.RealCyclo
 import net.alasc.perms.default._
 import net.alasc.finite.Grp
@@ -27,17 +29,37 @@ import scalin.immutable.dense._
 import scala.collection.immutable.{ListMap, ListSet}
 
 case class BellExpression(expr: Expr,
-                          lower: LowerOrientation,
-                          upper: UpperOrientation
-                         )
+                          lower: LowerOrientation = LowerOrientation.empty,
+                          upper: UpperOrientation = UpperOrientation.empty
+                         ) {
+
+  def reconstructBounds: BellExpression = {
+    val pp = ProductExtractor[BellExpression].forceExtract(BellExpression(expr)).map(_.map { be =>
+      BellExpression.canonicals.get(be.expr) match {
+        case Some(c) => c
+        case None => be
+      }
+    })
+    pp.toProductTreeOption.fold(pp.map(_.original).original)(_.map(_.original).merged)
+  }
+
+}
 
 object BellExpression {
 
-  val CHSH = BellExpression(
-    Expr.CHSH,
+  val canonicalPositivity = BellExpression(
+    Expr(Scenario(Seq(Party(Seq(2)))), Vec[Rational](-1,1)),
+    LowerOrientation(ListMap("local" -> Value(-1), "quantum" -> Value(-1), "nonsignaling" -> Value(-1)), ListMap.empty[String, Boolean]),
+    UpperOrientation(ListMap("local" -> Value(1), "quantum" -> Value(1), "nonsignaling" -> Value(1)), ListMap.empty[String, Boolean])
+  )
+
+  val canonicalCHSH = BellExpression(
+    Expr(Scenario.CHSH, Vec[Rational](-1, 1, -1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1, -1, -1, 1)),
     LowerOrientation(ListMap("local" -> Value(-2), "quantum" -> Value(-RealCyclo.sqrt2*2), "nonsignaling" -> Value(-4)), ListMap("local" -> true)),
     UpperOrientation(ListMap("local" -> Value(2), "quantum" -> Value(RealCyclo.sqrt2*2), "nonsignaling" -> Value(4)), ListMap("local" -> true))
   )
+
+  val canonicals: Map[Expr, BellExpression] = Map(canonicalPositivity.expr -> canonicalPositivity, canonicalCHSH.expr -> canonicalCHSH)
 
   val CH = BellExpression(
     Expr.collinsGisin(Scenario.CHSH, Vec[Rational](0,0,-1,-1,1,1,0,-1,1)),
@@ -93,6 +115,8 @@ object BellExpression {
       def extractOperation(be: BellExpression): Opt[O] = O.extractOperation(be.expr)
     }
 
+  implicit val tensor: Tensor[BellExpression] = new BellExpressionTensor
+
   def validate(expr: Expr, lower: LowerOrientation, upper: UpperOrientation): ValidatedNel[String, BellExpression] =
     Validated.Valid(BellExpression(expr, lower, upper))
 
@@ -122,6 +146,16 @@ object BellExpression {
     def partialComparison(x: BellExpression, y: BellExpression): Option[Comparison] =
       LexicographicOrder[Expr].partialComparison(x.expr, y.expr)
   }
+
+  implicit val additiveGroupoid: AdditiveGroupoid[BellExpression] = AdditiveGroupoid(new Groupoid[BellExpression] {
+    def inverse(a: BellExpression): BellExpression = BellExpression(AdditiveGroupoid[Expr].groupoid.inverse(a.expr))
+    def partialOp(x: BellExpression, y: BellExpression): Opt[BellExpression] = {
+      AdditiveGroupoid[Expr].groupoid.partialOp(x.expr, y.expr) match {
+        case Opt(r) => Opt(BellExpression(r))
+        case _ => Opt.empty[BellExpression]
+      }
+    }
+  })
 
 }
 

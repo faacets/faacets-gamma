@@ -5,7 +5,7 @@ import com.faacets.core.Expr
 import spire.algebra._
 import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.util.Opt
-import com.faacets.operation.product.ExprProductExtractor
+import com.faacets.operation.product.{BellExpressionProductExtractor, ExprProductExtractor}
 
 trait Extractor[V] {
 
@@ -26,6 +26,7 @@ trait ProductExtractor[V] {
 
 object ProductExtractor {
   implicit val expr: ProductExtractor[Expr] = new ExprProductExtractor
+  implicit val bellExpression: ProductExtractor[BellExpression] = new BellExpressionProductExtractor
 
   def apply[V](implicit ev: ProductExtractor[V]): ProductExtractor[V] = ev
 

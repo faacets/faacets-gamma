@@ -21,6 +21,7 @@ case class CanonicalDec[V](lifting: Lifting, reordering: Reordering, relabeling:
   def canonicalScenario: Scenario = reordering.source
   def withAffine(affine: Affine): CanonicalDecWithAffine[V] =
     CanonicalDecWithAffine(affine, lifting, reordering, relabeling, canonical)
+  def map[B](f: V => B): CanonicalDec[B] = CanonicalDec(lifting, reordering, relabeling, f(canonical))
 }
 
 object CanonicalDec {
