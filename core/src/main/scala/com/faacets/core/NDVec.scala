@@ -84,7 +84,7 @@ trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] { self =>
       val scenario = base.scenario merge newV.scenario
       val coefficients = base.coefficients merge newV.coefficients
       val symGroup = sg.get(base) merge sg.get(newV)
-      (scenario |@| coefficients |@| symGroup) .map( (_,_,_) ).validate((validate _).tupled)
+      (scenario |@| coefficients |@| symGroup).map( (_,_,_) ).validate((validate _).tupled)
     }
 
   }

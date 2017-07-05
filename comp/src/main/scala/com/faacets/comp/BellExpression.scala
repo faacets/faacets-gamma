@@ -1,11 +1,15 @@
 package com.faacets.comp
 
 import cats.data.{Validated, ValidatedNel}
+import com.faacets.consolidate.Result.Same
+import com.faacets.consolidate.{Merge, Result}
 import com.faacets.core.{Expr, NDVec, Relabeling, Scenario}
 import com.faacets.operation._
+import com.faacets.consolidate.syntax.all._
 import io.circe._
 import net.alasc.attributes.{Attributable, Attributes}
 import net.alasc.finite.Grp
+import com.faacets.consolidate.instances.all._
 import com.faacets.data.instances.all._
 import com.faacets.data.syntax.all._
 import net.alasc.perms.default._
@@ -46,6 +50,30 @@ object BellExpression {
   object attributes extends Attributes("BellExpression") {
 
     object decomposition extends Attribute.OfValue[PolyProduct[CanonicalDec[Expr]]]("decomposition")
+
+  }
+
+  implicit val merge: Merge[BellExpression] = new Merge[BellExpression] {
+
+    def merge(base: BellExpression, other: BellExpression): Result[BellExpression] = {
+      val boundedExpr = base.boundedExpr merge other.boundedExpr
+      val display = base.display merge other.display
+      val keywords = base.keywords merge other.keywords
+      implicit val stringMerge: Merge[String] = Merge.fromEquals[String]
+      val shortName = base.shortName merge other.shortName
+      val names = base.names merge other.names
+      val sources = base.sources merge other.sources
+      import BellExpression.attributes.{decomposition => dc}
+      implicit object DecompositionMerge extends Merge[PolyProduct[CanonicalDec[Expr]]] {
+        def merge(base: PolyProduct[CanonicalDec[Expr]], other: PolyProduct[CanonicalDec[Expr]]): Result[PolyProduct[CanonicalDec[Expr]]] =
+          Result.same(base)
+      }
+      val decomposition = dc.get(base) merge dc.get(other)
+      import cats.syntax.all._
+      import cats.instances.all._
+      (boundedExpr |@| display |@| keywords |@| shortName |@| names |@| sources |@| decomposition).map( (_, _,_,_,_,_,_) )
+        .validate((BellExpression.validate _).tupled)
+    }
 
   }
 

@@ -1,5 +1,6 @@
 package com.faacets.comp
 
+import com.faacets.consolidate.Merge
 import com.faacets.core.Scenario
 import io.circe.{Decoder, DecodingFailure, Encoder, Json}
 import scalin.immutable.Vec
@@ -18,6 +19,8 @@ object Display {
   case class Correlators(coeffs: Vec[Rational]) extends Display
 
   case class SignalingProbabilities(coeffs: Vec[Rational]) extends Display
+
+  implicit val merge: Merge[Display] = Merge.fromEquals[Display]
 
   implicit val encoder: Encoder[Display] = Encoder.instance { d =>
     d match {

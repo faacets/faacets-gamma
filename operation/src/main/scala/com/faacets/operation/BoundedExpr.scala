@@ -22,6 +22,7 @@ import spire.math.Rational
 import spire.syntax.partialAction._
 import spire.syntax.action._
 import spire.syntax.groupoid._
+import com.faacets.consolidate.syntax.all._
 import spire.syntax.group._
 import spire.math.interval.Overlap
 import spire.util.Opt
@@ -34,16 +35,18 @@ case class BoundedExpr(expr: Expr,
                        upper: UpperOrientation = UpperOrientation.empty
                          ) {
 
-  def reconstructBounds: BoundedExpr = {
-    val pp = ProductExtractor[BoundedExpr].forceExtract(BoundedExpr(expr))
+  def decomposition: PolyProduct[CanonicalDec[BoundedExpr]] =
+    ProductExtractor[BoundedExpr].forceExtract(BoundedExpr(expr))
       .mapAffine(be => CanonicalWithAffineExtractor[BoundedExpr].apply(be).splitAffine)
-    val pprec = pp.map(_.map { be =>
+
+  def reconstructBounds: BoundedExpr = {
+    val pprec = decomposition.map(_.map { be =>
       BoundedExpr.canonicals.get(be.expr) match {
         case Some(c) => c
         case None => be
       }
     })
-    pprec.toProductTreeOption.fold(pp.map(_.original).original)(_.map(_.original).original)
+    pprec.toProductTreeOption.fold(decomposition.map(_.original).original)(_.map(_.original).original)
   }
 
 }
@@ -149,6 +152,20 @@ object BoundedExpr {
             .andThen { expr => BoundedExpr.validate(expr, lower, upper).toAccumulatingDecoderResult }
       }
   }
+
+  implicit lazy val merge: Merge[BoundedExpr] = new Merge[BoundedExpr] {
+
+    def merge(base: BoundedExpr, newBE: BoundedExpr): Result[BoundedExpr] = {
+      import cats.syntax.all._
+      import NDVec.attributes.{symmetryGroup => sg}
+      val expr = base.expr merge newBE.expr
+      val lower = base.lower merge newBE.lower
+      val upper = base.upper merge newBE.upper
+      (expr |@| lower |@| upper) .map( (_,_,_) ).validate((BoundedExpr.validate _).tupled)
+    }
+
+  }
+
 
   implicit val lexicographicOrder: LexicographicOrder[BoundedExpr] = new LexicographicOrder[BoundedExpr] {
     def partialComparison(x: BoundedExpr, y: BoundedExpr): Option[Comparison] =
