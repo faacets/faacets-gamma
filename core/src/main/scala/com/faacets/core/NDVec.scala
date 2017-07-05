@@ -53,7 +53,7 @@ trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] { self =>
 
   def inNonSignalingSubspace(scenario: Scenario, coefficients: Vec[Rational]): Boolean
 
-  def validate(scenario: Scenario, coefficients: Vec[Rational], symGroup: Option[Grp[Relabeling]]): ValidatedNel[String, V] = {
+  def validate(scenario: Scenario, coefficients: Vec[Rational], symGroup: Option[Grp[Relabeling]] = None): ValidatedNel[String, V] = {
     val correctLength = scenario.shapeP.size
     val coeffLength = coefficients.length
     if (coeffLength != correctLength) Validated.invalidNel(s"Invalid coefficients length, is $coeffLength, should be $correctLength")

@@ -13,12 +13,14 @@ import scalin.immutable.Vec
 import spire.math.Rational
 import io.circe.syntax._
 
+import scala.collection.immutable.{ListMap, ListSet}
+
 case class BellExpression(boundedExpr: BoundedExpr,
                           display: Option[Display],
-                          keywords: Set[String] = Set.empty[String],
+                          keywords: ListSet[String] = ListSet.empty[String],
                           shortName: Option[String] = None,
-                          names: Seq[String] = Seq.empty[String],
-                          sources: Map[String, Seq[String]] = Map.empty[String, Seq[String]]) extends Attributable {
+                          names: ListSet[String] = ListSet.empty[String],
+                          sources: ListMap[String, ListSet[String]] = ListMap.empty[String, ListSet[String]]) extends Attributable {
 
   def expr: Expr = boundedExpr.expr
   def lower: LowerOrientation = boundedExpr.lower
@@ -30,10 +32,10 @@ object BellExpression {
 
   def validate(boundedExpr: BoundedExpr,
                display: Option[Display],
-               keywords: Set[String],
+               keywords: ListSet[String],
                shortName: Option[String],
-               names: Seq[String],
-               sources: Map[String, Seq[String]],
+               names: ListSet[String],
+               sources: ListMap[String, ListSet[String]],
                decomposition: Option[PolyProduct[CanonicalDec[Expr]]]
               ): ValidatedNel[String, BellExpression] = {
     val res = BellExpression(boundedExpr, display, keywords, shortName, names, sources)
@@ -79,8 +81,8 @@ object BellExpression {
         Decoder[Option[LowerOrientation]].tryDecodeAccumulating(c.downField("lower")).map(_.getOrElse(LowerOrientation.empty)),
         Decoder[Option[UpperOrientation]].tryDecodeAccumulating(c.downField("upper")).map(_.getOrElse(UpperOrientation.empty)),
 
-        Decoder[Option[Seq[String]]].tryDecodeAccumulating(c.downField("names")).map(_.getOrElse(Seq.empty[String])),
-        Decoder[Option[Map[String, Seq[String]]]].tryDecodeAccumulating(c.downField("sources")).map(_.getOrElse(Map.empty[String, Seq[String]])),
+        Decoder[Option[ListSet[String]]].tryDecodeAccumulating(c.downField("names")).map(_.getOrElse(Seq.empty[String])),
+        Decoder[Option[ListMap[String, ListSet[String]]]].tryDecodeAccumulating(c.downField("sources")).map(_.getOrElse(Map.empty[String, Seq[String]])),
 
         Decoder[Option[PolyProduct[CanonicalDec[Expr]]]].tryDecodeAccumulating(c.downField("decomposition"))
       )( (_,
@@ -93,7 +95,7 @@ object BellExpression {
         s: Scenario, c: Vec[Rational], sg: Option[Grp[Relabeling]],
         d: Option[Display],
         lower: LowerOrientation, upper: UpperOrientation,
-        names: Seq[String], sources: Map[String, Seq[String]],
+        names: ListSet[String], sources: ListMap[String, ListSet[String]],
         decomposition: Option[PolyProduct[CanonicalDec[Expr]]]) =>
           Expr.validate(s, c, sg).toAccumulatingDecoderResult
             .andThen { expr =>

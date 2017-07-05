@@ -1,6 +1,7 @@
 package com.faacets
 package core
 
+import cats.data.Validated.Valid
 import spire.math.{Rational, SafeLong}
 import spire.algebra.VectorSpace
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
@@ -105,15 +106,25 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
     coefficients == pCoefficients // TODO: Eq[Vec[Rational]]
   }
 
-  def apply(scenario0: Scenario, coefficients0: Vec[Rational]): Expr = {
-    require(inNonSignalingSubspace(scenario0, coefficients0), "Coefficients are not in nonsignaling subspace")
-    applyUnsafe(scenario0, coefficients0)
-  }
+  def apply(scenario: Scenario, coefficients: Vec[Rational]): Expr =
+    validate(scenario, coefficients).fold[Expr](ls => throw new IllegalArgumentException(ls.toList.mkString("\n")), identity)
 
   def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): Expr = {
     require(coefficients.length == scenario.shapeP.size, "Coefficients vector length is incorrect")
     new Expr(scenario, coefficients)
   }
+
+  def validateCollinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): ValidatedNel[String, Expr] =
+    if (collinsGisinCoefficients.length == scenario.shapeNG.size)
+      Valid(collinsGisin(scenario, collinsGisinCoefficients))
+    else
+      Validated.invalidNel("Coefficients vector length is incorrect")
+
+  def validateCorrelators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): ValidatedNel[String, Expr] =
+    if (correlatorsCoefficients.length == scenario.shapeNC.size)
+      Valid(correlators(scenario, correlatorsCoefficients))
+    else
+      Validated.invalidNel("Coefficients vector length is incorrect")
 
   def collinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): Expr = {
     val pCoefficients = changeBasis(scenario, p => p.matrices.matNGfromSG * p.matrices.matSGfromSP, collinsGisinCoefficients)
