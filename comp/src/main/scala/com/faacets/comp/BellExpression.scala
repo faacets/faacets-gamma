@@ -5,6 +5,7 @@ import com.faacets.consolidate.Result.Same
 import com.faacets.consolidate.{Merge, Result}
 import com.faacets.core.{Expr, NDVec, Relabeling, Scenario}
 import com.faacets.operation._
+import com.faacets.operation.instances.all._
 import com.faacets.consolidate.syntax.all._
 import io.circe._
 import net.alasc.attributes.{Attributable, Attributes}
@@ -14,13 +15,17 @@ import com.faacets.data.instances.all._
 import com.faacets.data.syntax.all._
 import net.alasc.perms.default._
 import scalin.immutable.Vec
+import spire.syntax.group._
+import spire.syntax.groupoid._
+import spire.syntax.action._
+import spire.syntax.partialAction._
 import spire.math.Rational
 import io.circe.syntax._
 
 import scala.collection.immutable.{ListMap, ListSet}
 
 case class BellExpression(boundedExpr: BoundedExpr,
-                          display: Option[Display],
+                          display: Option[Display] = None,
                           keywords: ListSet[String] = ListSet.empty[String],
                           shortName: Option[String] = None,
                           names: ListSet[String] = ListSet.empty[String],
@@ -29,6 +34,26 @@ case class BellExpression(boundedExpr: BoundedExpr,
   def expr: Expr = boundedExpr.expr
   def lower: LowerOrientation = boundedExpr.lower
   def upper: UpperOrientation = boundedExpr.upper
+
+  def decomposition: PolyProduct[CanonicalDec[Expr]] = BellExpression.attributes.decomposition(this) {
+    ProductExtractor[Expr].forceExtract(expr)
+      .mapAffine(e => CanonicalWithAffineExtractor[Expr].apply(e).splitAffine)
+  }
+
+  /*
+  def canonicalComponents: Vector[BellExpression] =
+    decomposition.toSingleOption.fold {
+      // if it is a product
+      val canonicalExprs = decomposition.components.values.map(_.canonical).toVector
+      canonicalExprs.map( expr => BellExpression(BoundedExpr(expr)) )
+    } {
+      case (affine, CanonicalDec(lifting, reordering, relabeling, canonical)) =>
+        val undoAffine = this.boundedExpr <|+| affine.inverse
+        val undoLifting = lifting.fold(undoAffine)(l => (undoAffine <|+|? l.inverse).get)
+        val undoReordering = reordering.fold(undoLifting)(r => (undoLifting <|+|? r.inverse). get)
+        val undoRelabeling = (undoReordering <|+|? relabeling).get
+
+    }*/
 
 }
 

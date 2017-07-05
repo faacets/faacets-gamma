@@ -13,9 +13,12 @@ import cats.data.{Validated, ValidatedNel}
 import com.faacets.core.NDVec.attributes.symmetryGroup
 import spire.syntax.eq._
 import com.faacets.core.text._
+import com.faacets.data.Value
 import spire.algebra.partial.Groupoid
 import spire.util.Opt
 import text.UserVecRational.userVecRationalTextable
+
+import scala.collection.immutable.ListMap
 
 /** Describes a Bell expression. */
 class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends NDVec[Expr] with GenExpr[Expr] { lhs =>
@@ -175,5 +178,9 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
 
   def I3322 = collinsGisin(Scenario.nmk(2, 3, 2),
     Vec[Rational](0, -1, 0, 0, -2, 1, 1, 1, -1, 1, 1, -1, 0, 1, -1, 0))
+
+  def canonicalPositivity = Expr(Scenario.nmk(1,1,2), Vec[Rational](-1,1))
+
+  def canonicalCHSH = Expr(Scenario.CHSH, Vec[Rational](-1, 1, -1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1, -1, -1, 1))
 
 }

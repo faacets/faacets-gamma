@@ -54,15 +54,19 @@ case class BoundedExpr(expr: Expr,
 object BoundedExpr {
 
   val canonicalPositivity = BoundedExpr(
-    Expr(Scenario(Seq(Party(Seq(2)))), Vec[Rational](-1,1)),
-    LowerOrientation(ListMap("local" -> Value(-1), "quantum" -> Value(-1), "nonsignaling" -> Value(-1)), ListMap("local" -> true, "nonsignaling" -> true)),
-    UpperOrientation(ListMap("local" -> Value(1), "quantum" -> Value(1), "nonsignaling" -> Value(1)), ListMap("local" -> true, "nonsignaling" -> true))
+    Expr.canonicalPositivity,
+    LowerOrientation(ListMap("local" -> Value(-1), "quantum" -> Value(-1), "nonsignaling" -> Value(-1)),
+      ListMap("local" -> true, "nonsignaling" -> true)),
+    UpperOrientation(ListMap("local" -> Value(1), "quantum" -> Value(1), "nonsignaling" -> Value(1)),
+      ListMap("local" -> true, "nonsignaling" -> true))
   )
 
   val canonicalCHSH = BoundedExpr(
-    Expr(Scenario.CHSH, Vec[Rational](-1, 1, -1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1, -1, -1, 1)),
-    LowerOrientation(ListMap("local" -> Value(-2), "quantum" -> Value(-RealCyclo.sqrt2*2), "nonsignaling" -> Value(-4)), ListMap("local" -> true)),
-    UpperOrientation(ListMap("local" -> Value(2), "quantum" -> Value(RealCyclo.sqrt2*2), "nonsignaling" -> Value(4)), ListMap("local" -> true))
+    Expr.canonicalCHSH,
+    LowerOrientation(ListMap("local" -> Value(-2), "quantum" -> Value(-RealCyclo.sqrt2*2), "nonsignaling" -> Value(-4)),
+      ListMap("local" -> true)),
+    UpperOrientation(ListMap("local" -> Value(2), "quantum" -> Value(RealCyclo.sqrt2*2), "nonsignaling" -> Value(4)),
+      ListMap("local" -> true))
   )
 
   val canonicals: Map[Expr, BoundedExpr] = Map(canonicalPositivity.expr -> canonicalPositivity, canonicalCHSH.expr -> canonicalCHSH)

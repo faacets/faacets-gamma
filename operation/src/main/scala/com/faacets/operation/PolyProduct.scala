@@ -91,6 +91,14 @@ case class PolyProduct[A](components: Map[Set[Int], A], coeffs: Map[Set[Set[Int]
     PolyProduct(newComp, newCoeffs)
   }
 
+  def toSingleOption: Option[(Affine, A)] =
+    if (components.size == 1) {
+      val Seq((allSet, a)) = components.toSeq
+      val mult = coeffs.getOrElse(Set(allSet), Rational.zero)
+      val shift = coeffs.getOrElse(Set.empty[Set[Int]], Rational.zero)
+      Some((Affine(mult, shift), a))
+    } else None
+
   def toProductTreeOption: Option[ProductTree[A]] =
     if (components.size == 1) {
       val Seq((allSet, a)) = components.toSeq
