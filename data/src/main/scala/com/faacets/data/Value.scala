@@ -35,6 +35,11 @@ case class Value(interval: Interval[Scalar]) {
   def -(rhs: Rational): Value = Value(interval.mapBounds(_ - rhs))
 
   def opposite: Value = Value(interval.mapBounds(_.opposite))
+
+  def isExactZero: Boolean = interval match {
+    case Point(Scalar.Exact(rc)) => rc.isZero
+    case _ => false
+  }
 }
 
 object Value {

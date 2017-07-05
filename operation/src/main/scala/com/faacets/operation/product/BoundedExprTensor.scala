@@ -10,6 +10,31 @@ import cats.instances.all._
 
 import scala.collection.immutable.ListMap
 
+// see Proposition 5 of App. C in J. Phys. A: Math. Theor. 47 (2014) 424022
+// the "facet" property is preserved when 1) facetOf(bound) is true 2) the corresponding bound is 0
+case class IsFacet(lowerSatisfies: Boolean, upperSatisfies: Boolean) {
+  def times(that: IsFacet): IsFacet = {
+    // I >= 0 * J >= 0  =>  IJ >= 0
+    // I <= 0 * J >= 0  =>  IJ <= 0
+    // I >= 0 * J <= 0  =>  IJ <= 0
+    // I <= 0 * J <= 0  =>  IJ >= 0
+    // so l*l => l // l*u, u*l => u // u*u => l
+    val newLS = (this.upperSatisfies && that.upperSatisfies) || (this.lowerSatisfies && that.lowerSatisfies)
+    val newUS = (this.lowerSatisfies && that.upperSatisfies) || (this.upperSatisfies && that.lowerSatisfies)
+    IsFacet(newLS, newUS)
+  }
+
+  def toOptionPair: (Option[Boolean], Option[Boolean]) = (
+    if (lowerSatisfies) Some(true) else None,
+    if (upperSatisfies) Some(true) else None
+  )
+}
+object IsFacet {
+  def apply(be: BoundedExpr, bound: String): IsFacet =
+    IsFacet(be.lower.bounds.get(bound).fold(false)(_.isExactZero) && be.lower.facetOf.getOrElse(bound, false),
+      be.upper.bounds.get(bound).fold(false)(_.isExactZero) && be.upper.facetOf.getOrElse(bound, false))
+}
+
 final class BoundedExprTensor extends Tensor[BoundedExpr] {
 
   def exactBoundsProduct(components: Vector[Interval[RealCyclo]]): Interval[RealCyclo] =
@@ -29,6 +54,15 @@ final class BoundedExprTensor extends Tensor[BoundedExpr] {
     }
   }
 
+  /** Computes whether the new expression is a facet of a particular set
+    *
+    * @param bound Bound name corresponding to the set (local, nonsignaling, ...)
+    * @param components Components in the product
+    * @return (isLowerFacetOf, isUpperFacetOf)
+    */
+  def isLowerOrUpperFacetOf(bound: String, components: Map[Set[Int], BoundedExpr]): (Option[Boolean], Option[Boolean]) =
+    components.values.map(be => IsFacet(be, bound)).reduce(_ times _).toOptionPair
+
   def apply(components: Map[Set[Int], BoundedExpr]): BoundedExpr = {
     val exprs = components.mapValues(_.expr)
     val newExpr: Expr = Tensor[Expr].apply(exprs)
@@ -47,9 +81,13 @@ final class BoundedExprTensor extends Tensor[BoundedExpr] {
       val newBounds: Map[String, (Value, Value)] = bounds.flatMap { case (k, v) => boundsProduct(v.toVector).map(nv => (k -> nv)) }
       val newLowers = ListMap(newBounds.map { case (k, (l, _)) => (k -> l) }.toSeq: _*)
       val newUppers = ListMap(newBounds.map { case (k, (_, u)) => (k -> u) }.toSeq: _*)
+      val luFacetOf = ListMap(boundKeys.toVector.map( bound => bound -> isLowerOrUpperFacetOf(bound, components) ): _*)
+      val lFacetOf = luFacetOf.flatMap { case (k, (ov, _)) => ov.map( k -> _ ) }
+      val uFacetOf = luFacetOf.flatMap { case (k, (_, ov)) => ov.map( k -> _ ) }
+
       BoundedExpr(newExpr,
-        LowerOrientation(newLowers, ListMap.empty[String, Boolean]),
-        UpperOrientation(newUppers, ListMap.empty[String, Boolean])
+        LowerOrientation(newLowers, lFacetOf),
+        UpperOrientation(newUppers, uFacetOf)
       )
     }
   }

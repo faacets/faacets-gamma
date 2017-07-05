@@ -147,4 +147,6 @@ object DExpr extends GenExprBuilder[DExpr] {
     new DExpr(scenario, coefficients)
   }
 
+  def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): DExpr = apply(scenario, coefficients)
+
 }

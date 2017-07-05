@@ -59,7 +59,7 @@ trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] { self =>
     if (coeffLength != correctLength) Validated.invalidNel(s"Invalid coefficients length, is $coeffLength, should be $correctLength")
     else if (!inNonSignalingSubspace(scenario, coefficients)) Validated.invalidNel("Coefficients are not in the nonsignaling subspace")
     else {
-      val res = apply(scenario, coefficients)
+      val res = applyUnsafe(scenario, coefficients)
       symGroup match {
         case Some(grp) =>
           val partition = Partition.fromSeq(coefficients.toIndexedSeq)

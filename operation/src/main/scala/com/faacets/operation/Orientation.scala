@@ -2,8 +2,12 @@ package com.faacets.operation
 
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import com.faacets.consolidate.{Merge, Result}
+import com.faacets.consolidate.instances.all._
 import com.faacets.data.Value
+import com.faacets.data.instances.all._
+import com.faacets.data.syntax.all._
 import io.circe._
+import io.circe.syntax._
 import spire.math.interval.Overlap
 
 import scala.collection.immutable.ListMap

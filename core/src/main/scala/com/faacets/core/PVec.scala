@@ -104,6 +104,8 @@ trait PVecEq[V <: PVec[V]] extends Eq[V] {
 
 trait PVecBuilder[V <: PVec[V]] {
 
+  def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): V
+
   def apply(scenario: Scenario, coefficients: Vec[Rational]): V
 
   /** Returns a new Bell vector using the provided scenario and coefficients, with possible symmetry group update

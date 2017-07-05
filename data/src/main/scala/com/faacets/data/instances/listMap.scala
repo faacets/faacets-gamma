@@ -36,7 +36,7 @@ trait ListMapInstances {
 
   }
 
-  implicit def listMapStringEncodeJson[V:Encoder]: Encoder[ListMap[String, V]] =
+  implicit def listMapStringEncoder[V:Encoder]: Encoder[ListMap[String, V]] =
     Encoder[ListMap[String, V]](lm => Json.obj(lm.toSeq.map { case (k, v) => (k, Encoder[V].apply(v)) }: _*))
 
 }

@@ -52,8 +52,8 @@ object BoundedExpr {
 
   val canonicalPositivity = BoundedExpr(
     Expr(Scenario(Seq(Party(Seq(2)))), Vec[Rational](-1,1)),
-    LowerOrientation(ListMap("local" -> Value(-1), "quantum" -> Value(-1), "nonsignaling" -> Value(-1)), ListMap.empty[String, Boolean]),
-    UpperOrientation(ListMap("local" -> Value(1), "quantum" -> Value(1), "nonsignaling" -> Value(1)), ListMap.empty[String, Boolean])
+    LowerOrientation(ListMap("local" -> Value(-1), "quantum" -> Value(-1), "nonsignaling" -> Value(-1)), ListMap("local" -> true, "nonsignaling" -> true)),
+    UpperOrientation(ListMap("local" -> Value(1), "quantum" -> Value(1), "nonsignaling" -> Value(1)), ListMap("local" -> true, "nonsignaling" -> true))
   )
 
   val canonicalCHSH = BoundedExpr(
@@ -166,6 +166,3 @@ object BoundedExpr {
   })
 
 }
-
-
-

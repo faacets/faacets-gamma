@@ -81,8 +81,8 @@ object BellExpression {
         Decoder[Option[LowerOrientation]].tryDecodeAccumulating(c.downField("lower")).map(_.getOrElse(LowerOrientation.empty)),
         Decoder[Option[UpperOrientation]].tryDecodeAccumulating(c.downField("upper")).map(_.getOrElse(UpperOrientation.empty)),
 
-        Decoder[Option[ListSet[String]]].tryDecodeAccumulating(c.downField("names")).map(_.getOrElse(Seq.empty[String])),
-        Decoder[Option[ListMap[String, ListSet[String]]]].tryDecodeAccumulating(c.downField("sources")).map(_.getOrElse(Map.empty[String, Seq[String]])),
+        Decoder[Option[ListSet[String]]].tryDecodeAccumulating(c.downField("names")).map(_.getOrElse(ListSet.empty[String])),
+        Decoder[Option[ListMap[String, ListSet[String]]]].tryDecodeAccumulating(c.downField("sources")).map(_.getOrElse(ListMap.empty[String, Seq[String]])),
 
         Decoder[Option[PolyProduct[CanonicalDec[Expr]]]].tryDecodeAccumulating(c.downField("decomposition"))
       )( (_,
