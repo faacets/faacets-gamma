@@ -170,12 +170,13 @@ object BoundedExpr {
 
   }
 
-
+  /** Lexicographic order on BoundedExpr provided by the lexicographic order on Expr. */
   implicit val lexicographicOrder: LexicographicOrder[BoundedExpr] = new LexicographicOrder[BoundedExpr] {
     def partialComparison(x: BoundedExpr, y: BoundedExpr): Option[Comparison] =
       LexicographicOrder[Expr].partialComparison(x.expr, y.expr)
   }
 
+  /** Addition of BoundedExpr. Does not recover bounds, TODO */
   implicit val additiveGroupoid: AdditiveGroupoid[BoundedExpr] = AdditiveGroupoid(new Groupoid[BoundedExpr] {
     def inverse(a: BoundedExpr): BoundedExpr = BoundedExpr(AdditiveGroupoid[Expr].groupoid.inverse(a.expr))
     def partialOp(x: BoundedExpr, y: BoundedExpr): Opt[BoundedExpr] = {

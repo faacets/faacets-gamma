@@ -142,6 +142,8 @@ case class PolyProduct[A](components: Map[Set[Int], A], coeffs: Map[Set[Set[Int]
     }
   }
 
+  def elements: Iterable[A] = components.values
+
 }
 
 object PolyProduct {

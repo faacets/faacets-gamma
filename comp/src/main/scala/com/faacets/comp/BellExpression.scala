@@ -3,7 +3,7 @@ package com.faacets.comp
 import cats.data.{Validated, ValidatedNel}
 import com.faacets.consolidate.Result.Same
 import com.faacets.consolidate.{Merge, Result}
-import com.faacets.core.{Expr, NDVec, Relabeling, Scenario}
+import com.faacets.core._
 import com.faacets.operation._
 import com.faacets.operation.instances.all._
 import com.faacets.consolidate.syntax.all._
@@ -11,8 +11,10 @@ import io.circe._
 import net.alasc.attributes.{Attributable, Attributes}
 import net.alasc.finite.Grp
 import com.faacets.consolidate.instances.all._
+import com.faacets.data.Value
 import com.faacets.data.instances.all._
 import com.faacets.data.syntax.all._
+import com.faacets.operation.product.BoundedExprTensor
 import net.alasc.perms.default._
 import scalin.immutable.Vec
 import spire.syntax.group._
@@ -21,6 +23,9 @@ import spire.syntax.action._
 import spire.syntax.partialAction._
 import spire.math.Rational
 import io.circe.syntax._
+import spire.algebra.{Action, Group}
+import spire.algebra.partial.{Groupoid, PartialAction}
+import spire.util.Opt
 
 import scala.collection.immutable.{ListMap, ListSet}
 
@@ -58,6 +63,38 @@ case class BellExpression(boundedExpr: BoundedExpr,
 }
 
 object BellExpression {
+
+  // TODO transfer sources
+
+  implicit def constructPartialAction[O:Groupoid](implicit exprPA: PartialAction[BoundedExpr, O]): PartialAction[BellExpression, O] =
+    new PartialAction[BellExpression, O] {
+
+      def partialActr(be: BellExpression, o: O): Opt[BellExpression] =
+        exprPA.partialActr(be.boundedExpr, o).map(BellExpression(_))
+
+      def partialActl(o: O, be: BellExpression): Opt[BellExpression] =
+        exprPA.partialActl(o, be.boundedExpr).map(BellExpression(_))
+
+    }
+
+  implicit def constructAction[O:Group](implicit exprA: Action[BoundedExpr, O]): Action[BellExpression, O] =
+    new Action[BellExpression, O] {
+
+      def actr(be: BellExpression, o: O): BellExpression =
+        BellExpression(exprA.actr(be.boundedExpr, o))
+
+      def actl(o: O, be: BellExpression): BellExpression =
+        BellExpression(exprA.actl(o, be.boundedExpr))
+
+    }
+
+  implicit val tensor: Tensor[BellExpression] = new Tensor[BellExpression] {
+    def apply(components: Map[Set[Int], BellExpression]): BellExpression =
+      BellExpression(Tensor[BoundedExpr].apply(components.mapValues(_.boundedExpr)))
+  }
+
+  def fromExpr(expr: Expr): BellExpression =
+    BellExpression(BoundedExpr(expr))
 
   def validate(boundedExpr: BoundedExpr,
                display: Option[Display],
@@ -157,5 +194,14 @@ object BellExpression {
             }
       }
   }
+
+  /** Addition of BellExpression. Does not recover bounds, TODO */
+  implicit val additiveGroupoid: AdditiveGroupoid[BellExpression] = AdditiveGroupoid(new Groupoid[BellExpression] {
+    def inverse(a: BellExpression): BellExpression =
+      BellExpression(AdditiveGroupoid[BoundedExpr].groupoid.inverse(a.boundedExpr))
+    def partialOp(x: BellExpression, y: BellExpression): Opt[BellExpression] = {
+      AdditiveGroupoid[BoundedExpr].groupoid.partialOp(x.boundedExpr, y.boundedExpr).map(BellExpression(_))
+    }
+  })
 
 }

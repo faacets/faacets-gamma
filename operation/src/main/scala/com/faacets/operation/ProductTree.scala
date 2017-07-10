@@ -19,6 +19,7 @@ sealed trait ProductTree[A] {
     * @param f Function such that f(a) = (f, b) and "a = b <|+| f" (in spirit)
     */
   def mapAffine[B](f: A => (Affine, B)): ProductTree[B]
+  def elements: Iterable[A]
 }
 
 object ProductTree {
@@ -41,6 +42,8 @@ object ProductTree {
 
     def mapAffine[B](f: (A) => (Affine, B)): ProductTree[B] =
       Node(parts.mapValues(_.mapAffine(f)), affine)
+
+    def elements = parts.values.flatMap(_.elements)
   }
 
   final case class Leaf[A](a: A, n: Int, affine: Affine) extends ProductTree[A] {
@@ -58,6 +61,7 @@ object ProductTree {
       val newAffine = Affine(affine.multiplier*affine1.multiplier, affine1.shift*affine.multiplier + affine.shift)
       Leaf(b, n, newAffine)
     }
+    def elements = Iterable(a)
   }
 
 }
