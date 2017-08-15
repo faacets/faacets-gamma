@@ -29,7 +29,7 @@ final class RelabelingEq extends Eq[Relabeling] {
 
   def eqv(q: Relabeling, r: Relabeling): Boolean = {
     if (q.pPerm =!= r.pPerm) return false
-    val nParties = q.nPartiesWithRelabelings.max(r.nPartiesWithRelabelings)
+    val nParties = q.nPartiesWithInputOutputRelabelings.max(r.nPartiesWithInputOutputRelabelings)
     cforRange(0 until nParties) { p =>
       if (q.xPerm(p) =!= r.xPerm(p))
         return false

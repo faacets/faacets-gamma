@@ -10,29 +10,7 @@ final class PrimitiveShape private (val sizes: Array[Int]) {
   override def toString = s"PrimitiveShape(${sizes.mkString(", ")})"
   val factors: Array[Int] = sizes.scanLeft(1)(_ * _)
   val size: Int = factors.last
-  val fs: Array[Long] = new Array[Long](n)
-  val shifts: Array[Byte] = new Array[Byte](n)
-  val offsets: Long = {
-    var res = 0L
-    var i = 0
-    var rem = size
-    while (i < n) {
-      val Divisor(_, max, offset, f, shift) = Divisor(rem - 1, sizes(i))
-      assert(rem - 1 <= max)
-      offset match {
-        case 0 =>
-        case 1 => res += (1 << i)
-        case _ => sys.error("Unsupported offset")
-      }
-      fs(i) = f
-      shifts(i) = shift.toByte
-      rem /= sizes(i)
-      i += 1
-    }
-    res
-  }
-  def divide(k: Int, idx: Int): Int =
-    (((k.toLong + ((offsets & (1 << idx)) >>> idx)) * fs(idx)) >>> shifts(idx)).toInt
+  def divide(k: Int, idx: Int): Int = k / sizes(idx)
   def sub2ind(sub: Array[Int]): Int = {
     var i = 0
     var ind = 0

@@ -15,7 +15,7 @@ abstract class Relabeling {
   def aPerm(p: Int, x: Int): Perm
 
   /** Minimum number of parties in the scenario relabeled by this relabeling. */
-  def nParties = nPartiesWithRelabelings.max(nPartiesRelabeled)
+  def nParties = nPartiesWithInputOutputRelabelings.max(nPartiesRelabeled)
   /** Size of the block of parties relabeled by the party relabeling `pPerm` */
   def nPartiesRelabeled: Int = pPerm.largestMovedPoint.getOrElseFast(0) + 1
   /** Size of the block of parties with relabeled inputs. */
@@ -23,24 +23,25 @@ abstract class Relabeling {
   /** Size of the block of parties with relabeled outputs. */
   def nPartiesWithOutputRelabelings: Int
   /** Size of the block of parties with relabeled inputs/outputs (e.g. `PartyRelabeling`) */
-  def nPartiesWithRelabelings: Int
+  def nPartiesWithInputOutputRelabelings: Int
   /** Returns the number of inputs with relabelled outputs for the p-th party, or 0 if the `p`-th party
-    * is not relabeled. */ 
+    * is not relabeled. */
   def nInputsWithOutputRelabelings(p: Int): Int
-  def nInputsRelabeled(p: Int): Int = xPerm(p).largestMovedPoint.getOrElseFast(-1) + 1
-  def nInputsRelabeledMax: Int = {
+  def nInputs(p: Int): Int = spire.math.max(nInputsRelabeled(p), nInputsWithOutputRelabelings(p))
+  def nInputsMax: Int = {
     var n = 0
-    cforRange(0 until nPartiesWithInputRelabelings) { p =>
-      n = n.max(nInputsRelabeled(p))
+    cforRange(0 until nPartiesWithInputOutputRelabelings) { p =>
+      n = spire.math.max(n, nInputs(p))
     }
     n
   }
-  def nOutputsRelabeled(p: Int, x: Int): Int = aPerm(p, x).largestMovedPoint.getOrElseFast(-1) + 1
-  def nOutputsRelabeledMax(p: Int): Int = {
+  def nInputsRelabeled(p: Int): Int = xPerm(p).largestMovedPoint.getOrElseFast(-1) + 1
+  def nOutputs(p: Int, x: Int): Int = aPerm(p, x).largestMovedPoint.getOrElseFast(-1) + 1
+  def nOutputsMax: Int = {
     var n = 0
     cforRange(0 until nPartiesWithOutputRelabelings) { p =>
       cforRange(0 until nInputsWithOutputRelabelings(p)) { x =>
-        n = n.max(nOutputsRelabeled(p, x))
+        n = spire.math.max(n, nOutputs(p, x))
       }
     }
     n
@@ -52,7 +53,7 @@ abstract class Relabeling {
   /** In the compact notation of this `Relabeling`, number of relabelings of inputs */
   def numberOfInputComponents = {
     var n = 0
-    cforRange(0 until nPartiesWithRelabelings) { p =>
+    cforRange(0 until nPartiesWithInputOutputRelabelings) { p =>
       if (!xPerm(p).isId) n += 1
     }
     n
@@ -60,7 +61,7 @@ abstract class Relabeling {
   /** In the compact notation of this `Relabeling`, number of relabeling of outputs */
   def numberOfOutputComponents = {
     var n = 0
-    cforRange(0 until nPartiesWithRelabelings) { p =>
+    cforRange(0 until nPartiesWithInputOutputRelabelings) { p =>
       cforRange(0 until nInputsWithOutputRelabelings(p)) { x =>
         if (!aPerm(p, x).isId) n += 1
       }
@@ -74,14 +75,14 @@ abstract class Relabeling {
   def partyRelabeling(p: Int): PartyRelabeling
   /** Returns a map containing the party relabelings, when != identity */
   def partyRelabelingMap: Map[Int, PartyRelabeling] =
-    (0 until nPartiesWithRelabelings).map( p => (p, partyRelabeling(p)) ).filterNot(_._2.isId).toMap
+    (0 until nPartiesWithInputOutputRelabelings).map(p => (p, partyRelabeling(p)) ).filterNot(_._2.isId).toMap
 
   /** Returns the output relabelings in this `Relabeling` as a sequence of `Component` */
   def outputComponents: Seq[Relabeling.OutputComponent] =
-    (0 until nPartiesWithRelabelings).flatMap( p => partyRelabeling(p).outputComponents.map(_.forParty(p)) )
+    (0 until nPartiesWithInputOutputRelabelings).flatMap(p => partyRelabeling(p).outputComponents.map(_.forParty(p)) )
   /** Returns the input relabelings in this `Relabeling` as a sequence of `Component` */
   def inputComponents: Seq[Relabeling.InputComponent] =
-    (0 until nPartiesWithRelabelings).flatMap( p => partyRelabeling(p).inputComponents.map(_.forParty(p)) )
+    (0 until nPartiesWithInputOutputRelabelings).flatMap(p => partyRelabeling(p).inputComponents.map(_.forParty(p)) )
   /** Returns the party relabelings in this `Relabeling` as a sequence of `Component` */
   def partyComponents: Seq[Relabeling.PartyComponent] =
     if (pPerm.isId) Seq.empty else Seq(Relabeling.PartyComponent(pPerm))
@@ -99,24 +100,24 @@ abstract class Relabeling {
   def outputInputPart: Relabeling
 
   /** Returns the hash code for the relabeling.
-    * 
+    *
     * Relabelings components are hashed in a sequence using `MurmurHash3`, using `mix` and `finalizeHash`
     * (`mixLast` is not used). The sequence of components is ordered first by type (output components, then
     * input components, then party components), by party and finally by input. Components with an identity
     * permutation are not mixed in.
-    * 
-    * Output components are mixed first using `(p << 16) + x` and then `a.hashCode`, where `p`, `x` are the 
+    *
+    * Output components are mixed first using `(p << 16) + x` and then `a.hashCode`, where `p`, `x` are the
     * party and input index, and `a` is the permutation.
     * Input components are mixed first using `p`, then `x.hashCode`, where `x` is the input permutation.
     * Party components are mixed in using only `p.hashCode`, where `p` is the party permutation.
-    * 
+    *
     * The hash is finalized using the number of (non-identity) components.
     */
   override def hashCode = {
     import scala.util.hashing.MurmurHash3
     var hash = Relabeling.seed
     var n = 0
-    cforRange(0 until nPartiesWithRelabelings) { p =>
+    cforRange(0 until nPartiesWithInputOutputRelabelings) { p =>
       cforRange(0 until nInputsWithOutputRelabelings(p)) { x =>
         val el = aPerm(p, x)
         if (!el.isId) {
@@ -126,7 +127,7 @@ abstract class Relabeling {
         }
       }
     }
-    cforRange(0 until nPartiesWithRelabelings) { p =>
+    cforRange(0 until nPartiesWithInputOutputRelabelings) { p =>
       val el = xPerm(p)
       if (!el.isId) {
         hash = MurmurHash3.mix(hash, p)

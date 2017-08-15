@@ -34,10 +34,10 @@ final class Shape protected[core] (val parties: Seq[Party]) {
   /** Tests whether this shape can represent the given relabeling. */
   def represents(r: Relabeling): Boolean = {
     if (n < r.nParties) return false
-    cforRange(0 until r.nPartiesWithRelabelings) { p =>
+    cforRange(0 until r.nPartiesWithInputOutputRelabelings) { p =>
       if (parties(p).nInputs < r.nInputsRelabeled(p)) return false
       cforRange(0 until r.nInputsWithOutputRelabelings(p)) { x =>
-        if (parties(p).inputs(x) < r.nOutputsRelabeled(p, x)) return false
+        if (parties(p).inputs(x) < r.nOutputs(p, x)) return false
       }
     }
     true
@@ -60,7 +60,7 @@ final class Shape protected[core] (val parties: Seq[Party]) {
       val block = imprimitiveImprimitive.blockIndices(k).toInt
       val newBlock = image16(r16.pPermEnc, block)
       val sub = k - imprimitiveImprimitive.offsets(block)
-      if (block >= r16.nPartiesWithRelabelings)
+      if (block >= r16.nPartiesWithInputOutputRelabelings)
         imprimitiveImprimitive.offsets(newBlock) + sub
       else {
         val imp1 = partyShapes(block).imprimitive // TODO: optimize
@@ -78,7 +78,7 @@ final class Shape protected[core] (val parties: Seq[Party]) {
       val block = imprimitiveImprimitive.blockIndices(k).toInt
       val newBlock = block <|+| r.pPerm
       val sub = k - imprimitiveImprimitive.offsets(block)
-      if (block >= r.nPartiesWithRelabelings)
+      if (block >= r.nPartiesWithInputOutputRelabelings)
         imprimitiveImprimitive.offsets(newBlock) + sub
       else {
         val imp1 = partyShapes(block).imprimitive // TODO: optimize
@@ -117,7 +117,7 @@ final class Shape protected[core] (val parties: Seq[Party]) {
       var rem = k
       var i = 0
       var ind = 0
-      val an = r16.nPartiesWithRelabelings
+      val an = r16.nPartiesWithInputOutputRelabelings
       while (i < an) {
         val nextRem = primitiveImprimitive.divide(rem, i)
         val alphai = rem - nextRem * primitiveImprimitive.sizes(i)
@@ -147,7 +147,7 @@ final class Shape protected[core] (val parties: Seq[Party]) {
       var rem = k
       var i = 0
       var ind = 0
-      val an = r.nPartiesWithRelabelings
+      val an = r.nPartiesWithInputOutputRelabelings
       while (i < an) {
         val nextRem = primitiveImprimitive.divide(rem, i)
         val alphai = rem - nextRem * primitiveImprimitive.sizes(i)
@@ -197,7 +197,7 @@ final class Shape protected[core] (val parties: Seq[Party]) {
       var rem = k
       var i = 0
       var ind = 0
-      val an = r16.nPartiesWithRelabelings
+      val an = r16.nPartiesWithInputOutputRelabelings
       while (i < an) {
         val nextRem = primitivePrimitive.divide(rem, i)
         val alphai = rem - nextRem * primitivePrimitive.sizes(i)
@@ -238,7 +238,7 @@ final class Shape protected[core] (val parties: Seq[Party]) {
       var rem = k
       var i = 0
       var ind = 0
-      val an = r.nPartiesWithRelabelings
+      val an = r.nPartiesWithInputOutputRelabelings
       while (i < an) {
         val nextRem = primitivePrimitive.divide(rem, i)
         val alphai = rem - nextRem * primitivePrimitive.sizes(i)

@@ -39,7 +39,7 @@ class RelabelingImplGen protected[perm] (val nA: Int, val aLength: Array[Int], v
 
   def nPartiesWithOutputRelabelings: Int = nA
   def nPartiesWithInputRelabelings: Int = nX
-  def nPartiesWithRelabelings: Int = nA.max(nX)
+  def nPartiesWithInputOutputRelabelings: Int = nA.max(nX)
 
   def nInputsWithOutputRelabelings(p: Int): Int = if (p >= nA) 0 else aLength(p)
 

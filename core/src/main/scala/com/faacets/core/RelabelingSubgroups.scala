@@ -36,7 +36,7 @@ case class RelabelingSubgroups(val group: Grp[Relabeling]) {
   }
 
   def partiesSubgroup: Grp[Relabeling] = {
-    def predicate(r: Relabeling) = r.nPartiesWithRelabelings == 0
+    def predicate(r: Relabeling) = r.nPartiesWithInputOutputRelabelings == 0
     def test(preimage: Int, image: Int) = {
       val preimageIndex = preimage - shape.offsets(shape.blockIndices(preimage))
       val imageIndex = image - shape.offsets(shape.blockIndices(image))
@@ -68,7 +68,7 @@ case class RelabelingSubgroups(val group: Grp[Relabeling]) {
 
   def partySubgroup(p: Int): Grp[Relabeling] = {
     def predicate(r: Relabeling): Boolean = r.pPerm.isId && {
-      cforRange(0 until r.nPartiesWithRelabelings) { p1 =>
+      cforRange(0 until r.nPartiesWithInputOutputRelabelings) { p1 =>
         if (p1 != p && (!r.xPerm(p1).isId || r.nInputsWithOutputRelabelings(p1) > 0)) return false
       }
       true

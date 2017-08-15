@@ -34,7 +34,7 @@ class RelabelingImpl16 protected[perm] (val nA: Int, val aLength: Array[Int], va
   def nInputsWithOutputRelabelings(p: Int): Int = if (p >= nA) 0 else aLength(p)
   def nPartiesWithOutputRelabelings: Int = nA
   def nPartiesWithInputRelabelings: Int = nX
-  def nPartiesWithRelabelings: Int = nA.max(nX)
+  def nPartiesWithInputOutputRelabelings: Int = nA.max(nX)
 
   def partyRelabeling(p: Int): PartyRelabeling = {
     val newAArray = Array.tabulate[Long](nInputsWithOutputRelabelings(p))( x => aPermEnc(p, x) )
