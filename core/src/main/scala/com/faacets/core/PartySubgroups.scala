@@ -3,7 +3,7 @@ package core
 
 import spire.math.SafeLong
 
-import net.alasc.domains.{Domain, Partition}
+import net.alasc.partitions.Partition
 import net.alasc.finite.Grp
 import net.alasc.perms.{GrpFixingPartition, Perm}
 import net.alasc.syntax.all._
@@ -18,7 +18,7 @@ case class PartySubgroups(party: Party, permuteSingleOutputInputs: Boolean = tru
   val singleOutputInputs: Set[Int] = (0 until n).toSet.filter(party.inputs(_) == 1)
   val nSingleOutputInputs = singleOutputInputs.size
 
-  val partition: Partition = Partition.fromSeq(Domain(party.inputs.size))(party.inputs)
+  val partition: Partition = Partition.fromSeq(party.inputs)
 
   def outputGenerators(x: Int): IndexedSeq[PartyRelabeling] =
     (0 until (party.inputs(x) - 1)).map(a => PartyRelabeling.OutputComponent(x, Perm(a, a + 1)).get)

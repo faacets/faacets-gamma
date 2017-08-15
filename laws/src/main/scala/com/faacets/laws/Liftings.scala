@@ -6,7 +6,7 @@ import com.faacets.operation.Lifting
 import com.faacets.operation.lifting.{Grouping, InputGrouping, PartyGrouping}
 import net.alasc.laws.{Cloner, Instances}
 import com.faacets.data.syntax.textable._
-import net.alasc.domains.Partition
+import net.alasc.partitions.Partition
 import org.scalacheck.{Arbitrary, Gen}
 
 object Liftings {

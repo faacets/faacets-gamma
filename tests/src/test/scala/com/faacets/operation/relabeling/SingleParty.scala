@@ -4,12 +4,8 @@ package relabeling
 
 import org.scalacheck._
 
-import spire.algebra.Action
-import spire.syntax.group._
-import spire.syntax.action._
 import spire.std.int._
 
-import net.alasc.syntax.all._
 import net.alasc.std.seq._
 
 import core._

@@ -2,7 +2,7 @@ package com.faacets
 package operation
 package lifting
 
-import net.alasc.domains.Partition
+import net.alasc.partitions.Partition
 import net.alasc.finite.Grp
 import net.alasc.perms.Perm
 import net.alasc.perms.orbits.Points

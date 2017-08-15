@@ -1,6 +1,6 @@
 package com.faacets.operation.product
 
-import net.alasc.domains.{Partition, PartitionMap}
+import net.alasc.partitions.{Partition, PartitionMap}
 import spire.math.SafeLong
 
 import scala.collection.immutable.BitSet

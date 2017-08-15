@@ -7,7 +7,7 @@ import spire.algebra.lattice._
 import spire.syntax.lattice._
 import spire.syntax.partialOrder._
 
-import net.alasc.domains._
+import net.alasc.partitions._
 
 case class PartyShapeLattice(pm: PartitionMap[Int]) {
   def n = pm.size
@@ -37,12 +37,12 @@ object PartyShapeLattice {
   def apply(pr: PartyRelabeling): PartyShapeLattice =
     PartyShapeLattice(
       PartitionMap.tabulate(
-        Partition.fromPermutation(Domain(pr.nInputs))(pr.xPerm)
+        Partition.fromPermutation(pr.nInputs, pr.xPerm)
       )( block => (2 /: block) { case (mx, i) => mx.max(pr.aPerm(i).largestMovedPoint.getOrElseFast(0) + 1) } )
     )
 
   def apply(inputs: Seq[Int]): PartyShapeLattice =
-    PartyShapeLattice(PartitionMap.tabulate(Partition.fromSeq(Domain(inputs.size))(inputs)) { block =>
+    PartyShapeLattice(PartitionMap.tabulate(Partition.fromSeq(inputs)) { block =>
       inputs(block.min)
     })
 

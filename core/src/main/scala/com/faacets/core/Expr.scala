@@ -3,7 +3,6 @@ package core
 
 import cats.data.Validated.Valid
 import spire.math.{Rational, SafeLong}
-import spire.algebra.VectorSpace
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import scalin.immutable.dense._
 import scalin.immutable.{Mat, Vec}
@@ -11,14 +10,8 @@ import scalin.immutable.{Mat, Vec}
 import scala.reflect.classTag
 import cats.data.{Validated, ValidatedNel}
 import com.faacets.core.NDVec.attributes.symmetryGroup
-import spire.syntax.eq._
 import com.faacets.core.text._
-import com.faacets.data.Value
-import spire.algebra.partial.Groupoid
-import spire.util.Opt
 import text.UserVecRational.userVecRationalTextable
-
-import scala.collection.immutable.ListMap
 
 /** Describes a Bell expression. */
 class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends NDVec[Expr] with GenExpr[Expr] { lhs =>

@@ -4,7 +4,7 @@ package core
 import spire.algebra.Group
 import spire.math.fact
 
-import net.alasc.domains.{Domain, Partition}
+import net.alasc.partitions.Partition
 import net.alasc.finite.Grp
 import net.alasc.perms.{GrpFixingPartition, Perm}
 import net.alasc.perms.default._
@@ -22,7 +22,7 @@ case class ScenarioSubgroups(scenario: Scenario, permuteSingleInputOutputParties
 
   val singleInputOutputParties: Set[Int] = (0 until n).toSet.filter(isSingleIOParty)
   val nSingleInputOutputParties = singleInputOutputParties.size
-  val partition: Partition = Partition.fromSeq(Domain(n))(scenario.parties)
+  val partition: Partition = Partition.fromSeq(scenario.parties)
 
   def innerGenerators: IndexedSeq[Relabeling] =
     if (permuteSingleOutputInputs)

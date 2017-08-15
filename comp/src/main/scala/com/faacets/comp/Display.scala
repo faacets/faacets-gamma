@@ -1,13 +1,10 @@
 package com.faacets.comp
 
 import com.faacets.consolidate.Merge
-import com.faacets.core.Scenario
 import io.circe.{Decoder, DecodingFailure, Encoder, Json}
 import scalin.immutable.Vec
 import io.circe.syntax._
 import com.faacets.data.instances.all._
-import com.faacets.data.syntax.all._
-import scalin.immutable.dense._
 import spire.math.Rational
 
 sealed trait Display

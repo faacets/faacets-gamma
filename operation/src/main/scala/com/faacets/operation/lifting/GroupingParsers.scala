@@ -3,7 +3,7 @@ package operation
 package lifting
 
 import fastparse.noApi._
-import net.alasc.domains.Partition
+import net.alasc.partitions.Partition
 
 object GroupingParsers {
 

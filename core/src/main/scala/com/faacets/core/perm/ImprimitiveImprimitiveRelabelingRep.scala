@@ -2,8 +2,6 @@ package com.faacets
 package core
 package perm
 
-import spire.syntax.lattice._
-
 import net.alasc.algebra._
 import net.alasc.finite.FaithfulPermutationActionBuilder
 

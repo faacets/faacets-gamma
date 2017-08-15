@@ -2,9 +2,8 @@ package com.faacets.data.instances
 
 import cats.data.Validated
 import io.circe._
-import spire.algebra.Semigroup
 
-import scala.collection.immutable.{ListMap, ListSet}
+import scala.collection.immutable.ListSet
 
 trait ListSetInstances {
 

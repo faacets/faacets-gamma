@@ -1,7 +1,7 @@
 package com.faacets.operation
 
 import cats.kernel.Comparison
-import com.faacets.core.{LexicographicOrder, Relabeling, Scenario}
+import com.faacets.core.{LexicographicOrder, Relabeling}
 import spire.algebra.partial.PartialAction
 import io.circe.{Encoder, Json}
 import io.circe.syntax._

@@ -1,34 +1,34 @@
 package com.faacets.operation
 
-import cats.data.{NonEmptyList, Validated, ValidatedNel}
+import scala.collection.immutable.ListMap
+
+import cats.data.{Validated, ValidatedNel}
 import cats.kernel.Comparison
+import spire.algebra.partial.{Groupoid, PartialAction}
+import spire.algebra.{Action, Group}
+import spire.math.Rational
+import spire.syntax.action._
+import spire.syntax.group._
+import spire.syntax.groupoid._
+import spire.syntax.partialAction._
+import spire.util.Opt
+import cyclo.RealCyclo
+import scalin.immutable.Vec
+import scalin.immutable.dense._
+import net.alasc.finite.Grp
+import net.alasc.perms.default._
+
+import io.circe._
+import io.circe.syntax._
+
+import com.faacets.consolidate.syntax.all._
 import com.faacets.consolidate.{Merge, Result}
 import com.faacets.core._
 import com.faacets.data.Value
 import com.faacets.data.instances.all._
-import com.faacets.operation.instances.relabeling._
 import com.faacets.data.syntax.all._
-import io.circe._
-import io.circe.syntax._
-import com.faacets.consolidate.instances.all._
+import com.faacets.operation.instances.relabeling._
 import com.faacets.operation.product.BoundedExprTensor
-import cyclo.RealCyclo
-import net.alasc.perms.default._
-import net.alasc.finite.Grp
-import scalin.immutable.Vec
-import spire.algebra.{Action, Group}
-import spire.algebra.partial.{Groupoid, PartialAction}
-import spire.math.Rational
-import spire.syntax.partialAction._
-import spire.syntax.action._
-import spire.syntax.groupoid._
-import com.faacets.consolidate.syntax.all._
-import spire.syntax.group._
-import spire.math.interval.Overlap
-import spire.util.Opt
-import scalin.immutable.dense._
-
-import scala.collection.immutable.{ListMap, ListSet}
 
 case class BoundedExpr(expr: Expr,
                        lower: LowerOrientation = LowerOrientation.empty,
@@ -161,7 +161,6 @@ object BoundedExpr {
 
     def merge(base: BoundedExpr, newBE: BoundedExpr): Result[BoundedExpr] = {
       import cats.syntax.all._
-      import NDVec.attributes.{symmetryGroup => sg}
       val expr = base.expr merge newBE.expr
       val lower = base.lower merge newBE.lower
       val upper = base.upper merge newBE.upper

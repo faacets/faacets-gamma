@@ -1,15 +1,11 @@
 package com.faacets.operation
 
-import spire.algebra.Eq
-import spire.algebra.partial.Groupoid
-import com.faacets.core.{Relabeling, Scenario}
+import com.faacets.core.Relabeling
 import io.circe._
 import spire.algebra.partial.PartialAction
 import io.circe.syntax._
 import spire.syntax.partialAction._
 import com.faacets.data.instances.textable._
-import spire.syntax.groupoid._
-import net.alasc.syntax.group._
 
 /** Canonical decomposition, however without applying an affine transform. */
 case class CanonicalDec[V](lifting: Option[Lifting], reordering: Option[Reordering], relabeling: Relabeling, canonical: V) {

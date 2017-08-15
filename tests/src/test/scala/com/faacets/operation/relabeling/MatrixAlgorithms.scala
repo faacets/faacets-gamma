@@ -3,18 +3,11 @@ package operation
 package relabeling
 
 import org.scalacheck._
-import org.scalacheck.Arbitrary._
 import org.scalatest._
-import prop._
-import spire.algebra.Order
-import spire.syntax.eq._
-import spire.syntax.order._
-import spire.syntax.action._
 import spire.std.int._
 import net.alasc.algebra._
 import net.alasc.finite.Grp
 import net.alasc.perms.Perm
-import net.alasc.std.seq._
 import net.alasc.perms.default._
 
 class MatrixAlgorithmsSuite extends FaacetsSuite {

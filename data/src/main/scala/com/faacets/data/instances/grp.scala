@@ -6,7 +6,8 @@ import com.faacets.data.NiceGenerators
 import io.circe._
 import net.alasc.algebra.PermutationAction
 import net.alasc.blackbox.RandomBag
-import net.alasc.bsgs.{BaseGuide, GrpChainExplicit, GrpChainPermutationAction, KernelBuilder, MutableChain, SchreierSims}
+import net.alasc.bsgs.{BaseGuide, GrpChainPermutationAction, KernelBuilder, MutableChain, SchreierSims}
+import net.alasc.bsgs.internal.GrpChainExplicit
 import net.alasc.finite.Grp
 import safeLong._
 import spire.algebra.{Eq, Group}

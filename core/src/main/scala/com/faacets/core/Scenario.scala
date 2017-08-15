@@ -6,7 +6,6 @@ import spire.math.SafeLong
 import spire.syntax.cfor._
 import scalin.immutable.Vec
 import net.alasc.finite.Grp
-import net.alasc.perms.default._
 import perm._
 import consolidate.Merge
 import com.faacets.data.syntax.textable._

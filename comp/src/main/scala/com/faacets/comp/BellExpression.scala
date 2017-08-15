@@ -1,7 +1,6 @@
 package com.faacets.comp
 
 import cats.data.{Validated, ValidatedNel}
-import com.faacets.consolidate.Result.Same
 import com.faacets.consolidate.{Merge, Result}
 import com.faacets.core._
 import com.faacets.operation._
@@ -11,10 +10,8 @@ import io.circe._
 import net.alasc.attributes.{Attributable, Attributes}
 import net.alasc.finite.Grp
 import com.faacets.consolidate.instances.all._
-import com.faacets.data.Value
 import com.faacets.data.instances.all._
 import com.faacets.data.syntax.all._
-import com.faacets.operation.product.BoundedExprTensor
 import net.alasc.perms.default._
 import scalin.immutable.Vec
 import spire.syntax.group._
@@ -45,7 +42,6 @@ case class BellExpression(boundedExpr: BoundedExpr,
       .mapAffine(e => CanonicalWithAffineExtractor[Expr].apply(e).splitAffine)
   }
 
-  /*
   def canonicalComponents: Vector[BellExpression] =
     decomposition.toSingleOption.fold {
       // if it is a product
@@ -53,12 +49,12 @@ case class BellExpression(boundedExpr: BoundedExpr,
       canonicalExprs.map( expr => BellExpression(BoundedExpr(expr)) )
     } {
       case (affine, CanonicalDec(lifting, reordering, relabeling, canonical)) =>
-        val undoAffine = this.boundedExpr <|+| affine.inverse
+        val undoAffine = this <|+| affine.inverse
         val undoLifting = lifting.fold(undoAffine)(l => (undoAffine <|+|? l.inverse).get)
         val undoReordering = reordering.fold(undoLifting)(r => (undoLifting <|+|? r.inverse). get)
         val undoRelabeling = (undoReordering <|+|? relabeling).get
-
-    }*/
+        Vector(undoRelabeling)
+    }
 
 }
 

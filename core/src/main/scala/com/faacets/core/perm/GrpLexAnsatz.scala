@@ -11,14 +11,14 @@ import spire.syntax.action._
 import spire.util.Opt
 
 import net.alasc.algebra.PermutationAction
-import net.alasc.bsgs.{ MutableChain, MutableStartOrNode, NodeBuilder, SchreierSims}
-import net.alasc.bsgs._
+import net.alasc.bsgs.{ Chain, KernelBuilder, MutableChain, MutableStartOrNode, NodeBuilder, SchreierSims, Term }
+import net.alasc.bsgs.internal.GrpChainExplicit
 
 object GrpLexAnsatz {
 
   def chainFromGeneratorsAndOrder[G:ClassTag:Eq:Group:NodeBuilder, F <: PermutationAction[G] with Singleton]
     (generators: IndexedSeq[G], order: SafeLong)
-    (implicit permutationAction: F, schreierSims: SchreierSims): Chain[G, F] = {
+    (implicit permutationAction: F): Chain[G, F] = {
     val mutableChain = MutableChain.empty[G, F]
     def rec(after: MutableStartOrNode[G, F], remaining: Iterable[G], startFrom: Int): Unit = {
       var beta = startFrom
@@ -41,8 +41,7 @@ object GrpLexAnsatz {
   }
 
   def fromGeneratorsAndOrder[G:ClassTag:Eq:Group:NodeBuilder]
-    (generators: IndexedSeq[G], order: SafeLong, faithfulAction: PermutationAction[G])
-    (implicit schreierSims: SchreierSims): GrpChainExplicit[G, faithfulAction.type] = {
+    (generators: IndexedSeq[G], order: SafeLong, faithfulAction: PermutationAction[G]): GrpChainExplicit[G, faithfulAction.type] = {
     type F = faithfulAction.type
     require(faithfulAction.isFaithful)
     implicit def fa: F = faithfulAction

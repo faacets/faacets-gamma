@@ -3,7 +3,7 @@ package product
 
 import com.faacets.core.{Expr, Party, Scenario}
 import com.faacets.operation.ProductExtractor
-import net.alasc.domains.Partition
+import net.alasc.partitions.Partition
 import scalin.immutable.{Mat, Vec}
 import spire.util.Opt
 import scalin.immutable.dense._

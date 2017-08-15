@@ -8,16 +8,11 @@ import spire.syntax.partialAction._
 import spire.syntax.cfor._
 import spire.math.Rational
 import cats.kernel.Comparison
-import com.faacets.consolidate.syntax.all._
 import net.alasc.perms.default._
 import scalin.immutable.Vec
 import net.alasc.attributes.Attributable
 import net.alasc.finite.Grp
-import com.faacets.data.instances.vec._
-import com.faacets.data.instances.grp._
-import com.faacets.consolidate.instances.all._
 import com.faacets.core.perm.ShapeLattice
-import com.faacets.data.instances.textable._
 import spire.algebra.partial.PartialAction
 
 /** Base class for vectors in the probability space of a causal scenario.
@@ -85,8 +80,7 @@ abstract class PVec[V <: PVec[V]] extends Attributable { lhs: V =>
 
     if (!(rLattice <= scenario.shapeLattice)) throw new IllegalArgumentException(s"Relabeling $r cannot be applied in scenario $scenario")
     else {
-      import scalin.immutable.dense._
-      implicit def action: PartialAction[Vec[Rational], Relabeling] = net.alasc.std.vec.vecPermutation[Rational, Vec[Rational], Relabeling](scenario.probabilityAction, implicitly, implicitly)
+      implicit def action: PartialAction[Vec[Rational], Relabeling] = com.faacets.data.instances.vec.vecPermutation[Rational, Relabeling](scenario.probabilityAction, implicitly)
       builder.updatedWithSymmetryGroup(lhs, scenario, (coefficients <|+|? r).get, g => Some(g.conjugatedBy(r)))
     }
 

@@ -6,7 +6,6 @@ import spire.math.SafeLong
 import com.faacets.consolidate.Merge
 import com.faacets.gluon.{AdapterException, ArgAdapter, ResAdapter}
 import io.circe._
-import spire.syntax.eq._
 
 trait SafeLongInstances {
   import scala.util.{Left, Right}

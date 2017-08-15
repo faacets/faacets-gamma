@@ -1,18 +1,12 @@
 package com.faacets.comp
 
 import cats.{Applicative, Monad}
-import cats.data.ValidatedNel
 import com.faacets.consolidate.Result
 import com.faacets.consolidate.syntax.all._
-import com.faacets.core.{Expr, Party, Scenario}
-import com.faacets.data.Value
+import com.faacets.core.Expr
 import com.faacets.operation._
 import cats.instances.all._
 import cats.syntax.all._
-import com.faacets.comp.ReadCompendiumTest.findCanonical
-import cyclo.RealCyclo
-import scalin.immutable.Vec
-import spire.math.Rational
 import com.faacets.operation.instances.all._
 
 import scala.collection.immutable.{ListMap, ListSet}
@@ -55,7 +49,6 @@ object ReadCompendiumTest extends ReadCompendiumAlg[cats.Id] {
   )
 
   val database: Map[Expr, BellExpression] = Seq(canonicalPositivity, canonicalCHSH).map( be => (be.expr -> be) ).toMap
-
 
   def findCanonical(expr: Expr) = database.get(expr)
 

@@ -4,7 +4,7 @@ package relabeling
 
 import net.alasc.algebra.PermutationAction
 import net.alasc.bsgs.{BaseGuideLex, Chain, GrpChain, GrpChainPermutationAction, Node, Term, TrivialNode}
-import net.alasc.domains.Partition
+import net.alasc.partitions.Partition
 import net.alasc.finite.Grp
 
 import scala.annotation.tailrec

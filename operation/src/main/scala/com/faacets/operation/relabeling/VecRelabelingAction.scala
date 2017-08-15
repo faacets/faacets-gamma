@@ -24,11 +24,10 @@ class VecRelabelingPartialAction[V <: PVec[V]](implicit builder: PVecBuilder[V])
     else {
       import scalin.immutable.dense._
       implicit def action: PartialAction[Vec[Rational], Relabeling] =
-        net.alasc.std.vec.vecPermutation[Rational, Vec[Rational], Relabeling](v.scenario.probabilityAction, implicitly, implicitly)
+        com.faacets.data.instances.vec.vecPermutation[Rational, Relabeling](v.scenario.probabilityAction, implicitly)
       Opt(builder.updatedWithSymmetryGroup(v, v.scenario, (v.coefficients <|+|? r).get, g => Some(g.conjugatedBy(r))))
     }
 
   }
 
 }
-

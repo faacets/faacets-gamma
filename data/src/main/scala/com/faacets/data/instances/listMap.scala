@@ -3,9 +3,6 @@ package com.faacets.data.instances
 import cats.data.Validated
 
 import scala.collection.immutable.ListMap
-import com.faacets.consolidate._
-import com.faacets.consolidate.syntax.merge._
-import com.faacets.consolidate.instances.all._
 import io.circe._
 import spire.algebra.Semigroup
 

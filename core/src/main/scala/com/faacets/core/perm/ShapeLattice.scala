@@ -7,7 +7,7 @@ import spire.algebra.lattice._
 import spire.syntax.partialOrder._
 import spire.syntax.lattice._
 
-import net.alasc.domains._
+import net.alasc.partitions._
 
 case class ShapeLattice(pm: PartitionMap[PartyShapeLattice]) {
 
@@ -24,14 +24,14 @@ case class ShapeLattice(pm: PartitionMap[PartyShapeLattice]) {
 object ShapeLattice {
 
   def apply(parties: Seq[Party]): ShapeLattice =
-    ShapeLattice(PartitionMap.tabulate(Partition.fromSeq(Domain(parties.length))(parties)) { block =>
+    ShapeLattice(PartitionMap.tabulate(Partition.fromSeq(parties)) { block =>
       PartyShapeLattice(parties(block.min).inputs)
     })
 
   def apply(r: Relabeling): ShapeLattice =
     ShapeLattice(
       PartitionMap.tabulate(
-        Partition.fromPermutation(Domain(r.nParties))(r.pPerm)
+        Partition.fromPermutation(r.nParties, r.pPerm)
       )( block => (PartyShapeLattice.algebra.zero /: block) { case (jn, i) => jn join PartyShapeLattice(r.partyRelabeling(i)) } )
     )
 

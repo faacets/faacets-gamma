@@ -1,8 +1,8 @@
 // Scala and library versions go here
 
-val scala212Version = "2.12.1"
+val scala212Version = "2.12.3"
 
-val alascVersion = "0.14.1.2"
+val alascVersion = "0.14.1.3"
 val catsVersion = "0.9.0"
 val circeVersion = "0.8.0"
 val circeYamlVersion = "0.6.1"

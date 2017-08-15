@@ -69,7 +69,6 @@ abstract class PartyRelabeling {
   override def hashCode: Int = {
     import scala.util.hashing.MurmurHash3
     var hash = Relabeling.seed
-    var x = 0
     var n = 0
     cforRange(0 until nInputsWithOutputRelabelings) { x =>
       val el = aPerm(x)

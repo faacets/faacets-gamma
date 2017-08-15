@@ -1,6 +1,5 @@
 package com.faacets.operation
 
-import spire.math.Rational
 import spire.algebra.Action
 import spire.syntax.action._
 

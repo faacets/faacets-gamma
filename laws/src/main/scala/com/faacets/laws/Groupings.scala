@@ -8,7 +8,7 @@ import net.alasc.std.seq._
 import core._
 import operation._
 import lifting._
-import net.alasc.domains.Partition
+import net.alasc.partitions.Partition
 import data.syntax.textable._
 
 object Groupings {

@@ -6,7 +6,7 @@ import io.circe._
 import io.circe.syntax._
 import net.alasc.attributes.Attributes
 import net.alasc.bsgs.FixingPartition
-import net.alasc.domains.Partition
+import net.alasc.partitions.Partition
 import net.alasc.finite.Grp
 import scalin.immutable.Vec
 import spire.algebra.Eq

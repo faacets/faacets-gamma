@@ -5,7 +5,6 @@ import com.faacets.core.perm._
 import com.faacets.data.Textable
 import net.alasc.finite.Grp
 import net.alasc.util.Tuple2Int
-import net.alasc.perms.default._
 
 /** Description of a party in a Bell scenario
   * 

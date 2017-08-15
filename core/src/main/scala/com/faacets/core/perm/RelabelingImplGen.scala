@@ -57,7 +57,6 @@ object RelabelingImplGen extends RelabelingCompanion {
     apply(aMap, pPerm)
   }
   def apply(aMap: Map[Int, PartyRelabeling], pPerm: Perm): Relabeling = {
-    val nPR = (-1 /: aMap.keysIterator)(_.max(_)) + 1
     val nA = ((-1 /: aMap.keysIterator) {
       case (mx, k) if aMap(k).nInputsWithOutputRelabelings == 0 => mx
       case (mx, k) => mx.max(k)
