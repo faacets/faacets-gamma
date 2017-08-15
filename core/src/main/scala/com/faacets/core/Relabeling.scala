@@ -195,7 +195,7 @@ object Relabeling extends RelabelingCompanion {
   def apply(prMap: Map[Int, PartyRelabeling], pPerm: Perm): Relabeling = {
     val nP = pPerm.largestMovedPoint.getOrElse(-1) + 1
     val nX = (1 /: prMap.valuesIterator) { case (mx, pr) => mx.max(pr.nInputsRelabeled) }
-    val nA = (2 /: prMap.valuesIterator) { case (mx, pr) => mx.max(pr.nOutputsRelabeledMax) }
+    val nA = (2 /: prMap.valuesIterator) { case (mx, pr) => mx.max(pr.nOutputs) }
     if (nP <= 16 && nX <= 16 && nA <= 16)
       RelabelingImpl16(prMap, pPerm)
     else

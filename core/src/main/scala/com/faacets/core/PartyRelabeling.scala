@@ -22,7 +22,7 @@ abstract class PartyRelabeling {
   /** Returns the number of relabeled outputs for the `x`-th output */
   def nOutputsRelabeled(x: Int): Int = aPerm(x).largestMovedPoint.getOrElseFast(-1) + 1
   /** Returns the maximum number of relabeled outputs in this `PartyRelabeling` */
-  def nOutputsRelabeledMax: Int = {
+  def nOutputs: Int = {
     var mx = 0
     cforRange(0 until nInputsWithOutputRelabelings) { x =>
       mx = mx.max(nOutputsRelabeled(x))
