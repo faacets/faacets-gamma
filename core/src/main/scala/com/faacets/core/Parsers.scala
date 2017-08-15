@@ -5,7 +5,6 @@ import fastparse.noApi._
 object Parsers {
 
   import com.faacets.data.Parsers._
-
   import White._
 
   val numberOfOutputs = positiveInt.opaque("<number-of-outputs>")

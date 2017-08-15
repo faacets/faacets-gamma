@@ -1,7 +1,8 @@
 package com.faacets.core.syntax
 
-import com.faacets.core.{PartyRelabeling, PartyRelabelingSubgroups, Relabeling, RelabelingSubgroups}
 import net.alasc.finite.Grp
+
+import com.faacets.core.{PartyRelabeling, PartyRelabelingSubgroups, Relabeling, RelabelingSubgroups}
 
 trait SubgroupsSyntax {
 

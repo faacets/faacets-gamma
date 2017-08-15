@@ -4,8 +4,9 @@ package data
 import io.circe._
 
 object ForcedStringDecoder extends Decoder[String] {
-  import Decoder.Result
   import scala.util.{Left, Right}
+
+  import Decoder.Result
   final def apply(c: HCursor): Result[String] = {
     def failure(typ: String) = Left(DecodingFailure("Textable element should not be " + typ, c.history))
     c.value.fold(

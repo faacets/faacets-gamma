@@ -2,10 +2,11 @@ package com.faacets
 package operation
 package reordering
 
-import core._
+import spire.math.Rational
 import scalin.immutable.Vec
 import scalin.immutable.dense._
-import spire.math.Rational
+
+import com.faacets.core._
 
 class ReorderingSuite extends FaacetsSuite {
 

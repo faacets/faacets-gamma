@@ -1,18 +1,19 @@
 package com.faacets.core
 
+import scala.reflect.classTag
+
 import cats.data.{Validated, ValidatedNel}
-import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
-import com.faacets.core.text.{FullTerm, Term, TermType}
-import scalin.immutable.{Mat, Vec}
+import cats.instances.vector._
+import cats.syntax.traverse._
 import spire.math.{Rational, SafeLong}
 import spire.syntax.cfor._
 import scalin.immutable.dense._
+import scalin.immutable.{Mat, Vec}
 import scalin.syntax.all._
-import cats.syntax.traverse._
-import cats.instances.vector._
 import net.alasc.finite.Grp
 
-import scala.reflect.classTag
+import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
+import com.faacets.core.text.{FullTerm, Term, TermType}
 
 class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends GenExpr[DExpr] { lhs =>
 

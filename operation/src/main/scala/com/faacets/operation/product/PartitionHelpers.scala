@@ -1,10 +1,5 @@
 package com.faacets.operation.product
 
-import net.alasc.partitions.{Partition, PartitionMap}
-import spire.math.SafeLong
-
-import scala.collection.immutable.BitSet
-
 object PartitionHelpers {
 
   /*

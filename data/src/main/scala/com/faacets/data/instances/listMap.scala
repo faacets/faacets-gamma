@@ -1,10 +1,11 @@
 package com.faacets.data.instances
 
-import cats.data.Validated
-
 import scala.collection.immutable.ListMap
-import io.circe._
+
+import cats.data.Validated
 import spire.algebra.Semigroup
+
+import io.circe._
 
 trait ListMapInstances {
 

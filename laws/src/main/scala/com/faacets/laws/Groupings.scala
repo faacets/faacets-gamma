@@ -1,15 +1,16 @@
 package com.faacets
 package laws
 
-import org.scalacheck._
 import spire.syntax.action._
 import net.alasc.laws._
-import net.alasc.std.seq._
-import core._
-import operation._
-import lifting._
 import net.alasc.partitions.Partition
-import data.syntax.textable._
+import net.alasc.std.seq._
+
+import org.scalacheck._
+
+import com.faacets.core._
+import com.faacets.data.syntax.textable._
+import com.faacets.operation.lifting._
 
 object Groupings {
 

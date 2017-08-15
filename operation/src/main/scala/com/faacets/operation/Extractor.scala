@@ -1,10 +1,11 @@
 package com.faacets
 package operation
 
-import com.faacets.core.Expr
 import spire.algebra._
 import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.util.Opt
+
+import com.faacets.core.Expr
 import com.faacets.operation.product.{BoundedExprProductExtractor, ExprProductExtractor}
 
 trait Extractor[V] {

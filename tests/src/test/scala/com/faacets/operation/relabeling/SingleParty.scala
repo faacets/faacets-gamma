@@ -2,14 +2,13 @@ package com.faacets
 package operation
 package relabeling
 
-import org.scalacheck._
-
 import spire.std.int._
-
+import net.alasc.perms.default._
 import net.alasc.std.seq._
 
-import core._
-import net.alasc.perms.default._
+import org.scalacheck._
+
+import com.faacets.core._
 
 class SinglePartyTest extends FaacetsSuite {
 

@@ -1,13 +1,14 @@
 package com.faacets.data
 
-import cyclo.RealCyclo
-import fastparse.WhitespaceApi
-import fastparse.noApi._
 import spire.algebra.Group
-import net.alasc.perms.{Cycle, Cycles, Perm}
-import net.alasc.syntax.all._
 import spire.math.interval.{Bound, Closed, Unbound}
 import spire.math.{Interval, Point, Rational, SafeLong}
+import cyclo.RealCyclo
+import net.alasc.perms.{Cycle, Cycles, Perm}
+import net.alasc.syntax.all._
+
+import fastparse.WhitespaceApi
+import fastparse.noApi._
 
 object Parsers {
 

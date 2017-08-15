@@ -1,22 +1,21 @@
 package com.faacets.data.instances
 
-import spire.math.Rational
-
-import com.faacets.consolidate.Merge
-import io.circe._
-import scalin.immutable.{DenseVec, Vec}
-import com.faacets.data.instances.rational._
 import spire.algebra.Group
 import spire.algebra.partial.PartialAction
+import spire.math.Rational
 import spire.util.Opt
-
+import scalin.immutable.{DenseVec, Vec}
 import net.alasc.algebra._
+
+import io.circe._
+
+import com.faacets.consolidate.Merge
+import com.faacets.data.instances.rational._
 
 final class VecPermutation[A, G:PermutationAction:Group] extends PartialAction[Vec[A], G] {
 
   import spire.syntax.action._
   import spire.syntax.group._
-
   import net.alasc.syntax.permutationAction._
 
   override def actlIsDefined(g: G, v: Vec[A]) = g.largestMovedPoint.getOrElseFast(-1) < v.length

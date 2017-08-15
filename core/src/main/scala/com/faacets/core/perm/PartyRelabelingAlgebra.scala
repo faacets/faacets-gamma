@@ -3,10 +3,10 @@ package core
 package perm
 
 import spire.algebra._
-import spire.syntax.eq._
-import spire.syntax.group._
 import spire.syntax.action._
 import spire.syntax.cfor._
+import spire.syntax.eq._
+import spire.syntax.group._
 import net.alasc.perms.Perm
 
 final class PartyRelabelingPairAction extends Action[(Int, Int), PartyRelabeling] {
@@ -58,7 +58,7 @@ final class PartyRelabelingGroup extends Group[PartyRelabeling] {
   }
 
   def inverseImpl16(r16: PartyRelabelingImpl16): PartyRelabeling = {
-    import net.alasc.perms.internal.Perm16Encoding.{inverse => inverse16, image => image16, largestMovedPoint => largestMovedPoint16}
+    import net.alasc.perms.internal.Perm16Encoding.{image => image16, inverse => inverse16, largestMovedPoint => largestMovedPoint16}
     val xPermInv = inverse16(r16.xPermEnc)
     var x = (r16.nInputsWithOutputRelabelings - 1).max(largestMovedPoint16(r16.xPermEnc))
     var newAArray: Array[Long] = null
@@ -98,7 +98,7 @@ final class PartyRelabelingGroup extends Group[PartyRelabeling] {
   }
 
   def combineImpl16(q16: PartyRelabelingImpl16, r16: PartyRelabelingImpl16): PartyRelabeling = {
-    import net.alasc.perms.internal.Perm16Encoding.{op => op16, image => image16, largestMovedPoint => largestMovedPoint16}
+    import net.alasc.perms.internal.Perm16Encoding.{image => image16, largestMovedPoint => largestMovedPoint16, op => op16}
     val newXPermEnc = op16(q16.xPermEnc, r16.xPermEnc)
     var x = q16.nInputsWithOutputRelabelings.max(r16.nInputsWithOutputRelabelings).max(largestMovedPoint16(q16.xPermEnc))
     var newAArray: Array[Long] = null

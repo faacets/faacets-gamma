@@ -2,13 +2,13 @@ package com.faacets
 package operation
 package relabeling
 
-import org.scalacheck._
-import org.scalatest._
 import spire.std.int._
 import net.alasc.algebra._
 import net.alasc.finite.Grp
 import net.alasc.perms.Perm
 import net.alasc.perms.default._
+
+import org.scalacheck._
 
 class MatrixAlgorithmsSuite extends FaacetsSuite {
 

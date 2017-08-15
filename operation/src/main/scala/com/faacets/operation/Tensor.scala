@@ -1,14 +1,11 @@
 package com.faacets.operation
 
-import com.faacets.core.{Behavior, DExpr, Expr, Scenario}
-import com.faacets.operation.product.PVecTensor
-import spire.algebra.Order
-import spire.math.Sorting
-import spire.std.int._
-import spire.syntax.cfor._
-
 import scala.collection.immutable.BitSet
-import scala.reflect.ClassTag
+
+import spire.algebra.Order
+
+import com.faacets.core.{Behavior, DExpr, Expr}
+import com.faacets.operation.product.PVecTensor
 
 trait Tensor[V] {
   /** Generalized tensor product that allows reordering of the result. */

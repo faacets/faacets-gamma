@@ -1,10 +1,12 @@
 package com.faacets.operation
 
-import com.faacets.core.Relabeling
-import io.circe._
 import spire.algebra.partial.PartialAction
-import io.circe.syntax._
 import spire.syntax.partialAction._
+
+import io.circe._
+import io.circe.syntax._
+
+import com.faacets.core.Relabeling
 import com.faacets.data.instances.textable._
 
 /** Canonical decomposition, however without applying an affine transform. */

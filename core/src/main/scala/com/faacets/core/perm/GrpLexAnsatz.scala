@@ -6,13 +6,12 @@ import scala.reflect.ClassTag
 
 import spire.algebra.{Eq, Group}
 import spire.math.SafeLong
-import spire.syntax.group._
 import spire.syntax.action._
+import spire.syntax.group._
 import spire.util.Opt
-
 import net.alasc.algebra.PermutationAction
-import net.alasc.bsgs.{ Chain, KernelBuilder, MutableChain, MutableStartOrNode, NodeBuilder, SchreierSims, Term }
 import net.alasc.bsgs.internal.GrpChainExplicit
+import net.alasc.bsgs.{Chain, KernelBuilder, MutableChain, MutableStartOrNode, NodeBuilder, SchreierSims, Term}
 
 object GrpLexAnsatz {
 

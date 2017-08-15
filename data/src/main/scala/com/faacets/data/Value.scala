@@ -1,10 +1,11 @@
 package com.faacets.data
 
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
-import cyclo.RealCyclo
 import spire.algebra.Order
-import spire.math.{Above, All, Below, Bounded, Empty, Interval, Point, Rational, SafeLong}
 import spire.math.interval.{Closed, Unbound}
+import spire.math._
+import cyclo.RealCyclo
+
 import com.faacets.consolidate.{Merge, Path, Result}
 
 case class Value(interval: Interval[Scalar]) {

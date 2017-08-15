@@ -2,9 +2,12 @@ package com.faacets.data
 package instances
 
 import scala.util.Try
+
 import spire.math.Rational
-import com.faacets.consolidate.Merge
+
 import io.circe._
+
+import com.faacets.consolidate.Merge
 
 trait RationalInstances {
   import scala.util.{Left, Right}

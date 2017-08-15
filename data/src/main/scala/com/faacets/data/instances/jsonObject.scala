@@ -2,10 +2,11 @@ package com.faacets.data.instances
 
 import scala.collection.immutable.ListMap
 
-import com.faacets.consolidate._
-import com.faacets.consolidate.syntax.merge._
-import com.faacets.consolidate.instances.all._
 import io.circe._
+
+import com.faacets.consolidate._
+import com.faacets.consolidate.instances.all._
+import com.faacets.consolidate.syntax.merge._
 
 final class JsonObjectMerge extends Merge[JsonObject] {
 

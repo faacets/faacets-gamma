@@ -8,11 +8,10 @@ import scala.util.Random
 import spire.algebra._
 import spire.syntax.group._
 import spire.util.Opt
-
 import net.alasc.algebra.PermutationAction
+import net.alasc.bsgs.{BuildMutableChain, Chain, GrpChainPermutationAction, KernelBuilder, SchreierSims, SiftResult, Term}
 import net.alasc.finite.{FaithfulPermutationActionBuilder, Grp}
 import net.alasc.perms.default._
-import net.alasc.bsgs.{BuildMutableChain, Chain, GrpChainPermutationAction, KernelBuilder, SchreierSims, SiftResult, Term}
 
 object GrpHelpers {
 

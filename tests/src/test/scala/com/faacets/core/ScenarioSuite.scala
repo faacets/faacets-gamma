@@ -1,14 +1,14 @@
 package com.faacets
 package core
 
-import com.faacets.laws.DataLaws
-
 import net.alasc.laws.AnyRefLaws
+
+import com.faacets.laws.DataLaws
 
 class ScenarioSuite extends FaacetsSuite {
 
-  import com.faacets.laws.Scenarios.{scenarioCloner, scenarioInstances}
   import com.faacets.laws.Scenarios.Large._
+  import com.faacets.laws.Scenarios.{scenarioCloner, scenarioInstances}
 
   checkAll("Scenario", DataLaws[Scenario].textable)
 

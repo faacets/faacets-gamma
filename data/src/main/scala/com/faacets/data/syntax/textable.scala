@@ -3,6 +3,7 @@ package syntax
 
 
 import cats.data.{Validated, ValidatedNel}
+
 import com.faacets.data.Textable.ParseException
 
 final class TextableStringOps(val lhs: String) extends AnyVal {

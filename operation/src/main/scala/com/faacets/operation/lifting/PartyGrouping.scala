@@ -2,10 +2,11 @@ package com.faacets
 package operation
 package lifting
 
-import core._
-import core.syntax.subgroups._
 import net.alasc.finite.Grp
 import net.alasc.perms.Perm
+
+import com.faacets.core._
+import com.faacets.core.syntax.subgroups._
 
 case class PartyGrouping(inputs: Seq[InputGrouping]) {
 

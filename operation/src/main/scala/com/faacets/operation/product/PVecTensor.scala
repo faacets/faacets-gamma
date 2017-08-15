@@ -1,9 +1,10 @@
 package com.faacets.operation.product
 
-import com.faacets.core.{PVec, PVecBuilder, Scenario}
-import com.faacets.operation.{SetPartition, Tensor}
 import spire.math.Rational
 import spire.syntax.cfor._
+
+import com.faacets.core.{PVec, PVecBuilder, Scenario}
+import com.faacets.operation.{SetPartition, Tensor}
 
 final class PVecTensor[V <: PVec[V]](implicit builder: PVecBuilder[V]) extends Tensor[V] {
 

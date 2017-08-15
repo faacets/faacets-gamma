@@ -1,21 +1,23 @@
 package com.faacets
 package data
 
-import org.scalacheck.Arbitrary
-import Arbitrary.arbitrary
-import spire.math.{Rational, SafeLong}
-import scalin.immutable.Vec
 import spire.algebra.Eq
-import com.faacets.laws.{DataLaws, RealCyclos}
+import spire.math.{Rational, SafeLong}
 import cyclo.RealCyclo
-import RealCyclos.arbRealCyclo
+import scalin.immutable.Vec
+
+import org.scalacheck.Arbitrary
+import org.scalacheck.Arbitrary.arbitrary
+
+import com.faacets.laws.RealCyclos.arbRealCyclo
+import com.faacets.laws.DataLaws
 
 class LawTests extends FaacetsSuite {
 
-  import spire.laws.arb.{safeLong => arbSafeLong, rational => arbRational}
-  import net.alasc.perms.Perm
-  import net.alasc.laws.Permutations._
+  import spire.laws.arb.{rational => arbRational, safeLong => arbSafeLong}
   import scalin.immutable.dense._
+  import net.alasc.laws.Permutations._
+  import net.alasc.perms.Perm
 
   implicit def vecEq: Eq[Vec[Rational]] = Eq.fromUniversalEquals[Vec[Rational]]
 

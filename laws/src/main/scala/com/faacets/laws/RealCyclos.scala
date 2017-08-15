@@ -1,8 +1,9 @@
 package com.faacets.laws
 
-import cyclo.RealCyclo
-import org.scalacheck.{Arbitrary, Gen}
 import spire.math.Rational
+import cyclo.RealCyclo
+
+import org.scalacheck.{Arbitrary, Gen}
 
 object RealCyclos {
 

@@ -1,13 +1,14 @@
 package com.faacets
 package core
 
-import com.faacets.data.Textable
 import spire.math.SafeLong
 import spire.syntax.cfor._
 import scalin.immutable.Vec
 import net.alasc.finite.Grp
-import perm._
-import consolidate.Merge
+
+import com.faacets.consolidate.Merge
+import com.faacets.core.perm._
+import com.faacets.data.Textable
 import com.faacets.data.syntax.textable._
 
 /** TODO: verify doc below

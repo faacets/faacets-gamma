@@ -3,6 +3,7 @@ package core
 package text
 
 import cats.data.Validated
+
 import org.scalacheck.Prop
 import org.scalatest.Inside
 
@@ -106,8 +107,8 @@ class ExpressionSuite extends FaacetsSuite with Inside {
 
   locally {
 
-    import com.faacets.laws.Scenarios.BipartiteSmall._
     import com.faacets.laws.Exprs.arbExpr
+    import com.faacets.laws.Scenarios.BipartiteSmall._
 
     forAll { expr: Expr =>
       inside(Expr.parseCollinsGisinVector(expr.scenario, expr.collinsGisinTable_BA)) {

@@ -1,10 +1,11 @@
 package com.faacets.operation
 
+import spire.math.Rational
+import scalin.immutable.Vec
+import scalin.immutable.dense._
+
 import com.faacets.FaacetsSuite
 import com.faacets.core._
-import scalin.immutable.Vec
-import spire.math.Rational
-import scalin.immutable.dense._
 
 class BarneaSuite extends FaacetsSuite {
 

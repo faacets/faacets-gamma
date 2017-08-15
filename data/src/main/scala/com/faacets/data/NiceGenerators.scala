@@ -1,7 +1,6 @@
 package com.faacets.data
 
 import spire.NoImplicit
-
 import net.alasc.finite.Grp
 
 /** Type-class to find "nice" generators for a given group. */

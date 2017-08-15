@@ -1,16 +1,14 @@
 package com.faacets
 package core
 
-import spire.math.SafeLong
-
-import net.alasc.partitions.Partition
+import spire.math.{SafeLong, fact}
 import net.alasc.finite.Grp
+import net.alasc.partitions.Partition
+import net.alasc.perms.default._
 import net.alasc.perms.{GrpFixingPartition, Perm}
 import net.alasc.syntax.all._
-import net.alasc.perms.default._
-import spire.math.fact
 
-import Select._
+import com.faacets.core.Select._
 
 case class PartySubgroups(party: Party, permuteSingleOutputInputs: Boolean = true) {
 

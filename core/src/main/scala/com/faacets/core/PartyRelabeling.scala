@@ -2,11 +2,12 @@ package com.faacets.core
 
 import spire.algebra._
 import spire.syntax.cfor._
-import com.faacets.core.perm._
-import com.faacets.data.Textable
 import net.alasc.finite.FaithfulPermutationActionBuilder
 import net.alasc.perms.{Cycles, Perm}
 import net.alasc.syntax.all._
+
+import com.faacets.core.perm._
+import com.faacets.data.Textable
 
 /** Describes the relabeling of inputs and outputs of a party, independently of the size of the party. */
 abstract class PartyRelabeling {

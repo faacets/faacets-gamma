@@ -2,18 +2,20 @@ package com.faacets
 package core
 
 import scala.reflect.ClassTag
+
+import cats.kernel.Comparison
 import spire.algebra._
+import spire.algebra.partial.PartialAction
+import spire.math.Rational
+import spire.syntax.cfor._
 import spire.syntax.order._
 import spire.syntax.partialAction._
-import spire.syntax.cfor._
-import spire.math.Rational
-import cats.kernel.Comparison
-import net.alasc.perms.default._
 import scalin.immutable.Vec
 import net.alasc.attributes.Attributable
 import net.alasc.finite.Grp
+import net.alasc.perms.default._
+
 import com.faacets.core.perm.ShapeLattice
-import spire.algebra.partial.PartialAction
 
 /** Base class for vectors in the probability space of a causal scenario.
   *

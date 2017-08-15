@@ -4,7 +4,7 @@ package repr
 
 import spire.algebra.Eq
 
-import data.Textable
+import com.faacets.data.Textable
 
 case class Group(n: Int, plus: Set[Int], minus: Set[Int]) {
 

@@ -2,21 +2,21 @@ package com.faacets
 package operation
 package relabeling
 
-import net.alasc.algebra.PermutationAction
-import net.alasc.bsgs.{BaseGuideLex, Chain, GrpChain, GrpChainPermutationAction, Node, Term, TrivialNode}
-import net.alasc.partitions.Partition
-import net.alasc.finite.Grp
-
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
-import spire.algebra.{Action, Group}
+
+import spire.algebra.Group
+import spire.syntax.action._
 import spire.syntax.cfor._
 import spire.syntax.group._
-import spire.syntax.action._
 import spire.util._
-import net.alasc.syntax.group._
+import net.alasc.algebra.PermutationAction
+import net.alasc.bsgs.{BaseGuideLex, Chain, GrpChainPermutationAction, Node, Term, TrivialNode}
+import net.alasc.finite.Grp
+import net.alasc.partitions.Partition
 import net.alasc.perms.default._
 import net.alasc.perms.orbits.RepresentativesArrayInt
+import net.alasc.syntax.group._
 
 object MatrixAlgorithmsMaybeBroken {
   /** Returns the row and columns permutations that brings a matrix to its minimal lexicographic representatives, when the matrix is enumerated in
@@ -91,7 +91,7 @@ object MatrixAlgorithmsMaybeBroken {
           minimalCorrectBefore = nextBeta
         }
         node.foreachOrbit { b =>
-          val bc = b <|+| cPerm
+          // val bc = b <|+| cPerm not used?
           val newCPerm = node.u(b) |+| cPerm
           // for the candidate to be here, finds columns that are minimal
           @tailrec def recCol(c: Int, rPerm1: R, rSubGrp1: Grp[R], isBetter: Boolean): Unit =

@@ -1,9 +1,9 @@
 package com.faacets.operation.product
 
+import spire.util.Opt
+
 import com.faacets.core.Expr
 import com.faacets.operation._
-import spire.util.Opt
-import com.faacets.operation.instances.relabeling._
 
 final class BoundedExprProductExtractor extends ProductExtractor[BoundedExpr] {
 

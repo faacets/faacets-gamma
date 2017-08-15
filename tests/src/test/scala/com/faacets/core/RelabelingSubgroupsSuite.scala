@@ -1,13 +1,15 @@
 package com.faacets
 package core
 
-import com.faacets.laws.{Parties, PartyRelabelings}
+import spire.std.map._
 import net.alasc.finite.Grp
 import net.alasc.laws.{Grps, Permutations}
 import net.alasc.perms.Perm
 import net.alasc.perms.default._
+
 import org.scalacheck.{Arbitrary, Gen}
-import spire.std.map._
+
+import com.faacets.laws.{Parties, PartyRelabelings}
 
 case class SmallIndex(toInt: Int)
 
@@ -69,9 +71,10 @@ class RelabelingSubgroupsSuite extends FaacetsSuite {
 
   test("Party subgroups are correctly split") {
     import spire.std.map._
-    import PartyRelabelings.arbPartyRelabeling
-    import Parties.Large._
     import Grps.arbGrp
+
+    import Parties.Large._
+    import PartyRelabelings.arbPartyRelabeling
     forAll { (pr1: Grp[PartyRelabeling], pr2: Grp[PartyRelabeling], p1: SmallIndex, p2: SmallIndex) =>
       def prGrp(p: Int, g: Grp[PartyRelabeling]): Grp[Relabeling] =
         Grp.fromGenerators(g.generators.map(_.forParty(p)))

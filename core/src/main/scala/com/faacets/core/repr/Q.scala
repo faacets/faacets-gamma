@@ -2,10 +2,10 @@ package com.faacets
 package core
 package repr
 
+import spire.syntax.cfor._
 import scalin.immutable.Mat
 import scalin.immutable.dense._
 import scalin.syntax.all._
-import spire.syntax.cfor._
 
 /** Basis for probability distributions
   * 

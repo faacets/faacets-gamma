@@ -1,8 +1,9 @@
 package com.faacets.data
 package instances
 
-import com.faacets.consolidate.Merge
 import cyclo.RealCyclo
+
+import com.faacets.consolidate.Merge
 
 trait RealCycloInstances {
 

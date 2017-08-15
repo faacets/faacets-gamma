@@ -1,14 +1,14 @@
 package com.faacets
 package core
 
-import com.faacets.laws.DataLaws
-
 import net.alasc.laws.AnyRefLaws
+
+import com.faacets.laws.DataLaws
 
 class PartySuite extends FaacetsSuite {
 
-  import com.faacets.laws.Parties.{partyCloner, partyInstances}
   import com.faacets.laws.Parties.Huge._
+  import com.faacets.laws.Parties.{partyCloner, partyInstances}
   checkAll("Party", DataLaws[Party].textable)
   checkAll("Party", AnyRefLaws[Party]._eq)
 

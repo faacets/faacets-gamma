@@ -1,7 +1,6 @@
 package com.faacets.core
 package syntax
 
-import com.faacets.core.PartyRelabeling
 import com.faacets.data.syntax.textable._
 
 class Literals(val sc: StringContext) extends AnyVal {

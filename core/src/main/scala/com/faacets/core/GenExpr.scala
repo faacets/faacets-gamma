@@ -1,11 +1,10 @@
 package com.faacets.core
 
-import spire.math.Rational
 import spire.algebra.VectorSpace
 import spire.algebra.partial.Groupoid
 import spire.math.Rational
-import spire.util.Opt
 import spire.syntax.eq._
+import spire.util.Opt
 import scalin.immutable.dense._
 
 trait GenExpr[V <: GenExpr[V]] extends PVec[V] { lhs: V =>

@@ -1,8 +1,9 @@
 package com.faacets.core
 package text
 
-import fastparse.noApi._
 import spire.math.Rational
+
+import fastparse.noApi._
 
 case class CoeffString(coeff: Rational, element: Option[String]) {
   def unary_- : CoeffString = CoeffString(-coeff, element)

@@ -2,9 +2,9 @@ package com.faacets
 package operation
 
 import spire.math.SafeLong
-import com.faacets.core._
 import net.alasc.laws.Grps
-import syntax.symmetricForms._
+
+import com.faacets.core._
 
 
 class SymmetricFormsSuite extends FaacetsSuite {

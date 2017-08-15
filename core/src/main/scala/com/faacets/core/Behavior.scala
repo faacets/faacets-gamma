@@ -5,11 +5,10 @@ import scala.reflect.classTag
 
 import spire.math.{Rational, SafeLong}
 import spire.syntax.cfor._
+import scalin.immutable.dense._
+import scalin.immutable.{Mat, Vec}
 
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
-import scalin.immutable.dense._
-
-import scalin.immutable.{Vec, Mat}
 
 /** Describes a behavior in a causal scenario. */
 class Behavior protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends NDVec[Behavior] {

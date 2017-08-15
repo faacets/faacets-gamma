@@ -1,30 +1,32 @@
 package com.faacets.comp
 
+import scala.collection.immutable.{ListMap, ListSet}
+
 import cats.data.{Validated, ValidatedNel}
-import com.faacets.consolidate.{Merge, Result}
-import com.faacets.core._
-import com.faacets.operation._
-import com.faacets.operation.instances.all._
-import com.faacets.consolidate.syntax.all._
-import io.circe._
-import net.alasc.attributes.{Attributable, Attributes}
-import net.alasc.finite.Grp
-import com.faacets.consolidate.instances.all._
-import com.faacets.data.instances.all._
-import com.faacets.data.syntax.all._
-import net.alasc.perms.default._
-import scalin.immutable.Vec
+import spire.algebra.partial.{Groupoid, PartialAction}
+import spire.algebra.{Action, Group}
+import spire.math.Rational
+import spire.syntax.action._
 import spire.syntax.group._
 import spire.syntax.groupoid._
-import spire.syntax.action._
 import spire.syntax.partialAction._
-import spire.math.Rational
-import io.circe.syntax._
-import spire.algebra.{Action, Group}
-import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.util.Opt
+import scalin.immutable.Vec
+import net.alasc.attributes.{Attributable, Attributes}
+import net.alasc.finite.Grp
+import net.alasc.perms.default._
 
-import scala.collection.immutable.{ListMap, ListSet}
+import io.circe._
+import io.circe.syntax._
+
+import com.faacets.consolidate.instances.all._
+import com.faacets.consolidate.syntax.all._
+import com.faacets.consolidate.{Merge, Result}
+import com.faacets.core._
+import com.faacets.data.instances.all._
+import com.faacets.data.syntax.all._
+import com.faacets.operation._
+import com.faacets.operation.instances.all._
 
 case class BellExpression(boundedExpr: BoundedExpr,
                           display: Option[Display] = None,
@@ -128,7 +130,6 @@ object BellExpression {
       }
       val decomposition = dc.get(base) merge dc.get(other)
       import cats.syntax.all._
-      import cats.instances.all._
       (boundedExpr |@| display |@| keywords |@| shortName |@| names |@| sources |@| decomposition).map( (_, _,_,_,_,_,_) )
         .validate((BellExpression.validate _).tupled)
     }

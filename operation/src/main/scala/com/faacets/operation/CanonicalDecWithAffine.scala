@@ -1,14 +1,16 @@
 package com.faacets.operation
 
 import cats.kernel.Comparison
-import com.faacets.core.{LexicographicOrder, Relabeling}
 import spire.algebra.partial.PartialAction
-import io.circe.{Encoder, Json}
-import io.circe.syntax._
-import spire.syntax.partialAction._
 import spire.syntax.groupoid._
-import syntax.extractor._
+import spire.syntax.partialAction._
+
+import io.circe.syntax._
+import io.circe.{Encoder, Json}
+
+import com.faacets.core.{LexicographicOrder, Relabeling}
 import com.faacets.data.instances.textable._
+import com.faacets.operation.syntax.extractor._
 
 case class CanonicalDecWithAffine[V](affine: Affine,
                                      lifting: Option[Lifting],

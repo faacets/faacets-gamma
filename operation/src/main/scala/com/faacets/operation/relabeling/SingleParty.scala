@@ -2,12 +2,11 @@ package com.faacets
 package operation
 package relabeling
 
-import spire.algebra.{Action, Order}
-import spire.syntax.group._
 import spire.syntax.action._
-import core._
+import spire.syntax.group._
 import net.alasc.perms.Perm
-import perm._
+
+import com.faacets.core._
 
 /** Single party marginals
   * 
@@ -20,7 +19,6 @@ object SingleParty {
   def findMinimalPermutation(party: Party)(seqF: Int => Value): PartyRelabeling = {
     implicit def action = party.probabilityAction
 
-    val length = party.shapeP.size
     val n = party.inputs.length
     val inputOffset: Array[Int] = party.shape.imprimitive.offsets
     def inputIndices(x: Int): Seq[Int] = inputOffset(x) until inputOffset(x + 1)
@@ -46,9 +44,9 @@ object SingleParty {
       val inputGroupsSort: Iterable[(Seq[Int], Seq[Int])] = inputGroups.values.map {
         case seq: Seq[(Seq[Int], Int)] =>
           val originalOrder = seq.map(_._2)
+          import spire.compat.ordering
           import spire.std.int._
           import spire.std.seq.SeqOrder
-          import spire.compat.ordering
           val sortedOrder = seq.sortBy(_._1).map(_._2)
           (originalOrder -> sortedOrder)
       }

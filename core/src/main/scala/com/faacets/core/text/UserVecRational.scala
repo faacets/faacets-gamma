@@ -1,15 +1,17 @@
 package com.faacets.core.text
 
-import com.faacets.data.Textable
 import spire.math.Rational
 import scalin.immutable.Vec
 import scalin.immutable.dense._
 
+import com.faacets.data.Textable
+
 object UserVecRational {
+
+  import fastparse.noApi._
 
   import com.faacets.data.Parsers._
   import White._
-  import fastparse.noApi._
 
   val singleSpace: P[Unit] = CharIn(" \n\t\r")
   val commaSep: P[Unit] = singleSpace.repX ~~ "," ~~ singleSpace.repX

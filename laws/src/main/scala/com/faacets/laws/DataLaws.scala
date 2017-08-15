@@ -1,16 +1,17 @@
 package com.faacets.laws
 
+import cats.data.{Validated, NonEmptyList => Nel}
 import spire.algebra.Eq
 import spire.syntax.eq._
 
-import cats.data.{Validated, NonEmptyList => Nel}
-import com.faacets.data.Textable
 import io.circe._
 import io.circe.yaml.parser
 import io.circe.yaml.syntax._
 import org.scalacheck.Arbitrary
 import org.scalacheck.Prop._
 import org.typelevel.discipline.Laws
+
+import com.faacets.data.Textable
 import com.faacets.data.syntax.all._
 
 object DataLaws {

@@ -2,11 +2,12 @@ package com.faacets.core
 
 import spire.algebra._
 import spire.syntax.cfor._
-import com.faacets.core.perm._
-import com.faacets.data.{NiceGenerators, Textable}
 import net.alasc.finite.{FaithfulPermutationActionBuilder, Grp}
 import net.alasc.perms._
 import net.alasc.syntax.all._
+
+import com.faacets.core.perm._
+import com.faacets.data.{NiceGenerators, Textable}
 
 abstract class Relabeling {
   def pPerm: Perm

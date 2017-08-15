@@ -2,12 +2,13 @@ package com.faacets
 package operation
 package reordering
 
-import spire.syntax.groupoid._
-import spire.syntax.eq._
-import spire.syntax.cfor._
-import spire.util.Opt
-import core._
 import spire.algebra.partial.PartialAction
+import spire.syntax.cfor._
+import spire.syntax.eq._
+import spire.syntax.groupoid._
+import spire.util.Opt
+
+import com.faacets.core._
 
 final class VecReorderingPartialAction[V <: PVec[V]](implicit builder: PVecBuilder[V]) extends PartialAction[V, Reordering] {
 

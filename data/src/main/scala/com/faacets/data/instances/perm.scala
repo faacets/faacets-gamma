@@ -1,8 +1,9 @@
 package com.faacets.data.instances
 
-import com.faacets.consolidate.Merge
-import com.faacets.data.{ Parsers, Textable}
 import net.alasc.perms.Perm
+
+import com.faacets.consolidate.Merge
+import com.faacets.data.{Parsers, Textable}
 
 trait PermInstances {
 

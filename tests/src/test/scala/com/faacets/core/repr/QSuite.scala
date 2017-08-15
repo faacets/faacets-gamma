@@ -3,7 +3,6 @@ package core
 package repr
 
 import spire.math.Rational
-
 import scalin.immutable.Mat
 import scalin.immutable.dense._
 

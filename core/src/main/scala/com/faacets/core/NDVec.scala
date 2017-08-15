@@ -1,21 +1,23 @@
 package com.faacets.core
 
 import cats.data.{Validated, ValidatedNel}
-import com.faacets.consolidate.{Merge, Result}
-import io.circe._
-import io.circe.syntax._
-import net.alasc.attributes.Attributes
-import net.alasc.bsgs.FixingPartition
-import net.alasc.partitions.Partition
-import net.alasc.finite.Grp
-import scalin.immutable.Vec
 import spire.algebra.Eq
 import spire.math.Rational
-import com.faacets.data.syntax.all._
+import scalin.immutable.Vec
+import net.alasc.attributes.Attributes
+import net.alasc.bsgs.FixingPartition
+import net.alasc.finite.Grp
+import net.alasc.partitions.Partition
 import net.alasc.perms.default._
-import com.faacets.consolidate.syntax.all._
+
+import io.circe._
+import io.circe.syntax._
+
 import com.faacets.consolidate.instances.all._
+import com.faacets.consolidate.syntax.all._
+import com.faacets.consolidate.{Merge, Result}
 import com.faacets.data.instances.all._
+import com.faacets.data.syntax.all._
 
 abstract class NDVec[V <: NDVec[V]] extends PVec[V] { lhs: V =>
 
@@ -80,6 +82,7 @@ trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] { self =>
 
     def merge(base: V, newV: V): Result[V] = {
       import cats.syntax.all._
+
       import NDVec.attributes.{symmetryGroup => sg}
       val scenario = base.scenario merge newV.scenario
       val coefficients = base.coefficients merge newV.coefficients

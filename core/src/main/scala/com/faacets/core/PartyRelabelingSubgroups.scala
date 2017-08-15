@@ -1,14 +1,14 @@
 package com.faacets
 package core
 
-import com.faacets.core.perm.PartyShapeLattice
-
 import net.alasc.algebra.PermutationAction
 import net.alasc.bsgs.{GrpChain, GrpChainPermutationAction, SubgroupDefinition}
 import net.alasc.finite.Grp
 import net.alasc.perms.Perm
 import net.alasc.perms.default._
 import net.alasc.syntax.all._
+
+import com.faacets.core.perm.PartyShapeLattice
 
 case class PartyRelabelingSubgroups(val group: Grp[PartyRelabeling]) {
 

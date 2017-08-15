@@ -1,7 +1,7 @@
 package com.faacets.core
 
-import scalin.immutable.Mat
 import spire.math.Rational
+import scalin.immutable.Mat
 
 
 case class Table(m: Mat[Rational]) {

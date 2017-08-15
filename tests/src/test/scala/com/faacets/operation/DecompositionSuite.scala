@@ -6,11 +6,11 @@ import com.faacets.laws._
 
 class DecompositionSuite extends FaacetsSuite {
 
-  import Operations.genCanonicalWithAffine
   import Affines.affineGenerator
   import Liftings.liftingGenerator
-  import Reorderings.reorderingGenerator
+  import Operations.genCanonicalWithAffine
   import Relabelings.relabelingGenerator
+  import Reorderings.reorderingGenerator
 
   forAll { c: Canonical[Expr] =>
     forAll(genCanonicalWithAffine(c.value)) { ld =>

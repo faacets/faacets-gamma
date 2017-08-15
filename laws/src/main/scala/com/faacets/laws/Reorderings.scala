@@ -1,15 +1,17 @@
 package com.faacets
 package laws
 
-import org.scalacheck._
 import spire.syntax.action._
 import net.alasc.laws._
+import net.alasc.perms.Perm
 import net.alasc.std.seq._
+
+import org.scalacheck._
+
 import com.faacets.core._
+import com.faacets.data.syntax.textable._
 import com.faacets.laws.Operations.Generator
 import com.faacets.operation.Reordering
-import net.alasc.perms.Perm
-import data.syntax.textable._
 
 object Reorderings {
 

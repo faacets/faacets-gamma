@@ -1,7 +1,6 @@
 package com.faacets
 package data
 
-import org.scalacheck.Prop
 import org.scalatest.Inside
 
 class ValueSuite extends FaacetsSuite with Inside {

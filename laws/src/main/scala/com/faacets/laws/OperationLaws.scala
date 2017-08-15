@@ -1,16 +1,18 @@
 package com.faacets
 package laws
 
-import com.faacets.operation.OperationExtractor
-import org.typelevel.discipline.Laws
-import org.scalacheck.{Arbitrary, Prop}
-import org.scalacheck.Prop._
 import spire.algebra.Eq
 import spire.algebra.partial.{Groupoid, PartialAction}
-import spire.syntax.eq._
-import spire.syntax.partialAction._
 import spire.laws._
 import spire.std.boolean._
+import spire.syntax.eq._
+import spire.syntax.partialAction._
+
+import org.scalacheck.Prop._
+import org.scalacheck.{Arbitrary, Prop}
+import org.typelevel.discipline.Laws
+
+import com.faacets.operation.OperationExtractor
 import com.faacets.operation.syntax.extractor._
 
 object OperationLaws {

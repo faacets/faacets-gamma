@@ -1,22 +1,22 @@
 package com.faacets
 package operation
 
-import com.faacets.core.perm.ShapeLattice
-
-import scala.collection.immutable
-import scala.collection.mutable
 import scala.annotation.tailrec
-import spire.syntax.group._
+import scala.collection.{immutable, mutable}
+
+import spire.algebra.partial.PartialAction
 import spire.syntax.action._
 import spire.syntax.eq._
-import net.alasc.syntax.permutationAction._
-import core._
+import spire.syntax.group._
+import spire.util.Opt
 import net.alasc.bsgs.{GrpChain, GrpChainPermutationAction, Node}
 import net.alasc.finite.Grp
-import net.alasc.perms.default._
 import net.alasc.perms.Perm
-import spire.algebra.partial.PartialAction
-import spire.util.Opt
+import net.alasc.perms.default._
+import net.alasc.syntax.permutationAction._
+
+import com.faacets.core._
+import com.faacets.core.perm.ShapeLattice
 
 // notes: http://groupprops.subwiki.org/wiki/Coset_intersection_problem
 // http://groupprops.subwiki.org/wiki/Double_coset_membership_testing_problem
@@ -150,7 +150,6 @@ object SymmetricForms {
     implicit def a: action.type = action
     val imp = shapeLattice.shape.imprimitiveImprimitive
     val length = imp.sizes(0)
-    val n = scenario.parties.length
     def offset(partyIndex: Int): Int = imp.offsets(partyIndex)
     def pointsForParty(p: Int): Iterable[Int] = imp.offsets(p) until imp.offsets(p + 1)
     def inParty(partyIndex: Int, k: Int): Boolean = {
@@ -191,7 +190,7 @@ object SymmetricForms {
     def restart(beta: Int, curR: Relabeling, curGrp: Grp[Relabeling]): Option[Relabeling] = {
       val (nextGrp, tr) = GrpChainPermutationAction[Relabeling].stabilizerTransversal(curGrp, action, beta)
       tr.foreachOrbit { b =>
-        var br = b <|+| curR
+        val br = b <|+| curR
         if (!inParty(startParty, br)) {
           val nextR = tr.u(b) |+| curR
           val res = inRec(beta, nextR, nextGrp)

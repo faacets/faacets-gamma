@@ -2,12 +2,14 @@ package com.faacets.core
 
 import spire.algebra.{Eq, Group}
 import spire.laws.{ActionLaws, GroupLaws}
-import com.faacets.FaacetsSuite
-import com.faacets.laws._
-import org.typelevel.discipline.Laws
 import net.alasc.algebra.PermutationAction
 import net.alasc.finite.Grp
 import net.alasc.laws.{AnyRefLaws, Grps, PermutationActionLaws}
+
+import org.typelevel.discipline.Laws
+
+import com.faacets.FaacetsSuite
+import com.faacets.laws._
 
 class RelabelingSuite extends FaacetsSuite {
 
@@ -17,14 +19,14 @@ class RelabelingSuite extends FaacetsSuite {
   }
 
   locally {
-    import Scenarios.Large._
     import Relabelings._
+    import Scenarios.Large._
     checkAll("Relabeling", AnyRefLaws[Relabeling]._eq)
     checkAll("Relabeling", DataLaws[Relabeling].textable)
     checkAll("Relabeling", GroupLaws[Relabeling].group)
     implicit val eqSymbol: Eq[Symbol] = Eq.fromUniversalEquals[Symbol]
-    import spire.std.tuples._
     import spire.std.int._
+    import spire.std.tuples._
     checkAll("Relabeling", ActionLaws[Relabeling, (Symbol, Int, Int)].groupAction)
     forAll( (r: Relabeling) => r === (r.outputPart |+| r.inputPart |+| r.partyPart) )
     forAll( (r: Relabeling) => r === (r.outputInputPart |+| r.partyPart ) )
@@ -32,10 +34,11 @@ class RelabelingSuite extends FaacetsSuite {
   }
 
   locally {
-    import net.alasc.perms.default._
-    import Scenarios.Small._
-    import Relabelings.arbRelabeling
     import Grps.arbGrp
+    import net.alasc.perms.default._
+
+    import Relabelings.arbRelabeling
+    import Scenarios.Small._
     checkAll("Grp[Relabeling]", DataLaws[Grp[Relabeling]].coded)
   }
 

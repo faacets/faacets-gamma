@@ -1,9 +1,9 @@
 package com.faacets
 package operation
 
+import com.faacets.core._
 import com.faacets.laws.Groupings
 import com.faacets.operation.lifting.Grouping
-import core._
 
 /** Test suite for `Lifting`
   *

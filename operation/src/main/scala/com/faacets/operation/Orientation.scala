@@ -1,16 +1,18 @@
 package com.faacets.operation
 
+import scala.collection.immutable.ListMap
+
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
-import com.faacets.consolidate.{Merge, Result}
+import spire.math.interval.Overlap
+
+import io.circe._
+import io.circe.syntax._
+
 import com.faacets.consolidate.instances.all._
+import com.faacets.consolidate.{Merge, Result}
 import com.faacets.data.Value
 import com.faacets.data.instances.all._
 import com.faacets.data.syntax.all._
-import io.circe._
-import io.circe.syntax._
-import spire.math.interval.Overlap
-
-import scala.collection.immutable.ListMap
 
 sealed trait Orientation[O <: Orientation[O, N], N <: Orientation[N, O]] {
   def isEmpty: Boolean = bounds.isEmpty && facetOf.isEmpty
@@ -80,6 +82,7 @@ trait OrientationBuilder[O <: Orientation[O, _]] { self =>
       import spire.std.boolean._
       implicit val mergeBoolean: Merge[Boolean] = Merge.fromEq[Boolean]
       import cats.syntax.all._
+
       import com.faacets.consolidate.syntax.all._
       val bounds = (base.bounds merge newO.bounds)
       val facetOf = (base.facetOf merge newO.facetOf)

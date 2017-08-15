@@ -2,10 +2,13 @@ package com.faacets.data
 package instances
 
 import scala.util.Try
+
 import spire.math.SafeLong
+
+import io.circe._
+
 import com.faacets.consolidate.Merge
 import com.faacets.gluon.{AdapterException, ArgAdapter, ResAdapter}
-import io.circe._
 
 trait SafeLongInstances {
   import scala.util.{Left, Right}

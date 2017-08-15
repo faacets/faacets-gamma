@@ -3,10 +3,11 @@ package operation
 package lifting
 
 import spire.algebra.Eq
-import core._
-import data._
 import net.alasc.finite.Grp
-import core.syntax.subgroups._
+
+import com.faacets.core._
+import com.faacets.core.syntax.subgroups._
+import com.faacets.data._
 
 case class Grouping(parties: Seq[PartyGrouping]) {
 

@@ -1,11 +1,13 @@
 package com.faacets
 package laws
 
+import net.alasc.laws._
+
+import org.scalacheck._
+
+import com.faacets.core.Expr
 import com.faacets.laws.Operations.Generator
 import com.faacets.operation.Affine
-import org.scalacheck._
-import net.alasc.laws._
-import core.Expr
 
 object Affines {
 

@@ -1,20 +1,22 @@
 package com.faacets.data.instances
 
+import scala.reflect.ClassTag
+
 import cats.data.Validated
-import com.faacets.consolidate.Merge
-import com.faacets.data.NiceGenerators
-import io.circe._
-import net.alasc.algebra.PermutationAction
-import net.alasc.blackbox.RandomBag
-import net.alasc.bsgs.{BaseGuide, GrpChainPermutationAction, KernelBuilder, MutableChain, SchreierSims}
-import net.alasc.bsgs.internal.GrpChainExplicit
-import net.alasc.finite.Grp
-import safeLong._
 import spire.algebra.{Eq, Group}
 import spire.math.SafeLong
 import spire.util.Opt
+import net.alasc.algebra.PermutationAction
+import net.alasc.blackbox.RandomBag
+import net.alasc.bsgs.internal.GrpChainExplicit
+import net.alasc.bsgs.{BaseGuide, GrpChainPermutationAction, KernelBuilder, MutableChain, SchreierSims}
+import net.alasc.finite.Grp
 
-import scala.reflect.ClassTag
+import io.circe._
+
+import com.faacets.consolidate.Merge
+import com.faacets.data.NiceGenerators
+import com.faacets.data.instances.safeLong._
 
 trait GrpInstances {
 

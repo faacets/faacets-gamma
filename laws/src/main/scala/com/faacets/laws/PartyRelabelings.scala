@@ -1,11 +1,12 @@
 package com.faacets.laws
 
-import com.faacets.core.{Party, PartyRelabeling}
+import net.alasc.laws._
+import net.alasc.perms.default._
+import net.alasc.perms.{GrpFixingPartition, Perm}
+
 import org.scalacheck._
 
-import net.alasc.laws._
-import net.alasc.perms.{GrpFixingPartition, Perm}
-import net.alasc.perms.default._
+import com.faacets.core.{Party, PartyRelabeling}
 
 object PartyRelabelings {
 

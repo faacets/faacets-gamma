@@ -1,10 +1,11 @@
 package com.faacets
 package core
 
-import com.faacets.laws.Relabelings
 import spire.math.Rational
-import scalin.immutable.dense._
 import scalin.immutable.Vec
+import scalin.immutable.dense._
+
+import com.faacets.laws.Relabelings
 
 
 class VecSymmetryGroupSuite extends FaacetsSuite {

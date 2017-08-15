@@ -3,9 +3,10 @@ package core
 package repr
 
 import scala.annotation.tailrec
-import scalin.immutable.{Mat, Vec}
-import scalin.immutable.dense._
+
 import spire.math.Rational
+import scalin.immutable.dense._
+import scalin.immutable.{Mat, Vec}
 
 /** Helper for matrix-vector products, when the matrix is a Kronecker product
   * 

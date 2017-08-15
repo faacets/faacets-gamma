@@ -1,11 +1,12 @@
 package com.faacets.data
 
-import com.faacets.FaacetsSuite
 import spire.math.Rational
-import spire.syntax.cfor._
 import cyclo.Cyclo
-import org.scalacheck.{Arbitrary, Gen}
 import net.alasc.laws.{AnyRefLaws, Cloner, Instances}
+
+import org.scalacheck.{Arbitrary, Gen}
+
+import com.faacets.FaacetsSuite
 
 class CycloSuite extends FaacetsSuite { // TODO: move to spire-cyclo once AnyRefLaws is in a common package
 

@@ -1,12 +1,14 @@
 package com.faacets.core
 
+import spire.algebra.Group
 import spire.laws.{ActionLaws, GroupLaws}
-import com.faacets.FaacetsSuite
-import com.faacets.laws._
-import org.typelevel.discipline.Laws
 import net.alasc.algebra.PermutationAction
 import net.alasc.laws.{AnyRefLaws, PermutationActionLaws}
-import spire.algebra.Group
+
+import org.typelevel.discipline.Laws
+
+import com.faacets.FaacetsSuite
+import com.faacets.laws._
 
 class PartyRelabelingSuite extends FaacetsSuite {
 
@@ -18,8 +20,8 @@ class PartyRelabelingSuite extends FaacetsSuite {
     checkAll("PartyRelabeling", DataLaws[PartyRelabeling].textable)
     checkAll("PartyRelabeling", GroupLaws[PartyRelabeling].group)
 
-    import spire.std.tuples._
     import spire.std.int._
+    import spire.std.tuples._
     checkAll("PartyRelabeling", ActionLaws[PartyRelabeling, (Int, Int)].groupAction)
     forAll( (pr: PartyRelabeling) => pr === (pr.outputPart |+| pr.inputPart) )
     forAll( (pr: PartyRelabeling) => pr === (Group[PartyRelabeling].combineAll(pr.components.map(_.get))) )

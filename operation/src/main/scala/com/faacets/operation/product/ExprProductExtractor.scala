@@ -1,16 +1,14 @@
 package com.faacets.operation
 package product
 
-import com.faacets.core.{Expr, Party, Scenario}
-import com.faacets.operation.ProductExtractor
-import net.alasc.partitions.Partition
-import scalin.immutable.{Mat, Vec}
-import spire.util.Opt
-import scalin.immutable.dense._
 import spire.math.Rational
 import spire.syntax.cfor._
+import spire.util.Opt
+import scalin.immutable.Mat
+import scalin.immutable.dense._
 import scalin.syntax.all._
-import instances.relabeling._
+
+import com.faacets.core.{Expr, Scenario}
 
 final class ExprProductExtractor extends ProductExtractor[Expr] {
 
@@ -18,8 +16,6 @@ final class ExprProductExtractor extends ProductExtractor[Expr] {
 
   def partialExtract(expr: Expr): Opt[PolyProduct[Expr]] = {
     val scenario = expr.scenario
-    val sizes = expr.scenario.parties.map(_.shapeNC.size)
-    val cCoefficients = expr.correlators
     SetPartition.nonTrivialBipartitions(Set(0 until scenario.nParties: _*)).foreach { setPartition =>
       val Seq(b0, b1) = setPartition.parts.toSeq
       testPartition(expr, b0, b1) match {

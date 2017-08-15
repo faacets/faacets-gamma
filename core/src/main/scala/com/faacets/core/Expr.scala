@@ -1,17 +1,18 @@
 package com.faacets
 package core
 
+import scala.reflect.classTag
+
 import cats.data.Validated.Valid
+import cats.data.{Validated, ValidatedNel}
 import spire.math.{Rational, SafeLong}
-import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import scalin.immutable.dense._
 import scalin.immutable.{Mat, Vec}
 
-import scala.reflect.classTag
-import cats.data.{Validated, ValidatedNel}
 import com.faacets.core.NDVec.attributes.symmetryGroup
+import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
+import com.faacets.core.text.UserVecRational.userVecRationalTextable
 import com.faacets.core.text._
-import text.UserVecRational.userVecRationalTextable
 
 /** Describes a Bell expression. */
 class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends NDVec[Expr] with GenExpr[Expr] { lhs =>

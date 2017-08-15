@@ -2,12 +2,13 @@ package com.faacets
 package operation
 
 import cats.data.{Validated, ValidatedNel}
+import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.algebra.{Action, Eq}
 import spire.syntax.eq._
-import data._
-import core._
-import lifting._
-import spire.algebra.partial.{Groupoid, PartialAction}
+
+import com.faacets.core._
+import com.faacets.data._
+import com.faacets.operation.lifting._
 
 case class Lifting(source: Grouping, target: Grouping) {
 

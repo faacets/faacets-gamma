@@ -1,10 +1,12 @@
 package com.faacets
 package laws
 
-import com.faacets.core.{DExpr, Expr, Scenario}
-import org.scalacheck._
 import spire.math.Rational
 import scalin.immutable.dense._
+
+import org.scalacheck._
+
+import com.faacets.core.{DExpr, Expr, Scenario}
 
 object DExprs extends PVecs[DExpr] {
 

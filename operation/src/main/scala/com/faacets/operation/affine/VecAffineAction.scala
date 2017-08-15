@@ -4,10 +4,11 @@ package affine
 
 import spire.algebra.Action
 import spire.syntax.group._
-import core._
+
+import com.faacets.core._
 
 
-final class VecAffineAction[V <: GenExpr[V]](implicit vb: GenExprBuilder[V]) extends Action[V, Affine] {
+final class VecAffineAction[V <: GenExpr[V]] extends Action[V, Affine] {
 
   def actl(a: Affine, v: V) = actr(v, a.inverse)
 

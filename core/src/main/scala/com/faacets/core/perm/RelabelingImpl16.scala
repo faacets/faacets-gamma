@@ -4,7 +4,6 @@ package perm
 
 
 import spire.syntax.cfor._
-
 import net.alasc.perms._
 
 /** Implementation of a Relabeling using an array for output relabelings (concatenated) and an array for input relabelings.

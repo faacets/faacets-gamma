@@ -1,14 +1,15 @@
 package com.faacets.operation.product
 
+import scala.collection.immutable.ListMap
+
+import cats.instances.all._
+import cats.syntax.traverse._
+import spire.math.{Bounded, Interval, Point}
+import cyclo.RealCyclo
+
 import com.faacets.core.Expr
 import com.faacets.data.{Scalar, Value}
 import com.faacets.operation.{BoundedExpr, LowerOrientation, Tensor, UpperOrientation}
-import cyclo.RealCyclo
-import spire.math.{Bounded, Interval, Point}
-import cats.syntax.traverse._
-import cats.instances.all._
-
-import scala.collection.immutable.ListMap
 
 // see Proposition 5 of App. C in J. Phys. A: Math. Theor. 47 (2014) 424022
 // the "facet" property is preserved when 1) facetOf(bound) is true 2) the corresponding bound is 0

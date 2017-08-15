@@ -1,6 +1,7 @@
 package com.faacets.data.syntax
 
 import cats.data.ValidatedNel
+
 import io.circe.{AccumulatingDecoder, DecodingFailure}
 
 

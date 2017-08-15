@@ -5,15 +5,14 @@ import spire.algebra._
 import spire.math.SafeLong
 import spire.syntax.cfor._
 import spire.util.Opt
-
-import com.faacets.core.perm.ShapeLattice
-
 import net.alasc.algebra.PermutationAction
+import net.alasc.bsgs.{GrpChain, GrpChainPermutationAction, SubgroupDefinition}
 import net.alasc.finite.Grp
+import net.alasc.perms.Perm
 import net.alasc.perms.default._
 import net.alasc.syntax.all._
-import net.alasc.bsgs.{GrpChain, GrpChainPermutationAction, SubgroupDefinition}
-import net.alasc.perms.Perm
+
+import com.faacets.core.perm.ShapeLattice
 
 case class RelabelingSubgroups(val group: Grp[Relabeling]) {
 

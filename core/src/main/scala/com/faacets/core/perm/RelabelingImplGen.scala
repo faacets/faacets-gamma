@@ -4,7 +4,6 @@ package perm
 
 import spire.algebra._
 import spire.syntax.cfor._
-
 import net.alasc.perms._
 import net.alasc.syntax.all._
 

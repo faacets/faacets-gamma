@@ -2,14 +2,13 @@ package com.faacets.core
 package text
 
 import cats.data.{Validated, ValidatedNel}
-import scalin.immutable.VecEngine
-import scalin.immutable.Vec
-import spire.algebra.Ring
-import scalin.syntax.all._
-import spire.math.Rational
-import cats.syntax.traverse._
 import cats.instances.vector._
+import cats.syntax.traverse._
+import spire.algebra.Ring
+import spire.math.Rational
 import spire.syntax.cfor._
+import scalin.immutable.{Vec, VecEngine}
+import scalin.syntax.all._
 
 sealed case class TermType(name: String)
 
@@ -35,6 +34,7 @@ object Term {
 
   def parseExpression(expression: String): ValidatedNel[String, Vector[(Rational, String, Term)]] = {
     import fastparse.noApi._
+
     import com.faacets.data.Parsers.White._
     (CoeffString.expr ~ End).parse(expression) match {
       case Parsed.Success(csSeq, _) =>

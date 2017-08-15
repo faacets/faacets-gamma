@@ -2,13 +2,13 @@ package com.faacets
 package operation
 package lifting
 
-import fastparse.noApi._
 import net.alasc.partitions.Partition
+
+import fastparse.noApi._
 
 object GroupingParsers {
 
   import com.faacets.data.Parsers._
-
   import White._
 
   val inputNoGrouping: P[InputGrouping] = int.map( InputGrouping.noLifting(_) )

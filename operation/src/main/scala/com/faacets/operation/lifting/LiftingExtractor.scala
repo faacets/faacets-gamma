@@ -4,7 +4,7 @@ package lifting
 
 import spire.util._
 
-import core._
+import com.faacets.core._
 
 final class ExprLiftingExtractor extends OperationExtractor[Expr, Lifting] {
 

@@ -2,12 +2,11 @@ package com.faacets
 package operation
 package affine
 
-import spire.syntax.all._
 import spire.math.Rational
+import spire.syntax.all._
 import spire.util.Opt
 
-
-import core._
+import com.faacets.core._
 
 class ExprAffineExtractor extends GroupActionOperationExtractor[Expr, Affine] {
 

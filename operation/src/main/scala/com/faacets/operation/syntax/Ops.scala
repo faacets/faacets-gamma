@@ -2,8 +2,9 @@ package com.faacets
 package operation
 package syntax
 
-import com.faacets.core.Relabeling
 import spire.util._
+
+import com.faacets.core.Relabeling
 
 final class ExtractorValueOps[E](val lhs: E) extends AnyVal {
 

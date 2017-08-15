@@ -1,20 +1,19 @@
 package com.faacets.comp
 
-import cats.data.Validated.Valid
+import scala.collection.immutable.{ListMap, ListSet}
+
 import cats.data.{Validated, ValidatedNel}
-import com.faacets.core.{DExpr, Expr, Relabeling, Scenario}
+import cats.instances.all._
+import cats.syntax.all._
+import spire.math.Rational
+import scalin.immutable.Vec
+
+import io.circe.{AccumulatingDecoder, Decoder, HCursor}
+
+import com.faacets.core.{DExpr, Expr, Scenario}
 import com.faacets.data.Value
 import com.faacets.data.instances.all._
-import com.faacets.data.syntax.all._
 import com.faacets.operation._
-import io.circe.{AccumulatingDecoder, Decoder, HCursor}
-import scalin.immutable.Vec
-import spire.math.Rational
-import cats.syntax.all._
-import cats.instances.all._
-import net.alasc.finite.Grp
-
-import scala.collection.immutable.{ListMap, ListSet}
 
 case class LegacyBellExpression(scenario: Scenario,
                                 representation: String,

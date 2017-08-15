@@ -3,7 +3,6 @@ package core
 package perm
 
 import spire.syntax.lattice._
-
 import net.alasc.algebra.PermutationAction
 import net.alasc.finite.FaithfulPermutationActionBuilder
 

@@ -3,14 +3,10 @@ package core
 package repr
 
 import spire.math.Rational
-
-import scalin.immutable.Mat
-
-import scalin.immutable.dense._
-
-import scalin.syntax.all._
-
 import spire.syntax.cfor._
+import scalin.immutable.Mat
+import scalin.immutable.dense._
+import scalin.syntax.all._
 
 /** Party representations methods */
 case class PartyMatrices(party: Party) {

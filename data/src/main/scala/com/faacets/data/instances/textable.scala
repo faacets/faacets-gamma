@@ -1,9 +1,10 @@
 package com.faacets.data
 package instances
 
-import io.circe.{AccumulatingDecoder, Decoder, Encoder, HCursor}
-import com.faacets.data.syntax.validatedNel._
 import io.circe.Decoder.Result
+import io.circe.{AccumulatingDecoder, Decoder, Encoder, HCursor}
+
+import com.faacets.data.syntax.validatedNel._
 
 trait TextableInstances {
 

@@ -3,15 +3,15 @@ package core
 package perm
 
 import spire.algebra.Group
-
 import net.alasc.perms._
 import net.alasc.syntax.all._
+
 import fastparse.noApi._
 
 object Parsers {
 
-  import com.faacets.data.Parsers._
   import com.faacets.core.Parsers._
+  import com.faacets.data.Parsers._
   import White._
 
   val inputIndex = nonNegativeInt.opaque("<input-index>")

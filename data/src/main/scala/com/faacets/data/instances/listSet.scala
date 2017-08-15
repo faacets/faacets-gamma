@@ -1,9 +1,10 @@
 package com.faacets.data.instances
 
-import cats.data.Validated
-import io.circe._
-
 import scala.collection.immutable.ListSet
+
+import cats.data.Validated
+
+import io.circe._
 
 trait ListSetInstances {
 

@@ -1,13 +1,15 @@
 package com.faacets
 package laws
 
+import net.alasc.laws.{Cloner, Instances}
+import net.alasc.partitions.Partition
+
+import org.scalacheck.{Arbitrary, Gen}
+
 import com.faacets.core.{Expr, Scenario}
+import com.faacets.data.syntax.textable._
 import com.faacets.operation.Lifting
 import com.faacets.operation.lifting.{Grouping, InputGrouping, PartyGrouping}
-import net.alasc.laws.{Cloner, Instances}
-import com.faacets.data.syntax.textable._
-import net.alasc.partitions.Partition
-import org.scalacheck.{Arbitrary, Gen}
 
 object Liftings {
 

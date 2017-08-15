@@ -2,11 +2,12 @@ package com.faacets
 package operation
 package relabeling
 
-import core._
 import spire.algebra.partial.PartialAction
 import spire.util.Opt
 import net.alasc.perms.default._
 import net.alasc.perms.orbits.Seqs
+
+import com.faacets.core._
 
 class VecRelabelingExtractor[V <: NDVec[V]](implicit val partialAction: PartialAction[V, Relabeling]) extends GroupOperationExtractor[V, Relabeling] {
 

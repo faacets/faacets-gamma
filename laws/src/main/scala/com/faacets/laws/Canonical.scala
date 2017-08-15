@@ -1,12 +1,14 @@
 package com.faacets
 package laws
 
-import org.scalacheck.{Arbitrary, Gen}
 import spire.math.Rational
-import core._
 import scalin.immutable.Vec
 import scalin.immutable.dense._
-import data.syntax.textable._
+
+import org.scalacheck.{Arbitrary, Gen}
+
+import com.faacets.core._
+import com.faacets.data.syntax.textable._
 
 case class Canonical[A](value: A)
 

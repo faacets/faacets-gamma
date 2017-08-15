@@ -2,12 +2,13 @@ package com.faacets
 package operation
 package product
 
+import spire.implicits._
+import spire.math.Rational
+import scalin.immutable.dense._
+import scalin.immutable.{Mat, Vec}
+
 import org.scalacheck._
 import org.scalatest.FunSuite
-import scalin.immutable.{Mat, Vec}
-import spire.math.Rational
-import spire.implicits._
-import scalin.immutable.dense._
 
 /** Test suite for `Rank1`
   *

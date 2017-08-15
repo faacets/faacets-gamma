@@ -2,7 +2,7 @@ package com.faacets
 package operation
 package affine
 
-import spire.algebra.{Group, Eq}
+import spire.algebra.{Eq, Group}
 import spire.math.Rational
 import spire.syntax.eq._
 

@@ -2,11 +2,12 @@ package com.faacets
 package operation
 package instances
 
+import spire.algebra.Action
+import spire.algebra.partial.PartialAction
+
 import com.faacets.core.{Expr, Relabeling}
 import com.faacets.data.Value
 import com.faacets.operation.relabeling.{VecRelabelingExtractor, VecRelabelingPartialAction}
-import spire.algebra.{Action}
-import spire.algebra.partial.PartialAction
 
 trait RelabelingInstances {
 

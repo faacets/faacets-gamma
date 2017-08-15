@@ -1,8 +1,8 @@
 package com.faacets.laws
 
-import org.scalacheck.Gen
-
 import spire.math.Rational
+
+import org.scalacheck.Gen
 
 object Rationals {
 

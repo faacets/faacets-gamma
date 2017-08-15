@@ -1,15 +1,16 @@
 package com.faacets.comp
 
+import scala.collection.immutable.{ListMap, ListSet}
+
+import cats.instances.all._
+import cats.syntax.all._
 import cats.{Applicative, Monad}
+
 import com.faacets.consolidate.Result
 import com.faacets.consolidate.syntax.all._
 import com.faacets.core.Expr
 import com.faacets.operation._
-import cats.instances.all._
-import cats.syntax.all._
 import com.faacets.operation.instances.all._
-
-import scala.collection.immutable.{ListMap, ListSet}
 
 trait ReadCompendiumAlg[F[_]] {
 

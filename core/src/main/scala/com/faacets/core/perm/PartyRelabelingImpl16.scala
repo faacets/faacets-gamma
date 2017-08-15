@@ -3,7 +3,6 @@ package core
 package perm
 
 import spire.algebra._
-
 import net.alasc.perms._
 import net.alasc.syntax.all._
 

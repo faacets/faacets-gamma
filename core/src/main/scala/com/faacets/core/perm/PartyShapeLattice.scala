@@ -6,7 +6,6 @@ import spire.algebra.PartialOrder
 import spire.algebra.lattice._
 import spire.syntax.lattice._
 import spire.syntax.partialOrder._
-
 import net.alasc.partitions._
 
 case class PartyShapeLattice(pm: PartitionMap[Int]) {

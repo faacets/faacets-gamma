@@ -5,8 +5,8 @@ import com.faacets.laws.DataLaws
 
 class LawTests extends FaacetsSuite {
 
-  import com.faacets.laws.Scenarios.Small._
   import com.faacets.laws.Exprs._
+  import com.faacets.laws.Scenarios.Small._
 
   checkAll("Expr", DataLaws[Expr].coded)
 

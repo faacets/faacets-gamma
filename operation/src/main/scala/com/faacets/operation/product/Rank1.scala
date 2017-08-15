@@ -2,13 +2,13 @@ package com.faacets
 package operation
 package product
 
-import net.alasc.util._
-import scalin.immutable.{Mat, MatEngine, Vec, VecEngine}
-import spire.algebra.{Eq, Field, Ring}
-
 import scala.annotation.tailrec
+
+import spire.algebra.{Eq, Field, Ring}
 import spire.syntax.all._
+import scalin.immutable.{Mat, MatEngine, Vec, VecEngine}
 import scalin.syntax.all._
+import net.alasc.util._
 
 object Rank1 {
 

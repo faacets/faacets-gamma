@@ -1,6 +1,7 @@
 package com.faacets.data
 
 import cats.data.{Validated, ValidatedNel, NonEmptyList => Nel}
+
 import fastparse.noApi._
 
 /** Defines an object that serializes using a string representation. */

@@ -2,12 +2,12 @@ package com.faacets
 package operation
 package lifting
 
-import net.alasc.partitions.Partition
+import scala.collection.mutable.{BitSet => MutableBitSet}
+
 import net.alasc.finite.Grp
+import net.alasc.partitions.Partition
 import net.alasc.perms.Perm
 import net.alasc.perms.orbits.Points
-
-import scala.collection.mutable.{BitSet => MutableBitSet}
 
 /** Detection of outputs groupings.
   * 

@@ -2,17 +2,14 @@ package com.faacets
 package core
 
 import spire.algebra.Group
-import spire.math.fact
-
-import net.alasc.partitions.Partition
+import spire.math.{SafeLong, fact}
 import net.alasc.finite.Grp
-import net.alasc.perms.{GrpFixingPartition, Perm}
+import net.alasc.partitions.Partition
 import net.alasc.perms.default._
+import net.alasc.perms.{GrpFixingPartition, Perm}
 import net.alasc.syntax.all._
 
-import Select._
-
-import spire.math.SafeLong
+import com.faacets.core.Select._
 
 case class ScenarioSubgroups(scenario: Scenario, permuteSingleInputOutputParties: Boolean = true,
                              permuteSingleOutputInputs: Boolean = true) {

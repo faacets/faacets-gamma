@@ -2,14 +2,13 @@ package com.faacets
 
 import spire.algebra.Eq
 import spire.syntax.EqOps
+import net.alasc.laws.NestedDiscipline
 
 import org.scalacheck.Shrink
 import org.scalatest.exceptions.DiscardedEvaluationException
 import org.scalatest.prop.PropertyChecks
 import org.scalatest.{FunSuite, Matchers}
 import org.typelevel.discipline.scalatest.Discipline
-
-import net.alasc.laws.NestedDiscipline
 
 /**
   * An opinionated stack of traits to improve consistency and reduce

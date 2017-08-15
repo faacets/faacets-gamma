@@ -2,12 +2,13 @@ package com.faacets
 package operation
 package lifting
 
-import core._
-import spire.syntax.groupoid._
-import spire.syntax.eq._
-import spire.syntax.cfor._
 import spire.algebra.partial.PartialAction
+import spire.syntax.cfor._
+import spire.syntax.eq._
+import spire.syntax.groupoid._
 import spire.util.Opt
+
+import com.faacets.core._
 
 final class LiftingExprPartialAction extends PartialAction[Expr, Lifting] {
 

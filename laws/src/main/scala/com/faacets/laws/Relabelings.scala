@@ -1,11 +1,13 @@
 package com.faacets
 package laws
 
-import com.faacets.core.{PVec, PartyRelabeling, Relabeling, Scenario}
-import org.scalacheck._
 import net.alasc.laws._
-import net.alasc.perms.{GrpFixingPartition, Perm}
 import net.alasc.perms.default._
+import net.alasc.perms.{GrpFixingPartition, Perm}
+
+import org.scalacheck._
+
+import com.faacets.core.{PVec, PartyRelabeling, Relabeling, Scenario}
 
 object Relabelings {
 

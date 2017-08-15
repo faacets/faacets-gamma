@@ -1,17 +1,17 @@
 package com.faacets.operation
 
-import com.faacets.operation.lifting.GroupingParsers
-import fastparse.noApi._
 import spire.math.Rational
+
+import fastparse.noApi._
+
+import com.faacets.operation.lifting.GroupingParsers
 
 object Parsers {
 
-  import com.faacets.data.Parsers.{rational, White, nonNegativeRational}
-  import com.faacets.core.Parsers.scenario
-
-  import White._
-
   import GroupingParsers.grouping
+  import com.faacets.core.Parsers.scenario
+  import com.faacets.data.Parsers.{White, nonNegativeRational, rational}
+  import White._
 
   val lifting: P[Lifting] = P( grouping ~ "->" ~ grouping ).flatMap {
     case (source, target) => Lifting.validate(source, target).fold(s => Fail.opaque(s.toList.mkString(",")), l => Pass.map(x => l))

@@ -1,9 +1,11 @@
 package com.faacets
 package laws
 
-import org.scalacheck._
 import net.alasc.laws._
-import core._
+
+import org.scalacheck._
+
+import com.faacets.core._
 
 object Scenarios {
 

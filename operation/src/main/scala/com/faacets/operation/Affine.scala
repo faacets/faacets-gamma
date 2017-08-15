@@ -1,14 +1,14 @@
 package com.faacets
 package operation
 
-import spire.algebra.{Group, Eq, Action}
+import spire.algebra.{Action, Eq, Group}
 import spire.math.Rational
 import spire.syntax.eq._
 import spire.syntax.group._
-import data._
-import core._
 
-import affine._
+import com.faacets.core._
+import com.faacets.data._
+import com.faacets.operation.affine._
 
 /** Description of an affine transformation with a multiplicative factor and a shift. */
 case class Affine(multiplier: Rational, shift: Rational) {

@@ -1,11 +1,13 @@
 package com.faacets.laws
 
-import com.faacets.core.{Expr, PVec, PVecBuilder, Scenario}
-import net.alasc.laws.{Cloner, Instances}
-import org.scalacheck.{Arbitrary, Gen}
-import scalin.immutable.Vec
 import spire.math.Rational
+import scalin.immutable.Vec
 import scalin.immutable.dense._
+import net.alasc.laws.{Cloner, Instances}
+
+import org.scalacheck.{Arbitrary, Gen}
+
+import com.faacets.core.{Expr, PVec, PVecBuilder, Scenario}
 
 trait PVecs[V <: PVec[V]] {
 

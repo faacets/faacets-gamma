@@ -1,19 +1,21 @@
 package com.faacets.operation
 
-import com.faacets.core.{AdditiveGroupoid, Expr, Relabeling}
-import com.faacets.data.Textable
-import com.faacets.operation.product.Rank1
-import io.circe._
-import spire.math.Rational
-import io.circe.syntax._
-import scalin.immutable.Mat
-import spire.algebra.Action
-import spire.syntax.action._
-import cats.instances.all._
-import com.faacets.data.instances.all._
-import cats.syntax.all._
-
 import scala.collection.immutable.BitSet
+
+import cats.instances.all._
+import cats.syntax.all._
+import spire.algebra.Action
+import spire.math.Rational
+import spire.syntax.action._
+import scalin.immutable.Mat
+
+import io.circe._
+import io.circe.syntax._
+
+import com.faacets.core.AdditiveGroupoid
+import com.faacets.data.Textable
+import com.faacets.data.instances.all._
+import com.faacets.operation.product.Rank1
 
 case class PolyExpr(coeffs: Map[Set[Set[Int]], Rational]) {
 
