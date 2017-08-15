@@ -25,15 +25,6 @@ final class PartyShape protected[core] (val inputs: Seq[Int]) {
 
   lazy val primitive = PrimitiveShape(sizes)
 
-  /** Tests whether this shape can represent the given party relabeling. */
-  def represents(pr: PartyRelabeling): Boolean = {
-    if (n < pr.nInputs) return false
-    cforRange(0 until pr.nInputsWithOutputRelabelings) { x =>
-      if (inputs(x) < pr.nOutputsRelabeled(x)) return false
-    }
-    true
-  }
-
   object PrimitiveAction extends PermutationAction[PartyRelabeling] {
 
     def isFaithful: Boolean = false

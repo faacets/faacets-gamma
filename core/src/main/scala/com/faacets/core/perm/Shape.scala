@@ -31,18 +31,6 @@ final class Shape protected[core] (val parties: Seq[Party]) {
 
   lazy val primitivePrimitive = PrimitiveShape(primitiveSizes)
 
-  /** Tests whether this shape can represent the given relabeling. */
-  def represents(r: Relabeling): Boolean = {
-    if (n < r.nParties) return false
-    cforRange(0 until r.nPartiesWithInputOutputRelabelings) { p =>
-      if (parties(p).nInputs < r.nInputsRelabeled(p)) return false
-      cforRange(0 until r.nInputsWithOutputRelabelings(p)) { x =>
-        if (parties(p).inputs(x) < r.nOutputs(p, x)) return false
-      }
-    }
-    true
-  }
-
   object ImpImpAction extends PermutationAction[Relabeling] {
 
     def isFaithful: Boolean = true
