@@ -23,6 +23,9 @@ trait ReadCompendiumAlg[F[_]] {
   def findCanonicalOrBare(expr: Expr): F[BellExpression] =
     findCanonical(expr).map(_.getOrElse(BellExpression.fromExpr(expr)))
 
+  /** Returns the bound rules in that compendium. */
+  def boundRules: F[BoundRules]
+
 }
 
 object ReadCompendiumTest extends ReadCompendiumAlg[cats.Id] {
@@ -53,13 +56,17 @@ object ReadCompendiumTest extends ReadCompendiumAlg[cats.Id] {
 
   def findCanonical(expr: Expr) = database.get(expr)
 
+  val boundRules = BoundRules.standardBoundRules
+
 }
 
-class CompleteBellExpression[F[_]: Monad](val rc: ReadCompendiumAlg[F])(implicit br: BoundRules) {
+class CompleteBellExpression[F[_]: Monad](val rc: ReadCompendiumAlg[F]) {
 
   import rc._
 
-  def completeBellExpression(be: BellExpression): F[Result[BellExpression]] = {
+  def completeBellExpression(be: BellExpression): F[Result[BellExpression]] =
+    boundRules flatMap { implicit br =>
+
     val decExpr = be.decomposition
     // canonical components in the decomposition
     val exprs = decExpr.elements.map(_.canonical).toSet
