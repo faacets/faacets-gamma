@@ -8,19 +8,19 @@ import net.alasc.perms.Perm
 import net.alasc.perms.default._
 import net.alasc.syntax.all._
 
-import com.faacets.core.perm.PartyShapeLattice
-
 case class PartyRelabelingSubgroups(val group: Grp[PartyRelabeling]) {
 
-  val shapeLattice = PartyShapeLattice.fromPartyRelabelings(group.generators)
+  val party = Party.homogenousFor(group.generators)
 
-  val impShape = shapeLattice.shape.imprimitive
+  val shape = party.shape
 
-  implicit val action: PermutationAction[PartyRelabeling] = shapeLattice.shape.ImprimitiveAction
+  val impShape = shape.imprimitive
+
+  implicit val action: PermutationAction[PartyRelabeling] = shape.ImprimitiveAction
 
   val groupInRep: GrpChain[PartyRelabeling, action.type] = GrpChainPermutationAction[PartyRelabeling].fromGrp(group, action)
 
-  val nInputs = shapeLattice.party.nInputs
+  val nInputs = party.nInputs
 
   def subgroupFor(test: (Int, Int) => Boolean, predicate: PartyRelabeling => Boolean): GrpChain[PartyRelabeling, action.type] = {
     val definition = SubgroupDefinition[PartyRelabeling, action.type](test, predicate)(action)

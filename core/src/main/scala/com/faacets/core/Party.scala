@@ -1,6 +1,8 @@
 package com.faacets
 package core
 
+import scala.annotation.tailrec
+
 import net.alasc.finite.Grp
 import net.alasc.util.Tuple2Int
 
@@ -47,8 +49,6 @@ final class Party private (val inputs: Seq[Int]) {
   }
 
   val shape = new PartyShape(inputs)
-
-  val shapeLattice = PartyShapeLattice(inputs)
 
   lazy val matrices = repr.PartyMatrices(this)
 
@@ -161,6 +161,20 @@ object Party extends UniquenessCacheEq[Seq[Int], Party] {
 
  // Factory methods
   def mk(m: Int, k: Int): Party = Party(Seq.fill(m)(k))
+
+  /** Returns the minimal homogenous party whose group of party relabelings include all the given generators. */
+  def homogenousFor(generators: Iterable[PartyRelabeling]): Party = {
+    @tailrec def iter(it: Iterator[PartyRelabeling], maxA: Int = 0, maxX: Int = 0): Party =
+      if (it.hasNext) {
+        val pr = it.next()
+        val newMaxA = spire.math.max(pr.nOutputs, maxA)
+        val newMaxX = spire.math.max(pr.nInputs, maxX)
+        iter(it, newMaxA, newMaxX)
+      } else
+        Party.mk(maxX + 1, maxA + 1)
+    iter(generators.iterator)
+  }
+
   def prefix(p: Int): String = ('A' + p).toChar.toString
   val prefixes = (0 until 26).map(prefix)
 

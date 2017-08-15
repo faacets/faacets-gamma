@@ -1,6 +1,7 @@
 package com.faacets.laws
 
 import net.alasc.laws._
+import net.alasc.partitions.Partition
 import net.alasc.perms.default._
 import net.alasc.perms.{GrpFixingPartition, Perm}
 
@@ -20,7 +21,7 @@ object PartyRelabelings {
 
   def genPartyRelabeling(party: Party): Gen[PartyRelabeling] = for {
     aSeq <- genOutputPerms(party.inputs.reverse.toList, Nil)
-    xPerm <- Grps.genRandomElement(GrpFixingPartition(party.shapeLattice.pm.partition))
+    xPerm <- Grps.genRandomElement(GrpFixingPartition(Partition.fromSeq(party.inputs)))
   } yield PartyRelabeling(aSeq, xPerm)
 
   implicit def arbPartyRelabelingInParty(implicit party: Party): Arbitrary[PartyRelabeling] =

@@ -2,8 +2,6 @@ package com.faacets
 package core
 package perm
 
-import net.alasc.wreath.Divisor
-
 final class PrimitiveShape private (val sizes: Array[Int]) {
   @inline def n = sizes.length
   require(n <= 64)

@@ -1,6 +1,8 @@
 package com.faacets
 package core
 
+import scala.annotation.tailrec
+
 import spire.math.SafeLong
 import spire.syntax.cfor._
 import scalin.immutable.Vec
@@ -70,7 +72,6 @@ final class Scenario private (val parties: Seq[Party]) {
   val nInputTuples = parties.foldLeft(SafeLong(1)) { case (mul, party) => mul * SafeLong(party.nInputs) }
 
   val shape = new Shape(parties)
-  val shapeLattice = ShapeLattice(parties)
 
   def tabulateP[A](coefficients: (Array[Int], Array[Int]) => A): Vec[A] = {
     import scalin.immutable.dense._
@@ -239,9 +240,24 @@ object Scenario extends UniquenessCacheEq[Seq[Party], Scenario] {
   protected def keyFromValue(scenario: Scenario): Option[Seq[Party]] = Some(scenario.parties)
 
   // Factory methods
+
   def nmk(n: Int, m: Int, k: Int) = {
     val party = Party.mk(m, k)
     apply(Seq.fill(n)(party))
+  }
+
+  /** Returns the minimal homogenous scenario whose group of relabelings include all the given generators. */
+  def homogenousFor(generators: Iterable[Relabeling]): Scenario = {
+    @tailrec def iter(it: Iterator[Relabeling], maxA: Int = 0, maxX: Int = 0, maxP: Int = 0): Scenario =
+      if (it.hasNext) {
+        val r = it.next()
+        val newMaxA = spire.math.max(r.nOutputsMax, maxA)
+        val newMaxX = spire.math.max(r.nInputsMax, maxX)
+        val newMaxP = spire.math.max(r.nParties, maxP)
+        iter(it, newMaxA, newMaxX, newMaxP)
+      } else
+        Scenario.nmk(maxP + 1, maxX + 1, maxA + 1)
+    iter(generators.iterator)
   }
 
   val CHSH = nmk(2, 2, 2)

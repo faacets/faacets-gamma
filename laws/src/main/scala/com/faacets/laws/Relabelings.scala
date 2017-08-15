@@ -2,6 +2,7 @@ package com.faacets
 package laws
 
 import net.alasc.laws._
+import net.alasc.partitions.Partition
 import net.alasc.perms.default._
 import net.alasc.perms.{GrpFixingPartition, Perm}
 
@@ -15,7 +16,7 @@ object Relabelings {
 
   def genRelabeling(scenario: Scenario): Gen[Relabeling] = for {
     prSeq <- Gen.sequence[Seq[PartyRelabeling], PartyRelabeling](scenario.parties.map(genPartyRelabeling(_)))
-    pPerm <- Grps.genRandomElement(GrpFixingPartition(scenario.shapeLattice.pm.partition))
+    pPerm <- Grps.genRandomElement(GrpFixingPartition(Partition.fromSeq(scenario.parties)))
   } yield Relabeling(prSeq, pPerm)
 
   implicit def arbRelabelingInScenario(implicit scenario: Scenario): Arbitrary[Relabeling] =

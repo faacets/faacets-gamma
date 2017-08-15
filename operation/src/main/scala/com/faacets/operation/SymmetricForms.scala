@@ -16,7 +16,6 @@ import net.alasc.perms.default._
 import net.alasc.syntax.permutationAction._
 
 import com.faacets.core._
-import com.faacets.core.perm.ShapeLattice
 
 // notes: http://groupprops.subwiki.org/wiki/Coset_intersection_problem
 // http://groupprops.subwiki.org/wiki/Double_coset_membership_testing_problem
@@ -95,12 +94,11 @@ object SymmetricForms {
     * Note that this relabeling has order 2 (= self-inverse).
     */
   def findElement(symGrp: Grp[Relabeling], p1: Int, p2: Int): Option[Relabeling] = {
-    val shapeLattice = ShapeLattice.fromRelabelings(symGrp.generators)
-    val scenario = shapeLattice.scenario
-    val action = shapeLattice.shape.ImpImpAction
+    val scenario = Scenario.homogenousFor(symGrp.generators)
+    val action = scenario.shape.ImpImpAction
     implicit def a: action.type = action
     if (scenario.parties(p1) =!= scenario.parties(p2)) return None // non-identical parties cannot be permuted
-    val imp = shapeLattice.shape.imprimitiveImprimitive
+    val imp = scenario.shape.imprimitiveImprimitive
     def pointsForParty(p: Int): Set[Int] = immutable.BitSet(imp.offsets(p) until imp.offsets(p + 1): _*)
     val pointsFixed = (scenario.parties.indices.toSet - p1 - p2).flatMap(pointsForParty(_))
     val p1p2Sym = symGrp.pointwiseStabilizer(action, pointsFixed)
@@ -144,11 +142,10 @@ object SymmetricForms {
   }
 
   def findCyclicElement(symGrp: Grp[Relabeling], startParty: Int): Option[Relabeling] = {
-    val shapeLattice = ShapeLattice.fromRelabelings(symGrp.generators)
-    val scenario = shapeLattice.scenario
-    val action = shapeLattice.shape.ImpImpAction
+    val scenario = Scenario.homogenousFor(symGrp.generators)
+    val action = scenario.shape.ImpImpAction
     implicit def a: action.type = action
-    val imp = shapeLattice.shape.imprimitiveImprimitive
+    val imp = scenario.shape.imprimitiveImprimitive
     val length = imp.sizes(0)
     def offset(partyIndex: Int): Int = imp.offsets(partyIndex)
     def pointsForParty(p: Int): Iterable[Int] = imp.offsets(p) until imp.offsets(p + 1)

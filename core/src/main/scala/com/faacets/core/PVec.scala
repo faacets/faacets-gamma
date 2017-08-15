@@ -15,8 +15,6 @@ import net.alasc.attributes.Attributable
 import net.alasc.finite.Grp
 import net.alasc.perms.default._
 
-import com.faacets.core.perm.ShapeLattice
-
 /** Base class for vectors in the probability space of a causal scenario.
   *
   * A `PVec` is defined by:
@@ -76,17 +74,14 @@ abstract class PVec[V <: PVec[V]] extends Attributable { lhs: V =>
     *
     *   Throws if the relabeling is not compatible.
     */
-  def <|+|(r: Relabeling): V = {
-
-    val rLattice = ShapeLattice(r)
-
-    if (!(rLattice <= scenario.shapeLattice)) throw new IllegalArgumentException(s"Relabeling $r cannot be applied in scenario $scenario")
+  def <|+|(r: Relabeling): V =
+    if (!scenario.group.contains(r))
+      throw new IllegalArgumentException(s"Relabeling $r cannot be applied in scenario $scenario")
     else {
-      implicit def action: PartialAction[Vec[Rational], Relabeling] = com.faacets.data.instances.vec.vecPermutation[Rational, Relabeling](scenario.probabilityAction, implicitly)
+      import com.faacets.data.instances.vec._
+      implicit def action: PartialAction[Vec[Rational], Relabeling] = vecPermutation[Rational, Relabeling](scenario.probabilityAction, implicitly)
       builder.updatedWithSymmetryGroup(lhs, scenario, (coefficients <|+|? r).get, g => Some(g.conjugatedBy(r)))
     }
-
-  }
 
 }
 
