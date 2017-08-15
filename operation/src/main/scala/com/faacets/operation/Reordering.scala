@@ -2,7 +2,7 @@ package com.faacets
 package operation
 
 import spire.algebra.partial.{Groupoid, PartialAction}
-import spire.algebra.{Action, Eq}
+import spire.algebra.Eq
 import spire.syntax.eq._
 
 import com.faacets.core._
@@ -40,11 +40,7 @@ object Reordering {
   implicit val exprReorderingExtractor: OperationExtractor[Expr, Reordering] = new VecReorderingExtractor[Expr]
   implicit val dExprReorderingExtractor: OperationExtractor[DExpr, Reordering] = new VecReorderingExtractor[DExpr]
   implicit val behaviorReorderingExtractor: OperationExtractor[Behavior, Reordering] = new VecReorderingExtractor[Behavior]
-  implicit val valueAction: Action[Value, Reordering] = new Action[Value, Reordering] {
-    def actl(o: Reordering, v: Value): Value = v
-    def actr(v: Value, o: Reordering): Value = v
-  }
-  implicit val boundedExprAction: PartialAction[BoundedExpr, Reordering] =
-    BoundedExpr.constructPartialAction[Reordering](BoundedExpr.stdPreserved)
+  implicit def boundedExprAction(implicit pb: PreservedBounds[Reordering]): PartialAction[BoundedExpr, Reordering] =
+    BoundedExpr.constructPartialAction[Reordering](pb.boundTransform, pb.facetOfTransform)
 
 }

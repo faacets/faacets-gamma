@@ -20,16 +20,10 @@ sealed trait Orientation[O <: Orientation[O, N], N <: Orientation[N, O]] {
   def bounds: ListMap[String, Value]
   def facetOf: ListMap[String, Boolean]
   def opposite: N
-  def filterBoundsAndFacetOf(preserved: Set[String]): O =
-    builder.apply(
-      bounds.filter { case (k,v) => preserved.contains(k) },
-      facetOf.filter { case (k,v) => preserved.contains(k) }
-    )
-  def mapBounds(f: Value => Value): O =
-    builder.apply(
-      bounds.map { case (k,v) => (k, f(v)) },
-      facetOf
-    )
+  def processBounds(f: (String, Value) => Option[(String, Value)]): O =
+    builder.apply(bounds.collect(Function.unlift(f.tupled)), facetOf)
+  def processFacetOf(f: (String, Boolean) => Option[(String, Boolean)] ): O =
+    builder.apply(bounds, facetOf.collect(Function.unlift(f.tupled)))
 }
 
 trait OrientationBuilder[O <: Orientation[O, _]] { self =>

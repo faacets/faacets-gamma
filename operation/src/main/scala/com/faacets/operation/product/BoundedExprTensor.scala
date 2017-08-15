@@ -9,7 +9,7 @@ import cyclo.RealCyclo
 
 import com.faacets.core.Expr
 import com.faacets.data.{Scalar, Value}
-import com.faacets.operation.{BoundedExpr, LowerOrientation, Tensor, UpperOrientation}
+import com.faacets.operation._
 
 // see Proposition 5 of App. C in J. Phys. A: Math. Theor. 47 (2014) 424022
 // the "facet" property is preserved when 1) facetOf(bound) is true 2) the corresponding bound is 0
@@ -36,7 +36,7 @@ object IsFacet {
       be.upper.bounds.get(bound).fold(false)(_.isExactZero) && be.upper.facetOf.getOrElse(bound, false))
 }
 
-final class BoundedExprTensor extends Tensor[BoundedExpr] {
+final class BoundedExprTensor(implicit ppb: ProductPreservedBounds) extends Tensor[BoundedExpr] {
 
   def exactBoundsProduct(components: Vector[Interval[RealCyclo]]): Interval[RealCyclo] =
     components.fold(Interval.point(RealCyclo.one))(_ * _)
@@ -70,8 +70,8 @@ final class BoundedExprTensor extends Tensor[BoundedExpr] {
     if (components.size == 1) {
       val be = components.head._2
       BoundedExpr(newExpr,
-        be.lower.filterBoundsAndFacetOf(BoundedExpr.stdPreserved),
-        be.upper.filterBoundsAndFacetOf(BoundedExpr.stdPreserved)
+        be.lower.processBounds(ppb.boundTransform).processFacetOf(ppb.facetOfTransform),
+        be.upper.processBounds(ppb.boundTransform).processFacetOf(ppb.facetOfTransform),
       )
     } else {
       val lbs = components.map(_._2.lower.bounds.keySet).reduce((x: Set[String], y: Set[String]) => x intersect y)

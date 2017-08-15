@@ -55,7 +55,7 @@ object ReadCompendiumTest extends ReadCompendiumAlg[cats.Id] {
 
 }
 
-class CompleteBellExpression[F[_]: Monad](val rc: ReadCompendiumAlg[F]) {
+class CompleteBellExpression[F[_]: Monad](val rc: ReadCompendiumAlg[F])(implicit br: BoundRules) {
 
   import rc._
 

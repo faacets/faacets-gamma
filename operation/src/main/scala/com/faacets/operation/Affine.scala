@@ -3,6 +3,7 @@ package operation
 
 import spire.algebra.{Action, Eq, Group}
 import spire.math.Rational
+import spire.syntax.action._
 import spire.syntax.eq._
 import spire.syntax.group._
 
@@ -54,8 +55,19 @@ object Affine {
     def actr(v: Value, a: Affine): Value = v * a.multiplier + a.shift
   }
 
-  implicit val boundedExprAction: Action[BoundedExpr, Affine] =
-    BoundedExpr.constructAction[Affine](BoundedExpr.stdPreserved)
+  implicit val boundedExprAction: Action[BoundedExpr, Affine] = new Action[BoundedExpr, Affine] {
+
+    def actl(a: Affine, be: BoundedExpr): BoundedExpr = actr(be, a.inverse)
+
+    def actr(be: BoundedExpr, a: Affine): BoundedExpr = {
+      def boundTransform(name: String, v: Value): Option[(String, Value)] = Some((name, v <|+| a))
+      val newLower = be.lower.processBounds(boundTransform)
+      val newUpper = be.upper.processBounds(boundTransform)
+      val newExpr = be.expr <|+| a
+      BoundedExpr(newExpr, newLower, newUpper)
+    }
+
+  }
 
   implicit val exprExtractor: OperationExtractor[Expr, Affine] = new ExprAffineExtractor
 

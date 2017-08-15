@@ -22,8 +22,8 @@ trait RelabelingInstances {
     def actr(v: Value, o: Relabeling): Value = v
   }
 
-  implicit val boundedExprAction: PartialAction[BoundedExpr, Relabeling] =
-    BoundedExpr.constructPartialAction[Relabeling](BoundedExpr.stdPreserved)
+  implicit def boundedExprAction(implicit pb: PreservedBounds[Relabeling]): PartialAction[BoundedExpr, Relabeling] =
+    BoundedExpr.constructPartialAction[Relabeling](pb.boundTransform, pb.facetOfTransform)
 
   /* TODO
 

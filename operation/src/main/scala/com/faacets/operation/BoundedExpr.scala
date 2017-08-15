@@ -5,10 +5,7 @@ import scala.collection.immutable.ListMap
 import cats.data.{Validated, ValidatedNel}
 import cats.kernel.Comparison
 import spire.algebra.partial.{Groupoid, PartialAction}
-import spire.algebra.{Action, Group}
 import spire.math.Rational
-import spire.syntax.action._
-import spire.syntax.group._
 import spire.syntax.groupoid._
 import spire.syntax.partialAction._
 import spire.util.Opt
@@ -35,11 +32,11 @@ case class BoundedExpr(expr: Expr,
                        upper: UpperOrientation = UpperOrientation.empty
                          ) {
 
-  def decomposition: PolyProduct[CanonicalDec[BoundedExpr]] =
+  def decomposition(implicit br: BoundRules): PolyProduct[CanonicalDec[BoundedExpr]] =
     ProductExtractor[BoundedExpr].forceExtract(BoundedExpr(expr))
       .mapAffine(be => CanonicalWithAffineExtractor[BoundedExpr].apply(be).splitAffine)
 
-  def reconstructBounds: BoundedExpr = {
+  def reconstructBounds(implicit br: BoundRules): BoundedExpr = {
     val pprec = decomposition.map(_.map { be =>
       BoundedExpr.canonicals.get(be.expr) match {
         case Some(c) => c
@@ -79,15 +76,14 @@ object BoundedExpr {
 
   val stdPreserved = Set("local", "quantum", "nonsignaling")
 
-  def constructPartialAction[O:Groupoid](preservedBoundsAndFacetOf: Set[String])
-                                 (implicit exprPA: PartialAction[Expr, O],
-                                  valueA: Action[Value, O]): PartialAction[BoundedExpr, O] =
+  def constructPartialAction[O:Groupoid](boundsF: (String, Value) => Option[(String, Value)],
+                                         facetOfF: (String, Boolean) => Option[(String, Boolean)])
+                                        (implicit exprPA: PartialAction[Expr, O]): PartialAction[BoundedExpr, O] =
     new PartialAction[BoundedExpr, O] {
 
       def partialActr(be: BoundedExpr, o: O): Opt[BoundedExpr] = {
-        def valueF(v: Value): Value = v <|+| o
-        val newLower = be.lower.filterBoundsAndFacetOf(preservedBoundsAndFacetOf).mapBounds(valueF)
-        val newUpper = be.upper.filterBoundsAndFacetOf(preservedBoundsAndFacetOf).mapBounds(valueF)
+        val newLower = be.lower.processBounds(boundsF).processFacetOf(facetOfF)
+        val newUpper = be.upper.processBounds(boundsF).processFacetOf(facetOfF)
         (be.expr <|+|? o) match {
           case Opt(newExpr) =>
             Opt(BoundedExpr(newExpr, newLower, newUpper))
@@ -96,23 +92,6 @@ object BoundedExpr {
       }
 
       def partialActl(o: O, be: BoundedExpr): Opt[BoundedExpr] = partialActr(be, o.inverse)
-
-    }
-
-  def constructAction[O:Group](preservedBoundsAndFacetOf: Set[String])
-                                        (implicit exprA: Action[Expr, O],
-                                         valueA: Action[Value, O]): Action[BoundedExpr, O] =
-    new Action[BoundedExpr, O] {
-
-      def actr(be: BoundedExpr, o: O): BoundedExpr = {
-        def valueF(v: Value): Value = v <|+| o
-        val newLower = be.lower.filterBoundsAndFacetOf(preservedBoundsAndFacetOf).mapBounds(valueF)
-        val newUpper = be.upper.filterBoundsAndFacetOf(preservedBoundsAndFacetOf).mapBounds(valueF)
-        val newExpr = be.expr <|+| o
-        BoundedExpr(newExpr, newLower, newUpper)
-      }
-
-      def actl(o: O, be: BoundedExpr): BoundedExpr = actr(be, o.inverse)
 
     }
 
@@ -125,7 +104,7 @@ object BoundedExpr {
       def extractOperation(be: BoundedExpr): Opt[O] = O.extractOperation(be.expr)
     }
 
-  implicit val tensor: Tensor[BoundedExpr] = new BoundedExprTensor
+  implicit def tensor(implicit ppb: ProductPreservedBounds): Tensor[BoundedExpr] = new BoundedExprTensor
 
   def validate(expr: Expr, lower: LowerOrientation, upper: UpperOrientation): ValidatedNel[String, BoundedExpr] =
     Validated.Valid(BoundedExpr(expr, lower, upper))

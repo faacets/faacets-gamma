@@ -3,7 +3,7 @@ package operation
 
 import cats.data.{Validated, ValidatedNel}
 import spire.algebra.partial.{Groupoid, PartialAction}
-import spire.algebra.{Action, Eq}
+import spire.algebra.Eq
 import spire.syntax.eq._
 
 import com.faacets.core._
@@ -31,11 +31,7 @@ object Lifting {
   implicit val textable: Textable[Lifting] = Textable.fromParser(Parsers.lifting, _.toString)
   implicit val exprAction: PartialAction[Expr, Lifting] = new LiftingExprPartialAction
   implicit val exprExtractor: OperationExtractor[Expr, Lifting] = new ExprLiftingExtractor
-  implicit val valueAction: Action[Value, Lifting] = new Action[Value, Lifting] {
-    def actl(o: Lifting, v: Value): Value = v
-    def actr(v: Value, o: Lifting): Value = v
-  }
-  implicit val boundedExprAction: PartialAction[BoundedExpr, Lifting] =
-    BoundedExpr.constructPartialAction[Lifting](BoundedExpr.stdPreserved)
+  implicit def boundedExprAction(implicit pb: PreservedBounds[Lifting]): PartialAction[BoundedExpr, Lifting] =
+    BoundedExpr.constructPartialAction[Lifting](pb.boundTransform, pb.facetOfTransform)
 
 }
