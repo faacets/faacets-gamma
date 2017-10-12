@@ -46,7 +46,7 @@ case class LegacyBellExpression(scenario: Scenario,
   def toBellExpression: ValidatedNel[String, BellExpression] =
     (recoverExprAndDisplay |@| lower.toLowerOrientation |@| upper.toUpperOrientation).map( (_,_,_) ).andThen {
       case ((expr, display), l, u) => BoundedExpr.validate(expr, l, u).map( (_, display) )
-    } map { case (boundedExpr, display) => BellExpression(boundedExpr, display, ListSet.empty[String], shortName, names, sources) }
+    } map { case (boundedExpr, display) => BellExpression(boundedExpr, display, shortName, None) }
 
 }
 

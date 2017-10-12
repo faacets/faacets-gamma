@@ -35,21 +35,21 @@ object ReadCompendiumTest extends ReadCompendiumAlg[cats.Id] {
   val canonicalPositivity = BellExpression(
     BoundedExpr.canonicalPositivity,
     None,
-    ListSet.empty[String],
     Some("Positivity"),
-    ListSet("Positivity inequality"),
-    ListMap.empty[String, ListSet[String]]
+    Some("Positivity inequality")
   )
 
+  /*
+      ListMap(
+      List("upper","bounds","local") -> ListSet("doi:10.1103/PhysRevLett.23.880"),
+      List("upper", "bounds","quantum") -> ListSet("doi:10.1007/BF00417500", "http://www.tau.ac.il/~tsirel/download/qbell80.html")
+    )
+   */
   val canonicalCHSH = BellExpression(
     BoundedExpr.canonicalCHSH,
     None,
-    ListSet.empty[String],
     Some("CHSH"),
-    ListSet("Clauser-Horne-Shimony-Holt inequality"),
-    ListMap("upper.bounds.local" -> ListSet("doi:10.1103/PhysRevLett.23.880"),
-      "upper.bounds.quantum" -> ListSet("doi:10.1007/BF00417500", "http://www.tau.ac.il/~tsirel/download/qbell80.html")
-    )
+    Some("Clauser-Horne-Shimony-Holt inequality"),
   )
 
   val database: Map[Expr, BellExpression] = Seq(canonicalPositivity, canonicalCHSH).map( be => (be.expr -> be) ).toMap
