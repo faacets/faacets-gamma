@@ -14,7 +14,7 @@ import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import com.faacets.core.text.UserVecRational.userVecRationalTextable
 import com.faacets.core.text._
 
-/** Describes a Bell expression. */
+/** Describes a Bell expression in the relevant nonsignaling subspace. */
 class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends NDVec[Expr] with GenExpr[Expr] { lhs =>
 
   def builder = Expr

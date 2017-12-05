@@ -8,7 +8,7 @@ object Parsers {
   import White._
 
   def index: P[Int] = nonNegativeInt // starting from 0
-
+/*
   def groupPlusMinus: P[(Int, Set[Int], Set[Int])] =
     P( (positiveInt ~ ":").? ~ index.rep(min=1,sep=",") ~ "/" ~ index.rep(min=1,sep=",") ).map {
       case (nOption, plusSeq, minusSeq) =>
@@ -19,5 +19,5 @@ object Parsers {
   def group: P[Group] = groupPlusMinus.filter {
     case (n, plus, minus) => plus.forall(_ < n) && minus.forall(_ < n) && (plus intersect minus).isEmpty
   }.map { case (n, plus, minus) => Group(n, plus, minus) }
-
+*/
 }

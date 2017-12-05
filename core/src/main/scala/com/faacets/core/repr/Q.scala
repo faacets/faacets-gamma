@@ -31,27 +31,34 @@ final class Q(val n: Int) {
   import spire.math.Rational
 
   lazy val matrix: Mat[Rational] = Mat.fromMutable(n, n, Rational.zero) { Mp =>
-    Mp(0, ::) := Rational.one
+    Mp(0, ::) := 1
+    Mp(1 until n, n - 1) := -1
     cforRange(1 until n) { r =>
-      Mp(r, r - 1) := Rational.one
-      Mp(r, r) := -Rational.one
+      cforRange(0 until n - 1) { c =>
+        if (r - 1 == c)
+          Mp(r, c) := n - 1
+        else
+          Mp(r, c) := -1
+      }
     }
   }
 
   lazy val matrixInverse: Mat[Rational] = Mat.fromMutable(n ,n ,Rational.zero) { Ip =>
-    Ip(::,0) := Rational(1, n)
-    cforRange(1 until n) { c =>
-      Ip(0 until c, c) := Rational(n - c, n)
-      Ip(c until n, c) := Rational(-c, n)
+    val plus = Rational(1, n)
+    val minus = Rational(-1, n)
+    Ip(::,0) := plus
+    Ip(n - 1, 1 until n) := minus
+    cforRange(0 until n - 1) { r =>
+      Ip(r, r + 1) := plus
     }
   }
-
+/*
   def group(i: Int): Group = {
     val plus = (0 until n).filter(matrix(i, _) == 1).toSet
     val minus = (0 until n).filter(matrix(i, _) == -1).toSet
     Group(n, plus, minus)
   }
 
-  def groups = (0 until n).map(group)
+  def groups = (0 until n).map(group)*/
 
 }

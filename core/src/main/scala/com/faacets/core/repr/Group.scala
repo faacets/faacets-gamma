@@ -5,7 +5,7 @@ package repr
 import spire.algebra.Eq
 
 import com.faacets.data.Textable
-
+/*
 case class Group(n: Int, plus: Set[Int], minus: Set[Int]) {
 
   override def toString =
@@ -33,4 +33,4 @@ object Group {
 
   implicit val textable: Textable[Group] = Textable.fromParser[Group](Parsers.group, _.toString)
 
-}
+}*/

@@ -15,6 +15,7 @@ import net.alasc.finite.Grp
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import com.faacets.core.text.{FullTerm, Term, TermType}
 
+/** Describes a Bell expression not necessarily in the relevant nonsignaling subspace. */
 class DExpr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends GenExpr[DExpr] { lhs =>
 
   def builder = DExpr

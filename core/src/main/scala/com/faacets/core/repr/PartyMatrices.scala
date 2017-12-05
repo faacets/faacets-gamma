@@ -51,7 +51,7 @@ case class PartyMatrices(party: Party) {
         c = 0
         cforRange(0 until n) { j =>
           val o = inputs(j)
-          m(r, c until c + o) := q(i, j)
+          m(r, c until c + o) := q(i, j)/n
           c += o
         }
         r += 1
@@ -78,7 +78,7 @@ case class PartyMatrices(party: Party) {
         r = 0
         cforRange(0 until n) { i =>
           val o = inputs(i)
-          m(r until r + o, c) := qinv(i, j) / o
+          m(r until r + o, c) := qinv(i, j) / o * n
           r += o
         }
         c += 1
