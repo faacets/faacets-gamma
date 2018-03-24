@@ -4,7 +4,6 @@ package core
 import net.alasc.finite.Grp
 import net.alasc.laws.Grps
 import net.alasc.perms.default._
-
 import org.scalacheck.Gen
 
 class NiceGeneratorsSuite extends FaacetsSuite {

@@ -1,8 +1,7 @@
 package com.faacets.core.perm
 
-import org.scalacheck._
-
 import com.faacets.FaacetsSuite
+import org.scalacheck._
 
 class PrimitiveShapeSuite extends FaacetsSuite {
 

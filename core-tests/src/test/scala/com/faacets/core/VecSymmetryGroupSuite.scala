@@ -1,12 +1,10 @@
 package com.faacets
 package core
 
-import spire.math.Rational
+import com.faacets.laws.Relabelings
 import scalin.immutable.Vec
 import scalin.immutable.dense._
-
-import com.faacets.laws.Relabelings
-
+import spire.math.Rational
 
 class VecSymmetryGroupSuite extends FaacetsSuite {
   val scenario = "[(2 2) (3 3 3) (2 2)]".parseUnsafe[Scenario]

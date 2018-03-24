@@ -22,8 +22,6 @@ trait FaacetsSuite extends FunSuite with Matchers
     with data.syntax.AllSyntax
     with data.instances.AllInstances
     with core.syntax.AllSyntax
-    with operation.syntax.AllSyntax
-    with operation.instances.AllInstances
     with consolidate.syntax.AllSyntax
     with Discipline
     with NestedDiscipline

@@ -2,9 +2,9 @@ package com.faacets
 package core
 package repr
 
-import spire.math.Rational
 import scalin.immutable.Mat
 import scalin.immutable.dense._
+import spire.math.Rational
 
 class QSuite extends FaacetsSuite {
 

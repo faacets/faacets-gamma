@@ -36,9 +36,6 @@ object Relabelings {
 
   def genRelabeling[V <: PVec[V]](vec: V): Gen[Relabeling] = genRelabeling(vec.scenario)
 
-  implicit def relabelingGenerator[V <: PVec[V]]: Operations.Generator[V, Relabeling] =
-    Operations.Generator[V, Relabeling](genRelabeling(_))
-
   def genTriplet(maxPartyIndex: Int, maxInputIndex: Int, maxOutputIndex: Int): Gen[(Symbol, Int, Int)] = for {
     p <- Gen.choose(0, maxPartyIndex)
     x <- Gen.choose(0, maxInputIndex)

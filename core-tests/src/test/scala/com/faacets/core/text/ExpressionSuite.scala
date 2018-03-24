@@ -3,7 +3,6 @@ package core
 package text
 
 import cats.data.Validated
-
 import org.scalacheck.Prop
 import org.scalatest.Inside
 
@@ -86,8 +85,8 @@ class ExpressionSuite extends FaacetsSuite with Inside {
 
   locally {
 
-    import com.faacets.laws.Scenarios.Small._
     import com.faacets.laws.Exprs.arbExpr
+    import com.faacets.laws.Scenarios.Small._
 
     forAll { expr: Expr =>
       inside(Expr.parseExpression(expr.scenario, expr.collinsGisinExpression)) {

@@ -1,9 +1,8 @@
 package com.faacets
 package core
 
-import net.alasc.laws.AnyRefLaws
-
 import com.faacets.laws.DataLaws
+import net.alasc.laws.AnyRefLaws
 
 class ScenarioSuite extends FaacetsSuite {
 

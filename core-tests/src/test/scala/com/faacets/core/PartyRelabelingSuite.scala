@@ -1,14 +1,12 @@
 package com.faacets.core
 
-import spire.algebra.Group
-import spire.laws.{ActionLaws, GroupLaws}
-import net.alasc.algebra.PermutationAction
-import net.alasc.laws.{AnyRefLaws, PermutationActionLaws}
-
-import org.typelevel.discipline.Laws
-
 import com.faacets.FaacetsSuite
 import com.faacets.laws._
+import net.alasc.algebra.PermutationAction
+import net.alasc.laws.{AnyRefLaws, PermutationActionLaws}
+import org.typelevel.discipline.Laws
+import spire.algebra.Group
+import spire.laws.{ActionLaws, GroupLaws}
 
 class PartyRelabelingSuite extends FaacetsSuite {
 
