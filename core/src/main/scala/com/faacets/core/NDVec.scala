@@ -19,7 +19,7 @@ import com.faacets.consolidate.{Merge, Result}
 import com.faacets.data.instances.all._
 import com.faacets.data.syntax.all._
 
-abstract class NDVec[V <: NDVec[V]] extends PVec[V] { lhs: V =>
+abstract class NDVec[V[X <: Scenario with Singleton] <: NDVec[V, X], S <: Scenario with Singleton] extends PVec[V, S] { lhs: V[S] =>
 
   def symmetryGroup: Grp[Relabeling] = NDVec.attributes.symmetryGroup(this) {
     val partition = Partition.fromSeq(coefficients.toIndexedSeq)
@@ -33,29 +33,28 @@ object NDVec {
   object attributes extends Attributes("NDVec") {
 
     object symmetryGroup extends Attribute("symmetryGroup") {
-      implicit def forNDVec[V <: NDVec[V]]: For[NDVec[V], Grp[Relabeling]] = For
+      implicit def forNDVec[V[X <: Scenario with Singleton] <: NDVec[V, X], S <: Scenario with Singleton]: For[NDVec[V, S], Grp[Relabeling]] = For
     }
 
   }
 
 }
 
-trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] { self =>
+trait NDVecBuilder[V[X <: Scenario with Singleton] <: NDVec[V, X]] extends PVecBuilder[V] { self =>
 
-  protected[faacets] def updatedWithSymmetryGroup(original: V, newScenario: Scenario, newCoefficients: Vec[Rational],
-                                                  symGroupF: (Grp[Relabeling]) => Option[Grp[Relabeling]]): V = {
-    val res = apply(newScenario, newCoefficients)
+  protected[faacets] def updatedWithSymmetryGroup[S <: Scenario with Singleton](original: V[S], newCoefficients: Vec[Rational],
+                                                  symGroupF: (Grp[Relabeling]) => Option[Grp[Relabeling]]): V[S] = {
+    val res = apply(original.scenario: S, newCoefficients)
     NDVec.attributes.symmetryGroup.get(original).flatMap(symGroupF) match {
       case Some(newGrp) => NDVec.attributes.symmetryGroup(res)(newGrp)
       case None => // we do not have an updated group
     }
     res
-
   }
 
   def inNonSignalingSubspace(scenario: Scenario, coefficients: Vec[Rational]): Boolean
 
-  def validate(scenario: Scenario, coefficients: Vec[Rational], symGroup: Option[Grp[Relabeling]] = None): ValidatedNel[String, V] = {
+  def validate(scenario: Scenario, coefficients: Vec[Rational], symGroup: Option[Grp[Relabeling]] = None): ValidatedNel[String, V[scenario.type]] = {
     val correctLength = scenario.shapeP.size
     val coeffLength = coefficients.length
     if (coeffLength != correctLength) Validated.invalidNel(s"Invalid coefficients length, is $coeffLength, should be $correctLength")
@@ -78,6 +77,7 @@ trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] { self =>
     }
   }
 
+  /*
   implicit lazy val merge: Merge[V] = new Merge[V] {
 
     def merge(base: V, newV: V): Result[V] = {
@@ -113,8 +113,6 @@ trait NDVecBuilder[V <: NDVec[V]] extends PVecBuilder[V] { self =>
         case (s: Scenario, c: Vec[Rational], sg: Option[Grp[Relabeling]]) => self.validate(s, c, sg).toAccumulatingDecoderResult
       }
 
-  }
-
-  implicit val equ: Eq[V] = Eq.fromUniversalEquals[V]
+  }*/
 
 }

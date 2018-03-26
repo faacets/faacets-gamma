@@ -1,8 +1,6 @@
 package com.faacets
 package core
 
-import scala.reflect.classTag
-
 import spire.math.{Rational, SafeLong}
 import spire.syntax.cfor._
 import scalin.immutable.dense._
@@ -11,22 +9,20 @@ import scalin.immutable.{Mat, Vec}
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 
 /** Describes a behavior in a causal scenario. */
-class Behavior protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends NDVec[Behavior] {
+class Behavior[S <: Scenario with Singleton] protected (val scenario: S, val coefficients: Vec[Rational]) extends NDVec[Behavior, S] {
 
   def builder = Behavior
 
   def prefix = "Behavior"
 
-  def classTagV = classTag[Behavior]
-
   override def toString = s"Behavior($scenario, $coefficients)"
 
   /** Returns these correlations with the given visibility, mixed with the uniformly
     * random correlations. */
-  def withVisibility(v: Rational): Behavior = {
-    val corr0 = Behavior.uniformlyRandom(scenario)
+  def withVisibility(v: Rational): Behavior[S] = {
+    val corr0 = Behavior.uniformlyRandom(scenario: S)
     val newCoefficients = (coefficients * v) + (corr0.coefficients * (1 - v))
-    val res = Behavior(scenario, newCoefficients)
+    val res = Behavior(scenario: S, newCoefficients)
     NDVec.attributes.symmetryGroup.get(this) match {
       case Some(grp) if !v.isZero =>
         NDVec.attributes.symmetryGroup(res) { grp }
@@ -58,24 +54,24 @@ object Behavior extends NDVecBuilder[Behavior] {
   def changeBasis(scenario: Scenario, matChoice: Party => Mat[Rational], coefficients: Vec[Rational]): Vec[Rational] =
     revKronMatVec(scenario.parties.map(matChoice), coefficients)
 
-  def apply(scenario: Scenario, coefficients: Vec[Rational]): Behavior = {
+  def apply(scenario: Scenario, coefficients: Vec[Rational]): Behavior[scenario.type] = {
     require(inNonSignalingSubspace(scenario, coefficients))
     new Behavior(scenario, coefficients)
   }
 
-  def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): Behavior = new Behavior(scenario, coefficients)
+  def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): Behavior[scenario.type] = new Behavior(scenario, coefficients)
 
-  def collinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): Behavior = {
+  def collinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): Behavior[scenario.type] = {
     val pCoefficients = changeBasis(scenario, p => p.matrices.matSPfromSG * p.matrices.matSGfromNG, collinsGisinCoefficients)
     applyUnsafe(scenario, pCoefficients)
   }
 
-  def correlators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): Behavior = {
+  def correlators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): Behavior[scenario.type] = {
     val pCoefficients = changeBasis(scenario, p => p.matrices.matSPfromSC * p.matrices.matSCfromNC, correlatorsCoefficients)
     applyUnsafe(scenario, pCoefficients)
   }
 
-  def uniformlyRandom(scenario: Scenario): Behavior = {
+  def uniformlyRandom(scenario: Scenario): Behavior[scenario.type] = {
     val coefficients = scenario.tabulateP { (aInd, xInd) =>
       var nOutputs: SafeLong = SafeLong.one
       cforRange(0 until xInd.length) { p =>
@@ -88,6 +84,6 @@ object Behavior extends NDVecBuilder[Behavior] {
     applyUnsafe(scenario, coefficients)
   }
 
-  def prBox = correlators(Scenario.CHSH, Vec[Rational](1, 0, 0, 0, 1, 1, 0, 1, -1))
+  def prBox: Behavior[Scenario.CHSH.type] = correlators(Scenario.CHSH, Vec[Rational](1, 0, 0, 0, 1, 1, 0, 1, -1))
 
 }

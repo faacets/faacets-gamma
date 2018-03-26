@@ -1,29 +1,25 @@
 package com.faacets
 package core
 
-import scala.reflect.classTag
-
 import cats.data.Validated.Valid
 import cats.data.{Validated, ValidatedNel}
 import spire.math.{Rational, SafeLong}
 import scalin.immutable.dense._
 import scalin.immutable.{Mat, Vec}
-
 import com.faacets.core.NDVec.attributes.symmetryGroup
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import com.faacets.core.text.UserVecRational.userVecRationalTextable
 import com.faacets.core.text._
+import spire.algebra.partial.PartialAction
 
 /** Describes a Bell expression in the relevant nonsignaling subspace. */
-class Expr protected (val scenario: Scenario, val coefficients: Vec[Rational]) extends NDVec[Expr] with GenExpr[Expr] { lhs =>
+class Expr[S <: Scenario with Singleton] protected (val scenario: S, val coefficients: Vec[Rational]) extends NDVec[Expr, S] with GenExpr[Expr, S] { lhs =>
 
   def builder = Expr
 
   def prefix = "Expr"
 
-  def classTagV = classTag[Expr]
-
-  def toDExpr: DExpr = DExpr(scenario, coefficients)
+  def toDExpr: DExpr[S] = DExpr(scenario: S, coefficients)
 
   def inBasis(matChoice: Party => Mat[Rational]): Vec[Rational] =
     revKronMatVec(scenario.parties.map(p => matChoice(p).t), coefficients)
@@ -73,7 +69,10 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
 
   implicit def builder: NDVecBuilder[Expr] with GenExprBuilder[Expr] = this
 
-  def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, Expr] =
+  implicit def exprRelabelingPartialAction[S <: Scenario with Singleton]: PartialAction[Expr[S], Relabeling] =
+    new VecRelabelingPartialAction[Expr, S]
+
+  def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, Expr[scenario.type]] =
   DExpr.parseExpression(scenario, expression) andThen { dExpr =>
     val expr = dExpr.projected
     if (dExpr.coefficients == expr.coefficients) // TODO use ===
@@ -84,13 +83,13 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
 
   import DExpr.changeBasis
 
-  def zero(scenario: Scenario): Expr = {
+  def zero(scenario: Scenario): Expr[scenario.type] = {
     val res = applyUnsafe(scenario, Vec.fillConstant(scenario.shapeP.size)(Rational.zero))
     symmetryGroup(res)(scenario.group)
     res
   }
 
-  def one(scenario: Scenario): Expr = {
+  def one(scenario: Scenario): Expr[scenario.type] = {
     val ratio = Rational(SafeLong.one, scenario.nInputTuples)
     val pCoefficients = Vec.fillConstant(scenario.shapeP.size)(ratio)
     val res = applyUnsafe(scenario, pCoefficients)
@@ -103,37 +102,37 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
     coefficients == pCoefficients // TODO: Eq[Vec[Rational]]
   }
 
-  def apply(scenario: Scenario, coefficients: Vec[Rational]): Expr =
-    validate(scenario, coefficients).fold[Expr](ls => throw new IllegalArgumentException(ls.toList.mkString("\n")), identity)
+  def apply(scenario: Scenario, coefficients: Vec[Rational]): Expr[scenario.type] =
+    validate(scenario, coefficients).fold(ls => throw new IllegalArgumentException(ls.toList.mkString("\n")), identity)
 
-  def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): Expr = {
+  def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): Expr[scenario.type] = {
     require(coefficients.length == scenario.shapeP.size, "Coefficients vector length is incorrect")
     new Expr(scenario, coefficients)
   }
 
-  def validateCollinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): ValidatedNel[String, Expr] =
+  def validateCollinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): ValidatedNel[String, Expr[scenario.type]] =
     if (collinsGisinCoefficients.length == scenario.shapeNG.size)
       Valid(collinsGisin(scenario, collinsGisinCoefficients))
     else
       Validated.invalidNel("Coefficients vector length is incorrect")
 
-  def validateCorrelators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): ValidatedNel[String, Expr] =
+  def validateCorrelators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): ValidatedNel[String, Expr[scenario.type]] =
     if (correlatorsCoefficients.length == scenario.shapeNC.size)
       Valid(correlators(scenario, correlatorsCoefficients))
     else
       Validated.invalidNel("Coefficients vector length is incorrect")
 
-  def collinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): Expr = {
+  def collinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): Expr[scenario.type] = {
     val pCoefficients = changeBasis(scenario, p => p.matrices.matNGfromSG * p.matrices.matSGfromSP, collinsGisinCoefficients)
     applyUnsafe(scenario, pCoefficients)
   }
 
-  def correlators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): Expr = {
+  def correlators(scenario: Scenario, correlatorsCoefficients: Vec[Rational]): Expr[scenario.type] = {
     val pCoefficients = changeBasis(scenario, p => p.matrices.matNCfromSC * p.matrices.matSCfromSP, correlatorsCoefficients)
     applyUnsafe(scenario, pCoefficients)
   }
 
-  def parseCollinsGisinVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr] =
+  def parseCollinsGisinVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr[scenario.type]] =
     userVecRationalTextable.fromText(coefficientsString) andThen { coeffs =>
       if (coeffs.length != scenario.shapeNG.size)
         Validated.invalidNel(s"Incorrect coefficient vector length ${coeffs.length}, should be ${scenario.shapeNG.size}")
@@ -141,7 +140,7 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
         Validated.valid(Expr.collinsGisin(scenario, coeffs))
     }
 
-  def parseCorrelatorsVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr] =
+  def parseCorrelatorsVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr[scenario.type]] =
     userVecRationalTextable.fromText(coefficientsString) andThen { coeffs =>
       if (scenario.minNumOutputs < 2 || scenario.maxNumOutputs > 2)
         Validated.invalidNel(s"Correlators are only defined for scenarios with binary outputs")
@@ -151,29 +150,29 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
         Validated.valid(Expr.correlators(scenario, coeffs))
     }
 
-  def parseVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr] =
+  def parseVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr[scenario.type]] =
     userVecRationalTextable.fromText(coefficientsString) andThen { coeffs => Expr.validate(scenario, coeffs, None) }
 
-  def averageNormalization(scenario: Scenario): Expr = one(scenario)
+  def averageNormalization(scenario: Scenario): Expr[scenario.type] = one(scenario)
 
   def CHSH = correlators(Scenario.CHSH, Vec[Rational](0, 0, 0, 0, 1, 1, 0, 1, -1))
 
-  def Sliwa10 = correlators(Scenario.nmk(3, 2, 2),
+  def Sliwa10 = correlators(Scenario.Sliwa,
     Vec[Rational](4, 0, 0, 0, -1, -1, 0, -1, -1, 0, -1, 1, -1, -1, 0, 1, 0, 1, 0, -1, 1, 1, 0, -1, -1, 1, 0))
 
-  def Sliwa10Sym = correlators(Scenario.nmk(3, 2, 2),
+  def Sliwa10Sym = correlators(Scenario.Sliwa,
     Vec[Rational](4, 0, 0, 0, -1, -1, 0, 1, 1, 0, -1, 1, -1, -1, 0, -1, 0, -1, 0, -1, 1, 1, 0, -1, 1, -1, 0))
 
-  def Sliwa7 = correlators(Scenario.nmk(3, 2, 2),
+  def Sliwa7 = correlators(Scenario.Sliwa,
     Vec[Rational](4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, -1, 0, -1, 1, 0, 0, 0, 0, -1, 1, 0, 1, -1))
 
-  def Sliwa4 = correlators(Scenario.nmk(3, 2, 2),
+  def Sliwa4 = correlators(Scenario.Sliwa,
     Vec[Rational](2, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 1, 0, -1, 1, 0, 0, 0, 0, -1, 1, 0, 1, -1, 0))
 
-  def I3322 = collinsGisin(Scenario.nmk(2, 3, 2),
+  def I3322 = collinsGisin(Scenario.I3322,
     Vec[Rational](0, -1, 0, 0, -2, 1, 1, 1, -1, 1, 1, -1, 0, 1, -1, 0))
 
-  def canonicalPositivity = Expr(Scenario.nmk(1,1,2), Vec[Rational](-1,1))
+  def canonicalPositivity = Expr(Scenario._112, Vec[Rational](-1,1))
 
   def canonicalCHSH = Expr(Scenario.CHSH, Vec[Rational](-1, 1, -1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1, -1, -1, 1))
 

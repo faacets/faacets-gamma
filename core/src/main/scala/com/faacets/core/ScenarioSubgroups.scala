@@ -41,7 +41,7 @@ case class ScenarioSubgroups(scenario: Scenario, permuteSingleInputOutputParties
     val fullGenerators = GrpFixingPartition.generators(partition)
     val generators = if (permuteSingleInputOutputParties) fullGenerators
     else fullGenerators.filterNot(g => isSingleIOParty(g.findMovedPoint.get))
-    generators.map(p => Relabeling.PartyComponent(p).get)
+    generators.map(p => ref.PartyComponent(p).toRelabeling)
   }
   def partyPermGroup: Grp[Perm] = {
     val fullGroup = GrpFixingPartition(partition)

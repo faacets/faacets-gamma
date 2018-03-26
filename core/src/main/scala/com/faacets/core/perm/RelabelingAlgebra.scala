@@ -2,6 +2,7 @@ package com.faacets
 package core
 package perm
 
+import com.faacets.core.ref.POVM
 import spire.algebra._
 import spire.syntax.action._
 import spire.syntax.cfor._
@@ -9,20 +10,17 @@ import spire.syntax.eq._
 import spire.syntax.group._
 import net.alasc.perms.Perm
 
-final class RelabelingTripletAction extends Action[(Symbol, Int, Int), Relabeling] {
+final class POVMRelabelingAction extends Action[POVM, Relabeling] {
 
-  override def actl(r: Relabeling, triplet: (Symbol, Int, Int)): (Symbol, Int, Int) = actr(triplet, r.inverse)
+  override def actl(r: Relabeling, povm: POVM): POVM = actr(povm, r.inverse)
 
-  override def actr(triplet: (Symbol, Int, Int), r: Relabeling): (Symbol, Int, Int) = {
-    val p = triplet._1.name.charAt(0) - 'A'
-    val x = triplet._2
-    val a = triplet._3
-    val newA = a <|+| r.aPerm(p, x)
-    val newX = x <|+| r.xPerm(p)
-    val newP = p <|+| r.pPerm
-    (Symbol(('A' + newP).toChar.toString), newX, newA)
+  override def actr(povm: POVM, r: Relabeling): POVM = povm match {
+    case POVM(p, x, a) =>
+      val newA = a <|+| r.aPerm(p, x)
+      val newX = x <|+| r.xPerm(p)
+      val newP = p <|+| r.pPerm
+      POVM(newP, newX, newA)
   }
-
 }
 
 final class RelabelingEq extends Eq[Relabeling] {
@@ -41,7 +39,6 @@ final class RelabelingEq extends Eq[Relabeling] {
     }
     true
   }
-
 }
 
 final class RelabelingGroup extends Group[Relabeling] {

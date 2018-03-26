@@ -108,19 +108,19 @@ object PartyRelabeling extends PartyRelabelingCompanion {
 
   abstract class Component {
     def get: PartyRelabeling
-    def forParty(p: Int): Relabeling.Component
+    def forParty(p: Int): ref.Component
   }
 
   case class OutputComponent(x: Int, a: Perm) extends Component {
     override def toString = x.toString + Cycles.fromPerm(a).string
     def get = PartyRelabeling(Map(x -> a), Group[Perm].id)
-    def forParty(p: Int) = Relabeling.OutputComponent(p, x, a)
+    def forParty(p: Int) = ref.OutputComponent(p, x, a)
   }
 
   case class InputComponent(x: Perm) extends Component {
     override def toString = "I" + Cycles.fromPerm(x).string
     def get = PartyRelabeling(Map.empty[Int, Perm], x)
-    def forParty(p: Int) = Relabeling.InputComponent(p, x)
+    def forParty(p: Int) = ref.InputComponent(p, x)
   }
 
   def apply(aMap: Map[Int, Perm], xPerm: Perm) = {

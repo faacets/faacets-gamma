@@ -10,7 +10,7 @@ import com.faacets.core.{DExpr, Expr, Scenario}
 
 object DExprs extends PVecs[DExpr] {
 
-  def genPureSignaling(scenario: Scenario): Gen[DExpr] = {
+  def genPureSignaling(scenario: Scenario): Gen[DExpr[scenario.type]] = {
     val dexprs = DExpr.nonSignalingSubspaceTests(scenario)
     Gen.containerOfN[Seq, Rational](dexprs.size, Rationals.genRational).map { coeffs =>
       (coeffs zip dexprs).foldLeft(DExpr.zero(scenario)) {
@@ -19,6 +19,6 @@ object DExprs extends PVecs[DExpr] {
     }
   }
 
-  def genDExpr(expr: Expr): Gen[DExpr] = genPureSignaling(expr.scenario).map( d => DExpr(d.scenario, expr.coefficients + d.coefficients) )
+  def genDExpr[S <: Scenario with Singleton](expr: Expr[S]): Gen[DExpr[S]] = genPureSignaling(expr.scenario: S).map( d => DExpr(d.scenario: S, expr.coefficients + d.coefficients) )
 
 }

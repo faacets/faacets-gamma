@@ -3,6 +3,7 @@ package core
 package text
 
 import cats.data.Validated
+import com.faacets.laws.Exprs
 import org.scalacheck.Prop
 import org.scalatest.Inside
 
@@ -85,20 +86,15 @@ class ExpressionSuite extends FaacetsSuite with Inside {
 
   locally {
 
-    import com.faacets.laws.Exprs.arbExpr
     import com.faacets.laws.Scenarios.Small._
 
-    forAll { expr: Expr =>
-      inside(Expr.parseExpression(expr.scenario, expr.collinsGisinExpression)) {
-        case Validated.Valid(e) => e === expr
-        case _ => fail
-      }
-    }
-
-    forAll { expr: Expr =>
-      inside(Expr.parseExpression(expr.scenario, expr.expression)) {
-        case Validated.Valid(e) => e === expr
-        case _ => fail
+    forAll { s: Scenario =>
+      val scenario = s
+      forAll(Exprs.genExpr(scenario)) { expr: Expr[scenario.type] =>
+        inside(Expr.parseExpression(expr.scenario, expr.collinsGisinExpression)) {
+          case Validated.Valid(e) => e === expr
+          case _ => fail
+        }
       }
     }
 
@@ -106,20 +102,25 @@ class ExpressionSuite extends FaacetsSuite with Inside {
 
   locally {
 
-    import com.faacets.laws.Exprs.arbExpr
     import com.faacets.laws.Scenarios.BipartiteSmall._
 
-    forAll { expr: Expr =>
-      inside(Expr.parseCollinsGisinVector(expr.scenario, expr.collinsGisinTable_BA)) {
-        case Validated.Valid(e) => e === expr
-        case _ => Prop.falsified
+    forAll { s: Scenario =>
+      val scenario = s
+      forAll(Exprs.genExpr(scenario)) { expr: Expr[scenario.type] =>
+        inside(Expr.parseCollinsGisinVector(expr.scenario, expr.collinsGisinTable_BA)) {
+          case Validated.Valid(e) => e === expr
+          case _ => Prop.falsified
+        }
       }
     }
 
-    forAll { expr: Expr =>
-      inside(Expr.parseVector(expr.scenario, expr.fullTable_BA)) {
-        case Validated.Valid(e) => e === expr
-        case _ => Prop.falsified
+    forAll { s: Scenario =>
+      val scenario = s
+      forAll(Exprs.genExpr(scenario)) { expr: Expr[scenario.type] =>
+        inside(Expr.parseVector(expr.scenario, expr.fullTable_BA)) {
+          case Validated.Valid(e) => e === expr
+          case _ => Prop.falsified
+        }
       }
     }
 
@@ -128,22 +129,26 @@ class ExpressionSuite extends FaacetsSuite with Inside {
   locally {
 
     import com.faacets.laws.Scenarios.BinaryOutputs._
-    import com.faacets.laws.Exprs.arbExpr
 
-    forAll { expr: Expr =>
-      inside(Expr.parseCorrelatorsVector(expr.scenario, expr.correlators.toIndexedSeq.mkString("[",",","]"))) {
-        case Validated.Valid(e) => e === expr
-        case _ => Prop.falsified
+    forAll { s: Scenario =>
+      val scenario = s
+      forAll(Exprs.genExpr(scenario)) { expr: Expr[scenario.type] =>
+        inside(Expr.parseCorrelatorsVector(expr.scenario, expr.correlators.toIndexedSeq.mkString("[", ",", "]"))) {
+          case Validated.Valid(e) => e === expr
+          case _ => Prop.falsified
+        }
       }
     }
 
-    forAll { expr: Expr =>
-      inside(Expr.parseExpression(expr.scenario, expr.correlatorsExpression)) {
-        case Validated.Valid(e) => e === expr
-        case _ => fail
+    forAll { s: Scenario =>
+      val scenario = s
+      forAll(Exprs.genExpr(scenario)) { expr: Expr[scenario.type] =>
+        inside(Expr.parseExpression(expr.scenario, expr.correlatorsExpression)) {
+          case Validated.Valid(e) => e === expr
+          case _ => fail
+        }
       }
     }
-
   }
 
 }

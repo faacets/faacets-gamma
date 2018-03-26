@@ -1,19 +1,17 @@
 package com.faacets
 package core
 
-import scala.reflect.ClassTag
-
-import cats.kernel.Comparison
 import spire.algebra._
 import spire.algebra.partial.PartialAction
 import spire.math.Rational
 import spire.syntax.cfor._
-import spire.syntax.order._
+import spire.syntax.group._
 import spire.syntax.partialAction._
 import scalin.immutable.Vec
 import net.alasc.attributes.Attributable
 import net.alasc.finite.Grp
 import net.alasc.perms.default._
+import spire.util.Opt
 
 /** Base class for vectors in the probability space of a causal scenario.
   *
@@ -29,26 +27,22 @@ import net.alasc.perms.default._
   * Expressions which are not written in the canonical basis of the causal (nonsignaling) subspace are of class `DExpr`.
   *
   */
-abstract class PVec[V <: PVec[V]] extends Attributable { lhs: V =>
+abstract class PVec[V[X <: Scenario with Singleton] <: PVec[V, X], S <: Scenario with Singleton] extends Attributable { lhs: V[S] =>
 
   def prefix: String
 
   override def toString = s"$prefix($scenario, $coefficients)"
 
-  val scenario: Scenario
-
-  implicit def classTagV: ClassTag[V]
+  val scenario: S
 
   def coefficients: Vec[Rational]
 
   override def hashCode: Int = scenario.hashCode + coefficients.hashCode
 
-  override def equals(any: Any) = classTagV.unapply(any) match {
-    case Some(that) => this === that
-    case None => false
+  override def equals(any: Any) = any match {
+    case that: PVec[_, _] => (this.scenario == that.scenario) && (this.coefficients == that.coefficients)
+    case _ => false
   }
-
-  def ===(rhs: PVec[V]): Boolean = ((lhs.scenario: Scenario) === (rhs.scenario: Scenario)) && (lhs.coefficients == rhs.coefficients) // TODO use Eq
 
   def coefficient(aArray: Array[Int], xArray: Array[Int]): Rational = {
     var ind = 0
@@ -74,53 +68,59 @@ abstract class PVec[V <: PVec[V]] extends Attributable { lhs: V =>
     *
     *   Throws if the relabeling is not compatible.
     */
-  def <|+|(r: Relabeling): V =
+  def <|+|(r: Relabeling): V[S] =
     if (!scenario.group.contains(r))
       throw new IllegalArgumentException(s"Relabeling $r cannot be applied in scenario $scenario")
     else {
       import com.faacets.data.instances.vec._
       implicit def action: PartialAction[Vec[Rational], Relabeling] = vecPermutation[Rational, Relabeling](scenario.probabilityAction, implicitly)
-      builder.updatedWithSymmetryGroup(lhs, scenario, (coefficients <|+|? r).get, g => Some(g.conjugatedBy(r)))
+      builder.updatedWithSymmetryGroup[S](lhs, (coefficients <|+|? r).get, g => Some(g.conjugatedBy(r)))
     }
 
 }
 
-trait PVecEq[V <: PVec[V]] extends Eq[V] {
+trait PVecBuilder[V[S <: Scenario with Singleton] <: PVec[V, S]] {
 
-  def eqv(lhs: V, rhs: V): Boolean = (lhs.scenario === rhs.scenario) && (lhs.coefficients == rhs.coefficients) // TODO Eq[Vec[Rational]]
+  def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): V[scenario.type]
 
-}
-
-
-
-trait PVecBuilder[V <: PVec[V]] {
-
-  def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): V
-
-  def apply(scenario: Scenario, coefficients: Vec[Rational]): V
+  def apply(scenario: Scenario, coefficients: Vec[Rational]): V[scenario.type]
 
   /** Returns a new Bell vector using the provided scenario and coefficients, with possible symmetry group update
     *
     * @param original        Original Bell vector (used when the symmetry group can be updated)
-    * @param newScenario     Scenario of the updated Bell vector
     * @param newCoefficients Coefficients of the updated Bell vector
     * @param symGroupF       Function that optionally provides the updated symmetry group, when it has
     *                        already been computed for `original`
     */
-  protected[faacets] def updatedWithSymmetryGroup(original: V, newScenario: Scenario, newCoefficients: Vec[Rational],
-                                                  symGroupF: Grp[Relabeling] => Option[Grp[Relabeling]]): V
+  protected[faacets] def updatedWithSymmetryGroup[S <: Scenario with Singleton](original: V[S], newCoefficients: Vec[Rational],
+                                                  symGroupF: Grp[Relabeling] => Option[Grp[Relabeling]]): V[S]
 
-  implicit val lexicographicOrder: LexicographicOrder[V] = new LexicographicOrder[V] {
-
-    def partialComparison(xe: V, ye: V): Option[Comparison] = {
-      if (xe.scenario =!= ye.scenario) return None
+  implicit def lexicographicOrder[S <: Scenario with Singleton]: Order[V[S]] = new Order[V[S]] {
+    override def compare(xe: V[S], ye: V[S]): Int = {
       val x = xe.coefficients
       val y = ye.coefficients
       cforRange(0 until x.length) { i =>
-        val c = Order[Rational].comparison(x(i), y(i))
-        if (c != Comparison.EqualTo) return Some(c)
+        val c = Order[Rational].compare(x(i), y(i))
+        if (c != 0) return c
       }
-      Some(Comparison.EqualTo)
+      0
+    }
+  }
+
+}
+
+class VecRelabelingPartialAction[V[X <: Scenario with Singleton] <: PVec[V, X], S <: Scenario with Singleton](implicit builder: PVecBuilder[V])
+  extends PartialAction[V[S], Relabeling] {
+
+  def partialActl(r: Relabeling, v: V[S]): Opt[V[S]] = partialActr(v, r.inverse)
+
+  def partialActr(v: V[S], r: Relabeling): Opt[V[S]] = {
+
+    if (!v.scenario.group.contains(r)) Opt.empty[V[S]]
+    else {
+      implicit def action: PartialAction[Vec[Rational], Relabeling] =
+        com.faacets.data.instances.vec.vecPermutation[Rational, Relabeling](v.scenario.probabilityAction, implicitly)
+      Opt(builder.updatedWithSymmetryGroup(v, (v.coefficients <|+|? r).get, g => Some(g.conjugatedBy(r))))
     }
 
   }

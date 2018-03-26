@@ -11,9 +11,6 @@ import com.faacets.operation.relabeling.{VecRelabelingExtractor, VecRelabelingPa
 
 trait RelabelingInstances {
 
-  implicit lazy val operationExprRelabelingPartialAction: PartialAction[Expr, Relabeling] =
-    new VecRelabelingPartialAction[Expr]
-
   implicit lazy val operationExprRelabelingExtractor: GroupOperationExtractor[Expr, Relabeling] =
     new VecRelabelingExtractor[Expr]
 

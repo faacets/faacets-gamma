@@ -57,5 +57,4 @@ trait DataLaws[A] extends Laws {
       )
 
     )
-
 }

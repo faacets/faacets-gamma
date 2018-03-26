@@ -1,6 +1,7 @@
 package com.faacets.core
 
 import com.faacets.FaacetsSuite
+import com.faacets.core.ref.{BellOperator, POVM}
 import com.faacets.laws._
 import net.alasc.algebra.PermutationAction
 import net.alasc.finite.Grp
@@ -25,10 +26,16 @@ class RelabelingSuite extends FaacetsSuite {
     implicit val eqSymbol: Eq[Symbol] = Eq.fromUniversalEquals[Symbol]
     import spire.std.int._
     import spire.std.tuples._
-    checkAll("Relabeling", ActionLaws[Relabeling, (Symbol, Int, Int)].groupAction)
-    forAll( (r: Relabeling) => r === (r.outputPart |+| r.inputPart |+| r.partyPart) )
-    forAll( (r: Relabeling) => r === (r.outputInputPart |+| r.partyPart ) )
-    forAll( (r: Relabeling) => r === Group[Relabeling].combineAll(r.components.map(_.get)) )
+    checkAll("Relabeling", ActionLaws[Relabeling, POVM].groupAction)
+    test("Destructuring") {
+      forAll((r: Relabeling) => r === (r.outputPart |+| r.inputPart |+| r.partyPart))
+      forAll((r: Relabeling) => r === (r.outputInputPart |+| r.partyPart))
+      forAll((r: Relabeling) => r === Group[Relabeling].combineAll(r.components.map(_.toRelabeling)))
+    }
+    test("Compatibility with reference implementation") {
+      forAll((x: Relabeling, y: Relabeling) => (x |+| y).toRefRelabeling === (x.toRefRelabeling |+| y.toRefRelabeling))
+      forAll((r: Relabeling, p: POVM) => (p <|+| r) === (p <|+| r.toRefRelabeling))
+    }
   }
 
   locally {
@@ -65,8 +72,16 @@ class RelabelingSuite extends FaacetsSuite {
 
   }
 
+  test("Relabeling action on expressions") {
+    val s = Scenario.nmk(3, 3, 3)
+    forAll(Exprs.genExpr(s), Relabelings.genRelabeling(s)) { (expr, r) =>
+      val expr1 = (expr <|+|? r).get
+      val expr2 = BellOperator.toDExpr(s, BellOperator.fromGenExpr(expr) <|+| r).fold(x => false, _ === expr1.toDExpr)
+    }
+  }
+
   test("Action on triplets") {
-    (('A, 0, 1) <|+| (rel"A0(0,1,2) A(0,2) (A,C)")) shouldBe (('C, 2, 2))
+    (POVM(0, 0, 1) <|+| (rel"A0(0,1,2) A(0,2) (A,C)")) shouldBe POVM(2, 2, 2)
   }
 
 }

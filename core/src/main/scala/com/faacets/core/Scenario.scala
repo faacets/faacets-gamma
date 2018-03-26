@@ -261,6 +261,9 @@ object Scenario extends UniquenessCacheEq[Seq[Party], Scenario] {
   }
 
   val CHSH = nmk(2, 2, 2)
+  val Sliwa = nmk(3, 2, 2)
+  val I3322 = nmk(2, 3, 2)
+  val _112 = nmk(1, 1, 2)
 
   implicit val textable: Textable[Scenario] = Textable.fromParser[Scenario](Parsers.scenario, _.toString)
 

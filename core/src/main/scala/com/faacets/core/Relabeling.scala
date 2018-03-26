@@ -9,6 +9,8 @@ import net.alasc.syntax.all._
 import com.faacets.core.perm._
 import com.faacets.data.{NiceGenerators, Textable}
 
+import ref._
+
 abstract class Relabeling {
   def pPerm: Perm
   def xPerm(p: Int): Perm
@@ -78,16 +80,19 @@ abstract class Relabeling {
     (0 until nPartiesWithInputOutputRelabelings).map(p => (p, partyRelabeling(p)) ).filterNot(_._2.isId).toMap
 
   /** Returns the output relabelings in this `Relabeling` as a sequence of `Component` */
-  def outputComponents: Seq[Relabeling.OutputComponent] =
+  def outputComponents: Seq[OutputComponent] =
     (0 until nPartiesWithInputOutputRelabelings).flatMap(p => partyRelabeling(p).outputComponents.map(_.forParty(p)) )
   /** Returns the input relabelings in this `Relabeling` as a sequence of `Component` */
-  def inputComponents: Seq[Relabeling.InputComponent] =
+  def inputComponents: Seq[InputComponent] =
     (0 until nPartiesWithInputOutputRelabelings).flatMap(p => partyRelabeling(p).inputComponents.map(_.forParty(p)) )
   /** Returns the party relabelings in this `Relabeling` as a sequence of `Component` */
-  def partyComponents: Seq[Relabeling.PartyComponent] =
-    if (pPerm.isId) Seq.empty else Seq(Relabeling.PartyComponent(pPerm))
+  def partyComponents: Seq[PartyComponent] =
+    if (pPerm.isId) Seq.empty else Seq(PartyComponent(pPerm))
   /** Returns the sequence of `Component` contained in this `Relabeling` */
-  def components: Seq[Relabeling.Component] = outputComponents ++ inputComponents ++ partyComponents
+  def components: Seq[Component] = outputComponents ++ inputComponents ++ partyComponents
+  /** Converts the Relabeling to a RefRelabeling (mostly for test purposes). */
+  def toRefRelabeling: RefRelabeling = RefRelabeling(components.toList)
+
   override def toString = components.mkString(" ")
 
   /** Returns the party relabeling part of this `Relabeling` */
@@ -157,26 +162,6 @@ trait RelabelingCompanion {
 object Relabeling extends RelabelingCompanion {
   def id = group.empty
   val seed = "Relabeling".hashCode
-  abstract class Component {
-    def get: Relabeling
-  }
-  abstract class ComponentForParty extends Component {
-    def p: Int
-    def partyRelabeling: PartyRelabeling
-    def get = partyRelabeling.forParty(p)
-  }
-  case class OutputComponent(p: Int, x: Int, a: Perm) extends ComponentForParty {
-    override def toString = Party.prefixes(p) + x.toString + Cycles.fromPerm(a).string
-    def partyRelabeling = PartyRelabeling.OutputComponent(x, a).get
-  }
-  case class InputComponent(p: Int, x: Perm) extends ComponentForParty {
-    override def toString = Party.prefixes(p) + Cycles.fromPerm(x).string
-    def partyRelabeling = PartyRelabeling.InputComponent(x).get
-  }
-  case class PartyComponent(p: Perm) extends Component {
-    override def toString = Cycles.fromPerm(p).stringUsing(Party.prefixes(_))
-    def get = Relabeling(Map.empty[Int, PartyRelabeling], p)
-  }
 
   implicit val group: Group[Relabeling] = new RelabelingGroup
 
@@ -185,7 +170,7 @@ object Relabeling extends RelabelingCompanion {
   implicit val imprimitiveImprimitiveRelabelingRepBuilder: FaithfulPermutationActionBuilder[Relabeling] =
     new ImprimitiveImprimitiveRelabelingRepBuilder
 
-  implicit val tripletAction: Action[(Symbol, Int, Int), Relabeling] = new RelabelingTripletAction
+  implicit val povmRelabelingAction: Action[POVM, Relabeling] = new POVMRelabelingAction
 
   implicit val textable: Textable[Relabeling] = Textable.fromParser[Relabeling](perm.Parsers.relabeling, _.toString)
 

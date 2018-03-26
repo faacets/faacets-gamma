@@ -21,7 +21,7 @@ object TermType {
 
 abstract class Term(val termType: TermType) { self =>
 
-  def validate(scenario: Scenario): ValidatedNel[String, DExpr]
+  def validate(scenario: Scenario): ValidatedNel[String, DExpr[scenario.type]]
 
   def string: String
 
@@ -98,7 +98,7 @@ object Term {
 
 case object ConstantTerm extends Term(TermType.constant) {
 
-  def validate(scenario: Scenario): ValidatedNel[String, DExpr] = Validated.valid(Expr.one(scenario).toDExpr)
+  def validate(scenario: Scenario): ValidatedNel[String, DExpr[scenario.type]] = Validated.valid(Expr.one(scenario).toDExpr)
 
   def string = ""
 
@@ -112,7 +112,7 @@ case class FullTerm(outputs: Seq[Int], inputs: Seq[Int]) extends Term(TermType.f
 
   def nInputs: Int = inputs.size
 
-  def validate(scenario: Scenario): ValidatedNel[String, DExpr] =
+  def validate(scenario: Scenario): ValidatedNel[String, DExpr[scenario.type]] =
   if (outputs.size != inputs.size)
     Validated.invalidNel(s"Term has $nOutputs outputs but $nInputs inputs")
   else if (outputs.size != scenario.nParties)
@@ -142,7 +142,7 @@ case class CGTerm(parties: Seq[Int], outputs: Seq[Int], inputs: Seq[Int]) extend
 
   def nParties: Int = parties.size
 
-  def validate(scenario: Scenario): ValidatedNel[String, DExpr] =
+  def validate(scenario: Scenario): ValidatedNel[String, DExpr[scenario.type]] =
     if (outputs.size != inputs.size)
       Validated.invalidNel(s"Term has $nOutputs outputs but $nInputs inputs")
     else if (outputs.size != parties.size)
@@ -200,7 +200,7 @@ object CGTerm {
 case class CorrelatorsTerm(elements: Seq[(Int, Int)]) extends Term(TermType.correlators) {
   import scalin.immutable.dense._
 
-  def validate(scenario: Scenario): ValidatedNel[String, DExpr] =
+  def validate(scenario: Scenario): ValidatedNel[String, DExpr[scenario.type]] =
   if (scenario.maxNumOutputs > 2)
     Validated.invalidNel(s"Invalid use of correlators in a scenario with an input having ${scenario.maxNumOutputs}>2 outputs")
   else {

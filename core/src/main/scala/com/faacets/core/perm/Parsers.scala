@@ -21,14 +21,14 @@ object Parsers {
   }
 
   def relabelingPartyComponent: P[Relabeling] =
-    P( partiesSingleCycle ).map( c => Relabeling.PartyComponent(c.toPerm).get )
+    P( partiesSingleCycle ).map( c => ref.PartyComponent(c.toPerm).toRelabeling )
 
   def relabelingInputComponent: P[Relabeling] = P( partyIndex ~ perm ).map {
-    case (p, x) => Relabeling.InputComponent(p, x).get
+    case (p, x) => ref.InputComponent(p, x).toRelabeling
   }
 
   def relabelingOutputComponent: P[Relabeling] = P( partyIndex ~ inputIndex ~/ perm ).map {
-    case (p, x, a) => Relabeling.OutputComponent(p, x, a).get
+    case (p, x, a) => ref.OutputComponent(p, x, a).toRelabeling
   }
 
   def relabelingComponent: P[Relabeling] =

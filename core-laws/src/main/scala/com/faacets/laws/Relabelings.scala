@@ -1,13 +1,12 @@
 package com.faacets
 package laws
 
+import com.faacets.core.ref.POVM
 import net.alasc.laws._
 import net.alasc.partitions.Partition
 import net.alasc.perms.default._
 import net.alasc.perms.{GrpFixingPartition, Perm}
-
 import org.scalacheck._
-
 import com.faacets.core.{PVec, PartyRelabeling, Relabeling, Scenario}
 
 object Relabelings {
@@ -34,14 +33,16 @@ object Relabelings {
     Relabeling(r.partyRelabelingMap.mapValues(partyRelabelingCloner.make(_)), r.pPerm)
   )
 
-  def genRelabeling[V <: PVec[V]](vec: V): Gen[Relabeling] = genRelabeling(vec.scenario)
+  def genRelabeling[V[X <: Scenario with Singleton] <: PVec[V, X], S <: Scenario with Singleton](vec: V[S]): Gen[Relabeling] = genRelabeling(vec.scenario)
 
-  def genTriplet(maxPartyIndex: Int, maxInputIndex: Int, maxOutputIndex: Int): Gen[(Symbol, Int, Int)] = for {
+  def genPOVM(maxPartyIndex: Int, maxInputIndex: Int, maxOutputIndex: Int): Gen[POVM] = for {
     p <- Gen.choose(0, maxPartyIndex)
     x <- Gen.choose(0, maxInputIndex)
     a <- Gen.choose(0, maxOutputIndex)
-  } yield (Symbol(('A' + p).toChar.toString), x, a)
+  } yield POVM(p, x, a)
 
-  implicit val arbTriplets: Arbitrary[(Symbol, Int, Int)] = Arbitrary(genTriplet(25, 9, 9))
+  implicit val arbPOVM: Arbitrary[POVM] = Arbitrary(genPOVM(25, 9, 9))
 
+  implicit def arbRefRelabeling(implicit S: Arbitrary[Scenario]) =
+    Arbitrary { arbRelabeling(S).arbitrary.map(_.toRefRelabeling) }
 }
