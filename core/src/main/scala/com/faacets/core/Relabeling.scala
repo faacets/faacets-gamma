@@ -12,6 +12,7 @@ import com.faacets.data.{NiceGenerators, Textable}
 import ref._
 
 abstract class Relabeling {
+  type S <: Scenario with Singleton
   def pPerm: Perm
   def xPerm(p: Int): Perm
   def aPerm(p: Int, x: Int): Perm
@@ -148,7 +149,7 @@ abstract class Relabeling {
   }
 
   override def equals(other: Any) = other match {
-    case that: Relabeling => Relabeling.equ.eqv(this, that)
+    case that: Relabeling => Relabeling.genEqu.eqv(this, that)
     case _ => false
   }
 }
@@ -159,16 +160,30 @@ trait RelabelingCompanion {
     apply(prSeq.zipWithIndex.map(_.swap).filterNot(_._2.isId).toMap, pPerm)
 }
 
-object Relabeling extends RelabelingCompanion {
+trait RelabelingInstances {
+
+  implicit val genGroup: Group[Relabeling] = new RelabelingGroup
+
+  implicit val genEqu: Eq[Relabeling] = new RelabelingEq
+
+  implicit val genImprimitiveImprimitiveRelabelingRepBuilder: FaithfulPermutationActionBuilder[Relabeling] =
+    new ImprimitiveImprimitiveRelabelingRepBuilder
+
+}
+
+object Relabeling extends RelabelingCompanion with RelabelingInstances {
+
+  type Aux[X <: Scenario with Singleton] = Relabeling { type S = X }
+
   def id = group.empty
   val seed = "Relabeling".hashCode
 
-  implicit val group: Group[Relabeling] = new RelabelingGroup
+  implicit def group[S <: Scenario with Singleton]: Group[Relabeling.Aux[S]] = genGroup.asInstanceOf[Group[Relabeling.Aux[S]]]
 
-  implicit val equ: Eq[Relabeling] = new RelabelingEq
+  implicit def equ[S <: Scenario with Singleton]: Eq[Relabeling.Aux[S]] = genEqu.asInstanceOf[Eq[Relabeling.Aux[S]]]
 
-  implicit val imprimitiveImprimitiveRelabelingRepBuilder: FaithfulPermutationActionBuilder[Relabeling] =
-    new ImprimitiveImprimitiveRelabelingRepBuilder
+  implicit def imprimitiveImprimitiveRelabelingRepBuilder[S <: Scenario with Singleton]: FaithfulPermutationActionBuilder[Relabeling.Aux[S]] =
+    genImprimitiveImprimitiveRelabelingRepBuilder.asInstanceOf[FaithfulPermutationActionBuilder[Relabeling.Aux[S]]]
 
   implicit val povmRelabelingAction: Action[POVM, Relabeling] = new POVMRelabelingAction
 

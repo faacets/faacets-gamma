@@ -68,12 +68,12 @@ abstract class PVec[V[X <: Scenario with Singleton] <: PVec[V, X], S <: Scenario
     *
     *   Throws if the relabeling is not compatible.
     */
-  def <|+|(r: Relabeling): V[S] =
-    if (!scenario.group.contains(r))
+  def <|+|(r: Relabeling.Aux[S]): V[S] =
+    /*if (!scenario.group.contains(r))
       throw new IllegalArgumentException(s"Relabeling $r cannot be applied in scenario $scenario")
-    else {
+    else TODO: implement contains or make it safe */ {
       import com.faacets.data.instances.vec._
-      implicit def action: PartialAction[Vec[Rational], Relabeling] = vecPermutation[Rational, Relabeling](scenario.probabilityAction, implicitly)
+      implicit def action: PartialAction[Vec[Rational], Relabeling.Aux[S]] = vecPermutation[Rational, Relabeling.Aux[S]]((scenario: S).probabilityAction, implicitly)
       builder.updatedWithSymmetryGroup[S](lhs, (coefficients <|+|? r).get, g => Some(g.conjugatedBy(r)))
     }
 
@@ -93,7 +93,7 @@ trait PVecBuilder[V[S <: Scenario with Singleton] <: PVec[V, S]] {
     *                        already been computed for `original`
     */
   protected[faacets] def updatedWithSymmetryGroup[S <: Scenario with Singleton](original: V[S], newCoefficients: Vec[Rational],
-                                                  symGroupF: Grp[Relabeling] => Option[Grp[Relabeling]]): V[S]
+                                                  symGroupF: Grp[Relabeling.Aux[S]] => Option[Grp[Relabeling.Aux[S]]]): V[S]
 
   implicit def lexicographicOrder[S <: Scenario with Singleton]: Order[V[S]] = new Order[V[S]] {
     override def compare(xe: V[S], ye: V[S]): Int = {
@@ -109,20 +109,14 @@ trait PVecBuilder[V[S <: Scenario with Singleton] <: PVec[V, S]] {
 
 }
 
-class VecRelabelingPartialAction[V[X <: Scenario with Singleton] <: PVec[V, X], S <: Scenario with Singleton](implicit builder: PVecBuilder[V])
-  extends PartialAction[V[S], Relabeling] {
+class VecRelabelingAction[V[X <: Scenario with Singleton] <: PVec[V, X], S <: Scenario with Singleton]
+(implicit builder: PVecBuilder[V]) extends Action[V[S], Relabeling.Aux[S]] {
 
-  def partialActl(r: Relabeling, v: V[S]): Opt[V[S]] = partialActr(v, r.inverse)
+  def actl(r: Relabeling.Aux[S], v: V[S]): V[S] = actr(v, r.inverse)
 
-  def partialActr(v: V[S], r: Relabeling): Opt[V[S]] = {
-
-    if (!v.scenario.group.contains(r)) Opt.empty[V[S]]
-    else {
-      implicit def action: PartialAction[Vec[Rational], Relabeling] =
-        com.faacets.data.instances.vec.vecPermutation[Rational, Relabeling](v.scenario.probabilityAction, implicitly)
-      Opt(builder.updatedWithSymmetryGroup(v, (v.coefficients <|+|? r).get, g => Some(g.conjugatedBy(r))))
-    }
-
+  def actr(v: V[S], r: Relabeling.Aux[S]): V[S] = {
+    implicit def action: PartialAction[Vec[Rational], Relabeling.Aux[S]] =
+      com.faacets.data.instances.vec.vecPermutation[Rational, Relabeling.Aux[S]]((v.scenario: S).probabilityAction, implicitly)
+    builder.updatedWithSymmetryGroup(v, (v.coefficients <|+|? r).get, g => Some(g.conjugatedBy(r)))
   }
-
 }

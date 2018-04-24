@@ -21,9 +21,9 @@ import com.faacets.data.syntax.all._
 
 abstract class NDVec[V[X <: Scenario with Singleton] <: NDVec[V, X], S <: Scenario with Singleton] extends PVec[V, S] { lhs: V[S] =>
 
-  def symmetryGroup: Grp[Relabeling] = NDVec.attributes.symmetryGroup(this) {
+  def symmetryGroup: Grp[Relabeling.Aux[S]] = NDVec.attributes.symmetryGroup(this: NDVec[V, S]) {
     val partition = Partition.fromSeq(coefficients.toIndexedSeq)
-    scenario.group.fixingPartition(scenario.probabilityAction, partition)
+    (scenario: S).group.fixingPartition((scenario: S).probabilityAction, partition)
   }
 
 }
@@ -33,7 +33,7 @@ object NDVec {
   object attributes extends Attributes("NDVec") {
 
     object symmetryGroup extends Attribute("symmetryGroup") {
-      implicit def forNDVec[V[X <: Scenario with Singleton] <: NDVec[V, X], S <: Scenario with Singleton]: For[NDVec[V, S], Grp[Relabeling]] = For
+      implicit def forNDVec[V[X <: Scenario with Singleton] <: NDVec[V, X], S <: Scenario with Singleton]: For[NDVec[V, S], Grp[Relabeling.Aux[S]]] = For
     }
 
   }
@@ -43,7 +43,7 @@ object NDVec {
 trait NDVecBuilder[V[X <: Scenario with Singleton] <: NDVec[V, X]] extends PVecBuilder[V] { self =>
 
   protected[faacets] def updatedWithSymmetryGroup[S <: Scenario with Singleton](original: V[S], newCoefficients: Vec[Rational],
-                                                  symGroupF: (Grp[Relabeling]) => Option[Grp[Relabeling]]): V[S] = {
+                                                  symGroupF: (Grp[Relabeling.Aux[S]]) => Option[Grp[Relabeling.Aux[S]]]): V[S] = {
     val res = apply(original.scenario: S, newCoefficients)
     NDVec.attributes.symmetryGroup.get(original).flatMap(symGroupF) match {
       case Some(newGrp) => NDVec.attributes.symmetryGroup(res)(newGrp)
@@ -54,17 +54,17 @@ trait NDVecBuilder[V[X <: Scenario with Singleton] <: NDVec[V, X]] extends PVecB
 
   def inNonSignalingSubspace(scenario: Scenario, coefficients: Vec[Rational]): Boolean
 
-  def validate(scenario: Scenario, coefficients: Vec[Rational], symGroup: Option[Grp[Relabeling]] = None): ValidatedNel[String, V[scenario.type]] = {
+  def validate[S <: Scenario with Singleton](scenario: S, coefficients: Vec[Rational], symGroup: Option[Grp[Relabeling.Aux[S]]] = None): ValidatedNel[String, V[S]] = {
     val correctLength = scenario.shapeP.size
     val coeffLength = coefficients.length
     if (coeffLength != correctLength) Validated.invalidNel(s"Invalid coefficients length, is $coeffLength, should be $correctLength")
     else if (!inNonSignalingSubspace(scenario, coefficients)) Validated.invalidNel("Coefficients are not in the nonsignaling subspace")
     else {
-      val res = applyUnsafe(scenario, coefficients)
+      val res = applyUnsafe(scenario: S, coefficients)
       symGroup match {
         case Some(grp) =>
           val partition = Partition.fromSeq(coefficients.toIndexedSeq)
-          grp.generators.find(!FixingPartition.partitionInvariantUnder(partition, scenario.probabilityAction, _)) match {
+          grp.generators.find(!FixingPartition.partitionInvariantUnder(partition, (scenario: S).probabilityAction, _)) match {
             case Some(g) =>
               Validated.invalidNel(s"Coefficients are not invariant under provided generator $g")
             case None =>

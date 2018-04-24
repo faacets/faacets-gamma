@@ -2,16 +2,15 @@ package com.faacets
 package core
 
 import scala.annotation.tailrec
-
 import spire.math.SafeLong
 import spire.syntax.cfor._
 import scalin.immutable.Vec
 import net.alasc.finite.Grp
-
 import com.faacets.consolidate.Merge
 import com.faacets.core.perm._
 import com.faacets.data.Textable
 import com.faacets.data.syntax.textable._
+import net.alasc.algebra.PermutationAction
 
 /** TODO: verify doc below
   *
@@ -201,18 +200,18 @@ final class Scenario private (val parties: Seq[Party]) {
     !hasContent
   }
 
-  lazy val marginalAction = shape.ImpImpAction
+  lazy val marginalAction = shape.ImpImpAction.asInstanceOf[PermutationAction[Relabeling.Aux[this.type]]]
 
-  lazy val probabilityAction = shape.PriImpAction
+  lazy val probabilityAction = shape.PriImpAction.asInstanceOf[PermutationAction[Relabeling.Aux[this.type]]]
 
-  lazy val strategyAction = shape.PriPriAction
+  lazy val strategyAction = shape.PriPriAction.asInstanceOf[PermutationAction[Relabeling.Aux[this.type]]]
 
   /** The value `group` represents the symmetry group of the current
     * Bell scenario. This group is actually a wreath product group,
     * composed of a copy of \\( n \\) party symmetry group and the subgroup of \\( S_n \\)
     * permuting parties that are compatible, i.e. with the same output structure. */
-  lazy val group: Grp[Relabeling] =
-    GrpLexAnsatz.fromGeneratorsAndOrder(subgroups.generators, subgroups.order, marginalAction)
+  lazy val group: Grp[Relabeling.Aux[this.type]] =
+    GrpLexAnsatz.fromGeneratorsAndOrder(subgroups.generators.map(_.asInstanceOf[Relabeling.Aux[this.type]]), subgroups.order, marginalAction)
 
   lazy val subgroups = ScenarioSubgroups(this)
 

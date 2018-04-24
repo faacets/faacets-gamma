@@ -11,6 +11,7 @@ import scalin.syntax.all._
 import net.alasc.finite.Grp
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import com.faacets.core.text.{FullTerm, Term, TermType}
+import spire.algebra.Action
 import spire.algebra.partial.PartialAction
 
 /** Describes a Bell expression not necessarily in the relevant nonsignaling subspace. */
@@ -64,13 +65,13 @@ class DExpr[S <: Scenario with Singleton] protected (val scenario: S, val coeffi
 
 object DExpr extends GenExprBuilder[DExpr] {
 
-  implicit def dExprRelabelingPartialAction[S <: Scenario with Singleton]: PartialAction[DExpr[S], Relabeling] =
-    new VecRelabelingPartialAction[DExpr, S]
+  implicit def dExprRelabelingAction[S <: Scenario with Singleton]: Action[DExpr[S], Relabeling.Aux[S]] =
+    new VecRelabelingAction[DExpr, S]
 
   implicit def builder: GenExprBuilder[DExpr] = this
 
   protected[faacets] def updatedWithSymmetryGroup[S <: Scenario with Singleton](original: DExpr[S], newCoefficients: Vec[Rational],
-                                                  symGroupF: (Grp[Relabeling]) => Option[Grp[Relabeling]]): DExpr[S] =
+                                                  symGroupF: (Grp[Relabeling.Aux[S]]) => Option[Grp[Relabeling.Aux[S]]]): DExpr[S] =
     apply(original.scenario: S, newCoefficients)
 
   def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, DExpr[scenario.type]] = {

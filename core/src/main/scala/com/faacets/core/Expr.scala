@@ -10,6 +10,7 @@ import com.faacets.core.NDVec.attributes.symmetryGroup
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import com.faacets.core.text.UserVecRational.userVecRationalTextable
 import com.faacets.core.text._
+import spire.algebra.Action
 import spire.algebra.partial.PartialAction
 
 /** Describes a Bell expression in the relevant nonsignaling subspace. */
@@ -69,8 +70,8 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
 
   implicit def builder: NDVecBuilder[Expr] with GenExprBuilder[Expr] = this
 
-  implicit def exprRelabelingPartialAction[S <: Scenario with Singleton]: PartialAction[Expr[S], Relabeling] =
-    new VecRelabelingPartialAction[Expr, S]
+  implicit def exprRelabelingAction[S <: Scenario with Singleton]: Action[Expr[S], Relabeling.Aux[S]] =
+    new VecRelabelingAction[Expr, S]
 
   def parseExpression(scenario: Scenario, expression: String): ValidatedNel[String, Expr[scenario.type]] =
   DExpr.parseExpression(scenario, expression) andThen { dExpr =>
@@ -103,7 +104,7 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
   }
 
   def apply(scenario: Scenario, coefficients: Vec[Rational]): Expr[scenario.type] =
-    validate(scenario, coefficients).fold(ls => throw new IllegalArgumentException(ls.toList.mkString("\n")), identity)
+    validate[scenario.type](scenario, coefficients).fold(ls => throw new IllegalArgumentException(ls.toList.mkString("\n")), identity)
 
   def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): Expr[scenario.type] = {
     require(coefficients.length == scenario.shapeP.size, "Coefficients vector length is incorrect")
@@ -151,7 +152,7 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
     }
 
   def parseVector(scenario: Scenario, coefficientsString: String): ValidatedNel[String, Expr[scenario.type]] =
-    userVecRationalTextable.fromText(coefficientsString) andThen { coeffs => Expr.validate(scenario, coeffs, None) }
+    userVecRationalTextable.fromText(coefficientsString) andThen { coeffs => Expr.validate[scenario.type](scenario, coeffs, None) }
 
   def averageNormalization(scenario: Scenario): Expr[scenario.type] = one(scenario)
 
