@@ -151,4 +151,63 @@ object DExpr extends GenExprBuilder[DExpr] {
 
   def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): DExpr[scenario.type] = apply(scenario, coefficients)
 
+  def cglmpOriginal(scenario: Scenario): DExpr[scenario.type] = {
+    val d = scenario.maxNumOutputs
+    import scenario.sub2indP
+    require(scenario == Scenario.nmk(2, 2, d))
+    val krange = (0 to (d/2-1))
+    val ineqbound = 2
+    // coefficients of inequality
+    val beta = Vec.fromMutable[Rational](2*2*d*d, Rational.zero) { v =>
+      for (k <- krange) {
+        val coeff = 1 - Rational(2 * k, d - 1)
+        for (a <- 0 until d; b <- 0 until d) {
+          // P(A1 - B1 = k) - P(A1 - B1 = - (k+1) )
+          val ind11 = sub2indP(Array(a, b), Array(0, 0))
+          val ind12 = sub2indP(Array(a, b), Array(0, 1))
+          val ind21 = sub2indP(Array(a, b), Array(1, 0))
+          val ind22 = sub2indP(Array(a, b), Array(1, 1))
+
+          def cond(n: Int) = ((4 * d + n) % d == 0)
+
+          if (cond(a - b - k))
+            v(ind11) := v(ind11) + coeff
+          if (cond(b - a - k - 1))
+            v(ind21) := v(ind21) + coeff
+          if (cond(a - b - k))
+            v(ind22) := v(ind22) + coeff
+          if (cond(b - a - k))
+            v(ind12) := v(ind12) + coeff
+
+          if (cond(a - b + k + 1))
+            v(ind11) := v(ind11) - coeff
+          if (cond(b - a + k))
+            v(ind21) := v(ind21) - coeff
+          if (cond(a - b + k + 1))
+            v(ind22) := v(ind22) - coeff
+          if (cond(b - a + k + 1))
+            v(ind12) := v(ind12) - coeff
+        }
+      }
+    }
+    DExpr(scenario, beta)
+  }
+
+  def cglmpAcin(scenario: Scenario): DExpr[scenario.type] = {
+    val d = scenario.maxNumOutputs
+    import scenario.sub2indP
+    require(scenario == Scenario.nmk(2, 2, d))
+    def ind(a: Int, b: Int, x: Int, y: Int): Int = sub2indP(Array(a, b), Array(x, y))
+    val beta = scalin.immutable.Vec.fromMutable[Rational](2*2*d*d, Rational.zero) { v =>
+      for (a <- 0 until d; b <- 0 until d) {
+        def brkt(k: Int) = ((4 * d + k) % d)
+        v(ind(a, b, 0, 0)) := v(ind(a, b, 0, 0)) + brkt(a - b)
+        v(ind(a, b, 1, 0)) := v(ind(a, b, 1, 0)) + brkt(b - a)
+        v(ind(a, b, 1, 1)) := v(ind(a, b, 1, 1)) + brkt(a - b)
+        v(ind(a, b, 0, 1)) := v(ind(a, b, 0, 1)) + brkt(b - a - 1)
+      }
+    }
+    DExpr(scenario, beta)
+  }
+
 }

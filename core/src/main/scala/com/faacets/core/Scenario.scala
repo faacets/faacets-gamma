@@ -264,6 +264,8 @@ object Scenario extends UniquenessCacheEq[Seq[Party], Scenario] {
   val I3322 = nmk(2, 3, 2)
   val _112 = nmk(1, 1, 2)
 
+  def cglmp(d: Int): Scenario = nmk(2, 2, d)
+
   implicit val textable: Textable[Scenario] = Textable.fromParser[Scenario](Parsers.scenario, _.toString)
 
   implicit val merge: Merge[Scenario] = consolidate.Merge.fromEquals[Scenario]
