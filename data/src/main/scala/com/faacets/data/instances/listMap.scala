@@ -18,7 +18,7 @@ trait ListMapInstances {
     }
 
     override def decodeAccumulating(a: HCursor): AccumulatingDecoder.Result[ListMap[String, V]] =
-      a.fields match {
+      a.keys match {
         case None => Validated.invalidNel(DecodingFailure("[V]ListMap[String, V]", a.history))
         case Some(s) =>
           def spin(x: List[String], m: AccumulatingDecoder.Result[ListMap[String, V]]): AccumulatingDecoder.Result[ListMap[String, V]] =

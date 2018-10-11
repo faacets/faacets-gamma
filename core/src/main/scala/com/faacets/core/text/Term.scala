@@ -46,7 +46,7 @@ object Term {
               case f => Validated.invalidNel(f.toString)
             }
         }
-        allCoeffTerms.sequenceU
+        allCoeffTerms.sequence
       case f => Validated.invalidNel(f.toString)
     }
   }
@@ -123,7 +123,7 @@ case class FullTerm(outputs: Seq[Int], inputs: Seq[Int]) extends Term(TermType.f
       case (party, (a, x)) if a >= party.nOutputs(x) => Validated.invalidNel(s"Output $a for an input with ${party.nOutputs(x)} outputs (note: indices are 0-based!)")
       case (party, (a, x)) => Validated.valid( (a, x) )
     }
-    oiTuplesValidated.sequenceU.map { tupleSeq =>
+    oiTuplesValidated.sequence.map { tupleSeq =>
       val (aSeq, iSeq) = tupleSeq.unzip
       DExpr(scenario, Term.oneAt[Rational](scenario.shapeP.size, scenario.sub2indP(aSeq.toArray, iSeq.toArray)))
     }
@@ -169,7 +169,7 @@ case class CGTerm(parties: Seq[Int], outputs: Seq[Int], inputs: Seq[Int]) extend
               else Validated.valid( (k, x) )
           }
         }
-        kxTuplesValidated.sequenceU.map { tupleSeq =>
+        kxTuplesValidated.sequence.map { tupleSeq =>
           val (kSeq, xSeq) = tupleSeq.unzip
           val expr = Expr.collinsGisin(scenario, Term.oneAt[Rational](scenario.shapeNG.size, scenario.sub2indNG(kSeq.toArray, xSeq.toArray)))
           expr.toDExpr
@@ -215,7 +215,7 @@ case class CorrelatorsTerm(elements: Seq[(Int, Int)]) extends Term(TermType.corr
           case Some(x) => Validated.valid( (0, x) )
           }
       }
-      kxTuplesValidated.sequenceU.map { tupleSeq =>
+      kxTuplesValidated.sequence.map { tupleSeq =>
         val (kSeq, xSeq) = tupleSeq.unzip
         val expr = Expr.correlators(scenario, Term.oneAt[Rational](scenario.shapeNC.size, scenario.sub2indNC(kSeq.toArray, xSeq.toArray)))
         expr.toDExpr

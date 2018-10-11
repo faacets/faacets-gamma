@@ -43,7 +43,7 @@ final class Shape protected[core] (val parties: Seq[Party]) {
     def actl(r: Relabeling, k: Int): Int = actr(k, r.inverse)
 
     def actr16(k: Int, r16: RelabelingImpl16): Int = {
-      import net.alasc.perms.internal.Perm16Encoding.{image => image16}
+      import net.alasc.perms.sized.Perm16Encoding.{image => image16}
       val block = imprimitiveImprimitive.blockIndices(k).toInt
       val newBlock = image16(r16.pPermEnc, block)
       val sub = k - imprimitiveImprimitive.offsets(block)
@@ -100,7 +100,7 @@ final class Shape protected[core] (val parties: Seq[Party]) {
     def actl(r: Relabeling, k: Int): Int = actr(k, r.inverse)
 
     def actr16(k: Int, r16: RelabelingImpl16): Int = {
-      import net.alasc.perms.internal.Perm16Encoding.{image => image16}
+      import net.alasc.perms.sized.Perm16Encoding.{image => image16}
       var rem = k
       var i = 0
       var ind = 0
@@ -180,7 +180,7 @@ final class Shape protected[core] (val parties: Seq[Party]) {
     def actl(r: Relabeling, k: Int): Int = actr(k, r.inverse)
 
     def actr16(k: Int, r16: RelabelingImpl16): Int = {
-      import net.alasc.perms.internal.Perm16Encoding.{image => image16}
+      import net.alasc.perms.sized.Perm16Encoding.{image => image16}
       var rem = k
       var i = 0
       var ind = 0

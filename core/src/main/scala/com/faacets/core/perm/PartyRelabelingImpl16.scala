@@ -4,6 +4,8 @@ package perm
 
 import spire.algebra._
 import net.alasc.perms._
+import net.alasc.perms.sized.Perm16
+import net.alasc.perms.sized.syntax._
 import net.alasc.syntax.all._
 
 /** Describes the relabeling of inputs and outputs of a party, independently of the size of the
@@ -12,8 +14,8 @@ import net.alasc.syntax.all._
 class PartyRelabelingImpl16 protected[perm] (val aArrayEnc: Array[Long], val xPermEnc: Long) extends PartyRelabeling {
   def nInputsWithOutputRelabelings: Int = aArrayEnc.length
   def aPermEnc(x: Int) = if (x < aArrayEnc.length) aArrayEnc(x) else 0L
-  def aPerm(x: Int) = if (x < aArrayEnc.length) new Perm16(aArrayEnc(x)) else Group[Perm].id
-  def xPerm = new Perm16(xPermEnc)
+  def aPerm(x: Int) = if (x < aArrayEnc.length) Perm16.fromEncoding(aArrayEnc(x)).toPerm else Group[Perm].id
+  def xPerm = Perm16.fromEncoding(xPermEnc).toPerm
   def outputPart: PartyRelabeling = new PartyRelabelingImpl16(aArrayEnc, 0L)
   def inputPart: PartyRelabeling = new PartyRelabelingImpl16(new Array[Long](0), xPermEnc)
 }

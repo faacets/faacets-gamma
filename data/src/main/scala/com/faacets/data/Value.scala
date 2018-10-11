@@ -121,7 +121,7 @@ trait Scalar {
 
 object Scalar {
 
-  implicit val scalarOrder: Order[Scalar] = Order[RealCyclo].on[Scalar](_.toRealCyclo)
+  implicit val scalarOrder: Order[Scalar] = Order.by[Scalar, RealCyclo](_.toRealCyclo)
 
   def apply(bd: BigDecimal): Scalar = Decimal(1, bd, 0)
   def apply(r: Rational): Scalar = Exact(RealCyclo(r))

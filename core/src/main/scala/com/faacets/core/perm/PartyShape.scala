@@ -75,7 +75,7 @@ final class PartyShape protected[core] (val inputs: Seq[Int]) {
 
     def actr(k: Int, pr: PartyRelabeling): Int = if (k >= size) k else pr match {
       case pr16: PartyRelabelingImpl16 =>
-        import net.alasc.perms.internal.Perm16Encoding.{image => image16}
+        import net.alasc.perms.sized.Perm16Encoding.{image => image16}
         val block = imprimitive.blockIndices(k).toInt
         val newBlock = image16(pr16.xPermEnc, block)
         val sub = k - imprimitive.offsets(block)

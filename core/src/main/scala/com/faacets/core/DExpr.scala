@@ -12,7 +12,6 @@ import net.alasc.finite.Grp
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import com.faacets.core.text.{FullTerm, Term, TermType}
 import spire.algebra.Action
-import spire.algebra.partial.PartialAction
 
 /** Describes a Bell expression not necessarily in the relevant nonsignaling subspace. */
 class DExpr[S <: Scenario with Singleton] protected (val scenario: S, val coefficients: Vec[Rational]) extends GenExpr[DExpr, S] { lhs =>
@@ -84,7 +83,7 @@ object DExpr extends GenExprBuilder[DExpr] {
           case (coeff, termString, term) =>
             term.validate(scenario).map( dExpr => coeff *: dExpr )
               .leftMap(_.map(s"Term '${termString}' : " + _))
-        }.sequenceU.map(_.fold(DExpr.zero(scenario))(_+_))
+        }.sequence.map(_.fold(DExpr.zero(scenario))(_+_))
     }
   }
 
@@ -210,4 +209,16 @@ object DExpr extends GenExprBuilder[DExpr] {
     DExpr(scenario, beta)
   }
 
+  /*
+  scala> val sym5 = (a5.split._1 <|+| rel"A0(0,1)(2,4) A1(0,2)(3,4)".asInstanceOf[Relabeling.Aux[s5.type]])
+sym5: com.faacets.core.Expr[s5.type] = Expr([(5 5) (5 5)], Vec(1, 0, 4, 3, 2, 3, 4, 0, 1, 2, 0, 4, 3, 2, 1, 4, 0, 1, 2, 3, 4, 3, 2, 1, 0, 0, 1, 2, 3, 4, 3, 2, 1, 0, 4, 1, 2, 3, 4, 0, 2, 1, 0, 4, 3, 2, 3, 4, 0, 1, 3, 4, 0, 1, 2, 2, 1, 0, 4, 3, 4, 0, 1, 2, 3, 1, 0, 4, 3, 2, 0, 1, 2, 3, 4, 0, 4, 3, 2, 1, 1, 2, 3, 4, 0, 4, 3, 2, 1, 0, 2, 3, 4, 0, 1, 3, 2, 1, 0, 4))
+
+scala> val sym4 = (a4.split._1 <|+| rel"A0(0,1)(2,3) A1(0,2)".asInstanceOf[Relabeling.Aux[s4.type]])
+sym4: com.faacets.core.Expr[s4.type] = Expr([(4 4) (4 4)], Vec(1, 0, 3, 2, 2, 3, 0, 1, 0, 3, 2, 1, 3, 0, 1, 2, 3, 2, 1, 0, 0, 1, 2, 3, 2, 1, 0, 3, 1, 2, 3, 0, 2, 3, 0, 1, 2, 1, 0, 3, 3, 0, 1, 2, 1, 0, 3, 2, 0, 1, 2, 3, 0, 3, 2, 1, 1, 2, 3, 0, 3, 2, 1, 0))
+
+scala> val sym3 = (a3.split._1 <|+| rel"A0(0,2) A1(1,2)".asInstanceOf[Relabeling.Aux[s3.type]])
+sym3: com.faacets.core.Expr[s3.type] = Expr([(3 3) (3 3)], Vec(2, 1, 0, 0, 1, 2, 1, 0, 2, 1, 2, 0, 0, 2, 1, 2, 0, 1, 0, 1, 2, 0, 2, 1, 1, 2, 0, 2, 1, 0, 2, 0, 1, 1, 0, 2))
+
+
+   */
 }

@@ -140,7 +140,7 @@ final class RelabelingGroup extends Group[Relabeling] {
   }
 
   def opImpl16(f: RelabelingImpl16, g: RelabelingImpl16): RelabelingImpl16 = {
-    import net.alasc.perms.internal.Perm16Encoding.{image => image16, largestMovedPoint => largestMovedPoint16, op => op16}
+    import net.alasc.perms.sized.Perm16Encoding.{image => image16, largestMovedPoint => largestMovedPoint16, op => op16}
     @inline def _Penc = f.pPermEnc
     @inline def _Qenc = g.pPermEnc
     @inline def _Xenc(p: Int) = f.xPermEnc(p)
@@ -280,7 +280,7 @@ final class RelabelingGroup extends Group[Relabeling] {
     new RelabelingImplGen(nB, bLength, bOffset, bArray, nY, yArray, _Q)
   }
   def inverseImpl16(f: RelabelingImpl16): Relabeling = {
-    import net.alasc.perms.internal.Perm16Encoding.{image => image16, inverse => inverse16, largestMovedPoint => largestMovedPoint16}
+    import net.alasc.perms.sized.Perm16Encoding.{image => image16, inverse => inverse16, largestMovedPoint => largestMovedPoint16}
     /* We want to compute g = B Y Q such that h = f g = identity. We have (see above) :
      * 
      * - C(p,x) = A(p,x) |+| B(p <|+| P, x <|+| X(p))

@@ -5,6 +5,8 @@ package perm
 
 import spire.syntax.cfor._
 import net.alasc.perms._
+import net.alasc.perms.sized.Perm16
+import net.alasc.perms.sized.syntax._
 
 /** Implementation of a Relabeling using an array for output relabelings (concatenated) and an array for input relabelings.
   * Same as RelabelingImplGen, but with a maximum of 16 outputs, inputs and parties.
@@ -13,18 +15,18 @@ import net.alasc.perms._
   * `Perm16` value class, the remaining return an instance of the `Perm` universal trait.
   */
 class RelabelingImpl16 protected[perm] (val nA: Int, val aLength: Array[Int], val aOffset: Array[Int], val aArrayEnc: Array[Long], val nX: Int, val xArrayEnc: Array[Long], val pPermEnc: Long) extends Relabeling {
-  def pPerm16: Perm16 = new Perm16(pPermEnc)
-  def pPerm: Perm = pPerm16
+  def pPerm16: Perm16 = Perm16.fromEncoding(pPermEnc)
+  def pPerm: Perm = pPerm16.toPerm
 
   def aPermEnc(p: Int, x: Int): Long =
     if (p >= nA || x >= aLength(p)) 0L else aArrayEnc(aOffset(p) + x)
-  def aPerm16(p: Int, x: Int): Perm16 = new Perm16(aPermEnc(p, x))
-  def aPerm(p: Int, x: Int): Perm = aPerm16(p, x)
+  def aPerm16(p: Int, x: Int): Perm16 = Perm16.fromEncoding(aPermEnc(p, x))
+  def aPerm(p: Int, x: Int): Perm = aPerm16(p, x).toPerm
 
   def xPermEnc(p: Int): Long =
     if (p >= nX) 0L else xArrayEnc(p)
-  def xPerm16(p: Int): Perm16 = new Perm16(xPermEnc(p))
-  def xPerm(p: Int): Perm = xPerm16(p)
+  def xPerm16(p: Int): Perm16 = Perm16.fromEncoding(xPermEnc(p))
+  def xPerm(p: Int): Perm = xPerm16(p).toPerm
 
   def partyPart = new RelabelingImpl16(0, Array.empty[Int], Array.empty[Int], Array.empty[Long], 0, Array.empty[Long], pPermEnc)
   def inputPart = new RelabelingImpl16(0, Array.empty[Int], Array.empty[Int], Array.empty[Long], nX, xArrayEnc, 0L)

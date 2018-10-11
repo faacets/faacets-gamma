@@ -11,7 +11,6 @@ import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import com.faacets.core.text.UserVecRational.userVecRationalTextable
 import com.faacets.core.text._
 import spire.algebra.Action
-import spire.algebra.partial.PartialAction
 
 /** Describes a Bell expression in the relevant nonsignaling subspace. */
 class Expr[S <: Scenario with Singleton] protected (val scenario: S, val coefficients: Vec[Rational]) extends NDVec[Expr, S] with GenExpr[Expr, S] { lhs =>

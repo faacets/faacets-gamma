@@ -55,14 +55,14 @@ object BellOperator {
               val povm = elements.head
               Validated.valid((povm.a, povm.x))
             }
-          }.sequenceU
+          }.sequence
           val res: ValidatedNel[String, DExpr[scenario.type]] = outputsInputs.andThen { oi =>
             val (outputs, inputs) = oi.unzip
             FullTerm(outputs, inputs).validate(scenario).map(_ :* value)
           }
           res
         }
-    }.sequenceU
+    }.sequence
     terms.map(_.fold(DExpr.zero(scenario))(_ + _))
   }
 

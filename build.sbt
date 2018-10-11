@@ -1,24 +1,27 @@
-// Scala and library versions go here
+import microsites._
+import ReleaseTransformations._
 
-val scala212Version = "2.12.3"
+val scala212Version = "2.12.7"
 
-val alascVersion = "0.14.1.3"
-val catsVersion = "0.9.0"
-val circeVersion = "0.8.0"
-val circeYamlVersion = "0.6.1"
-val consolidateVersion = "0.6"
-val fastParseVersion = "0.4.2"
+val alascVersion = "0.16.0.0"
+val catsVersion = "1.4.0"
+val catsEffectVersion = "1.0.0"
+val circeVersion = "0.10.0"
+val circeYamlVersion = "0.9.0"
+val consolidateVersion = "0.8.1"
+val fastParseVersion = "1.0.0"
 val gluonVersion = "0.1"
-val scalinVersion = "0.14.1.0"
-val shapelessVersion = "2.3.2"
-val spireVersion = "0.14.1"
-val spireCycloVersion = "0.14.1.2"
+val polytaVersion = "0.16.0.2"
+val scalinVersion = "0.16.0.0"
+val shapelessVersion = "2.3.3"
+val spireVersion = "0.16.0"
+val spireCycloVersion = "0.16.0.0"
 
 // dependency for tests only
 
-val disciplineVersion = "0.7.2"
-val scalaCheckVersion = "1.13.4"
-val scalaTestVersion = "3.0.1"
+val disciplineVersion = "0.8"
+val scalaCheckVersion = "1.13.5"
+val scalaTestVersion = "3.0.5"
 
 lazy val faacets = (project in file("."))
   .settings(moduleName := "faacets")
@@ -135,16 +138,17 @@ lazy val commonSettings = Seq(
   ),
   libraryDependencies ++= Seq( // update DEPENDENCIES.md on change
     "net.alasc" %% "alasc-core" % alascVersion,
-    "org.typelevel" %% "cats" % catsVersion,
+    "org.typelevel" %% "cats-core" % catsVersion,
     "io.circe" %% "circe-core" % circeVersion,
     "io.circe" %% "circe-yaml" % circeYamlVersion,
     "com.faacets" %% "consolidate" % consolidateVersion,
+    "com.faacets" %% "polyta" % polytaVersion,
     "com.lihaoyi" %% "fastparse" % fastParseVersion,
     "com.faacets" %% "gluon" % gluonVersion,
     "net.alasc" %% "scalin-core" % scalinVersion,
     "com.chuusai" %% "shapeless" % shapelessVersion,
     "org.typelevel" %% "spire" % spireVersion,
-    "net.alasc" %% "spire-cyclo" % spireCycloVersion
+    "net.alasc" %% "cyclo-core" % spireCycloVersion
   )
 ) ++ warnUnusedImport
 
@@ -174,8 +178,9 @@ lazy val publishSettings = Seq(
 )
 
 lazy val noPublishSettings = Seq(
-  publish := (),
-  publishLocal := (),
+  bintrayRelease := (()),
+  publish := (()),
+  publishLocal := (()),
   publishArtifact := false
 )
 
@@ -191,6 +196,7 @@ lazy val commonScalacOptions = Seq(
   "-Xfatal-warnings",
   "-Xlint",
   "-Yno-adapted-args",
+  "-Ypartial-unification",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
   "-Ywarn-value-discard",
