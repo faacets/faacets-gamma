@@ -1,14 +1,15 @@
 package com.faacets.core
 
+import shapeless.Witness
 import spire.algebra._
 import spire.syntax.cfor._
+
 import net.alasc.finite.{FaithfulPermutationActionBuilder, Grp}
 import net.alasc.perms._
 import net.alasc.syntax.all._
-
 import com.faacets.core.perm._
 import com.faacets.data.{NiceGenerators, Textable}
-
+import net.alasc.algebra.PermutationAction
 import ref._
 
 abstract class Relabeling {
@@ -18,7 +19,7 @@ abstract class Relabeling {
   def aPerm(p: Int, x: Int): Perm
 
   /** Minimum number of parties in the scenario relabeled by this relabeling. */
-  def nParties = nPartiesWithInputOutputRelabelings.max(nPartiesRelabeled)
+  def nParties: Int = nPartiesWithInputOutputRelabelings.max(nPartiesRelabeled)
   /** Size of the block of parties relabeled by the party relabeling `pPerm` */
   def nPartiesRelabeled: Int = pPerm.largestMovedPoint.getOrElseFast(0) + 1
   /** Size of the block of parties with relabeled inputs. */
@@ -51,10 +52,10 @@ abstract class Relabeling {
   }
 
   /** In the compact notation of this `Relabeling`, number of relabelings of parties (0 or 1) */
-  def numberOfPartyComponents =
+  def numberOfPartyComponents: Int =
     if (pPerm.isId) 0 else 1
   /** In the compact notation of this `Relabeling`, number of relabelings of inputs */
-  def numberOfInputComponents = {
+  def numberOfInputComponents: Int = {
     var n = 0
     cforRange(0 until nPartiesWithInputOutputRelabelings) { p =>
       if (!xPerm(p).isId) n += 1
@@ -62,7 +63,7 @@ abstract class Relabeling {
     n
   }
   /** In the compact notation of this `Relabeling`, number of relabeling of outputs */
-  def numberOfOutputComponents = {
+  def numberOfOutputComponents: Int = {
     var n = 0
     cforRange(0 until nPartiesWithInputOutputRelabelings) { p =>
       cforRange(0 until nInputsWithOutputRelabelings(p)) { x =>
@@ -72,7 +73,7 @@ abstract class Relabeling {
     n
   }
   /** Total number of components in the compact notation of this `Relabeling` */
-  def numberOfComponents = numberOfPartyComponents + numberOfInputComponents + numberOfOutputComponents
+  def numberOfComponents: Int = numberOfPartyComponents + numberOfInputComponents + numberOfOutputComponents
 
   /** Returns the party relabeling for the `p`-th party */
   def partyRelabeling(p: Int): PartyRelabeling
@@ -94,7 +95,7 @@ abstract class Relabeling {
   /** Converts the Relabeling to a RefRelabeling (mostly for test purposes). */
   def toRefRelabeling: RefRelabeling = RefRelabeling(components.toList)
 
-  override def toString = components.mkString(" ")
+  override def toString: String = components.mkString(" ")
 
   /** Returns the party relabeling part of this `Relabeling` */
   def partyPart: Relabeling
@@ -119,7 +120,7 @@ abstract class Relabeling {
     *
     * The hash is finalized using the number of (non-identity) components.
     */
-  override def hashCode = {
+  override def hashCode: Int = {
     import scala.util.hashing.MurmurHash3
     var hash = Relabeling.seed
     var n = 0
@@ -175,15 +176,17 @@ object Relabeling extends RelabelingCompanion with RelabelingInstances {
 
   type Aux[X <: Scenario with Singleton] = Relabeling { type S = X }
 
-  def id = group.empty
+  def id[S <: Scenario with Singleton]: Relabeling = group.empty
   val seed = "Relabeling".hashCode
 
   implicit def group[S <: Scenario with Singleton]: Group[Relabeling.Aux[S]] = genGroup.asInstanceOf[Group[Relabeling.Aux[S]]]
 
   implicit def equ[S <: Scenario with Singleton]: Eq[Relabeling.Aux[S]] = genEqu.asInstanceOf[Eq[Relabeling.Aux[S]]]
 
-  implicit def imprimitiveImprimitiveRelabelingRepBuilder[S <: Scenario with Singleton]: FaithfulPermutationActionBuilder[Relabeling.Aux[S]] =
-    genImprimitiveImprimitiveRelabelingRepBuilder.asInstanceOf[FaithfulPermutationActionBuilder[Relabeling.Aux[S]]]
+  implicit def imprimitiveImprimitiveRelabelingRepBuilder[S <: Scenario with Singleton: Witness.Aux]: FaithfulPermutationActionBuilder[Relabeling.Aux[S]] =
+    new FaithfulPermutationActionBuilder[Relabeling.Aux[S]] {
+      def apply(generators: Iterable[Relabeling.Aux[S]]): PermutationAction[Relabeling.Aux[S]] = valueOf[S].marginalAction
+    }
 
   implicit val povmRelabelingAction: Action[POVM, Relabeling] = new POVMRelabelingAction
 
@@ -202,8 +205,8 @@ object Relabeling extends RelabelingCompanion with RelabelingInstances {
       RelabelingImplGen(prMap, pPerm)
   }
 
-  implicit val niceGenerators: NiceGenerators[Relabeling] = new NiceGenerators[Relabeling] {
-    def niceGenerators(grp: Grp[Relabeling]) = RelabelingSubgroups(grp).niceGenerators
+  implicit def niceGenerators[S <: Scenario with Singleton: Witness.Aux]: NiceGenerators[Relabeling.Aux[S]] = new NiceGenerators[Relabeling.Aux[S]] {
+    def niceGenerators(grp: Grp[Relabeling.Aux[S]]): Iterable[Relabeling.Aux[S]] = RelabelingSubgroups(grp).niceGenerators
   }
 
 }

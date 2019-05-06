@@ -155,25 +155,25 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
 
   def averageNormalization(scenario: Scenario): Expr[scenario.type] = one(scenario)
 
-  def CHSH = correlators(Scenario.CHSH, Vec[Rational](0, 0, 0, 0, 1, 1, 0, 1, -1))
+  val CHSH: Expr[Scenario.CHSH.type] = correlators(Scenario.CHSH, Vec[Rational](0, 0, 0, 0, 1, 1, 0, 1, -1))
 
-  def Sliwa10 = correlators(Scenario.Sliwa,
+  val Sliwa10: Expr[Scenario.Sliwa.type] = correlators(Scenario.Sliwa,
     Vec[Rational](4, 0, 0, 0, -1, -1, 0, -1, -1, 0, -1, 1, -1, -1, 0, 1, 0, 1, 0, -1, 1, 1, 0, -1, -1, 1, 0))
 
-  def Sliwa10Sym = correlators(Scenario.Sliwa,
+  val Sliwa10Sym: Expr[Scenario.Sliwa.type] = correlators(Scenario.Sliwa,
     Vec[Rational](4, 0, 0, 0, -1, -1, 0, 1, 1, 0, -1, 1, -1, -1, 0, -1, 0, -1, 0, -1, 1, 1, 0, -1, 1, -1, 0))
 
-  def Sliwa7 = correlators(Scenario.Sliwa,
+  val Sliwa7: Expr[Scenario.Sliwa.type] = correlators(Scenario.Sliwa,
     Vec[Rational](4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, -1, 0, -1, 1, 0, 0, 0, 0, -1, 1, 0, 1, -1))
 
-  def Sliwa4 = correlators(Scenario.Sliwa,
+  val Sliwa4: Expr[Scenario.Sliwa.type] = correlators(Scenario.Sliwa,
     Vec[Rational](2, -2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, 1, 0, -1, 1, 0, 0, 0, 0, -1, 1, 0, 1, -1, 0))
 
-  def I3322 = collinsGisin(Scenario.I3322,
+  val I3322: Expr[Scenario.I3322.type] = collinsGisin(Scenario.I3322,
     Vec[Rational](0, -1, 0, 0, -2, 1, 1, 1, -1, 1, 1, -1, 0, 1, -1, 0))
 
-  def canonicalPositivity = Expr(Scenario._112, Vec[Rational](-1,1))
+  val canonicalPositivity: Expr[Scenario._112.type] = Expr(Scenario._112, Vec[Rational](-1,1))
 
-  def canonicalCHSH = Expr(Scenario.CHSH, Vec[Rational](-1, 1, -1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1, -1, -1, 1))
+  val canonicalCHSH: Expr[Scenario.CHSH.type] = Expr(Scenario.CHSH, Vec[Rational](-1, 1, -1, 1, 1, -1, 1, -1, -1, 1, 1, -1, 1, -1, -1, 1))
 
 }

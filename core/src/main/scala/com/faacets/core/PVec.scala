@@ -1,13 +1,16 @@
 package com.faacets
 package core
 
+import shapeless.Witness
 import spire.algebra._
 import spire.algebra.partial.PartialAction
 import spire.math.Rational
 import spire.syntax.cfor._
 import spire.syntax.group._
 import spire.syntax.partialAction._
+
 import scalin.immutable.Vec
+
 import net.alasc.attributes.Attributable
 import net.alasc.finite.Grp
 import net.alasc.perms.default._
@@ -33,7 +36,9 @@ abstract class PVec[V[X <: Scenario with Singleton] <: PVec[V, X], S <: Scenario
 
   override def toString = s"$prefix($scenario, $coefficients)"
 
-  val scenario: S
+  def scenario: S
+
+  implicit def witnessS: Witness.Aux[S] = Witness.mkWitness[S](scenario)
 
   def coefficients: Vec[Rational]
 
@@ -115,6 +120,7 @@ class VecRelabelingAction[V[X <: Scenario with Singleton] <: PVec[V, X], S <: Sc
   def actl(r: Relabeling.Aux[S], v: V[S]): V[S] = actr(v, r.inverse)
 
   def actr(v: V[S], r: Relabeling.Aux[S]): V[S] = {
+    implicit def witness: Witness.Aux[S] = v.witnessS
     implicit def action: PartialAction[Vec[Rational], Relabeling.Aux[S]] =
       com.faacets.data.instances.vec.vecPermutation[Rational, Relabeling.Aux[S]]((v.scenario: S).probabilityAction, implicitly)
     builder.updatedWithSymmetryGroup(v, (v.coefficients <|+|? r).get, g => Some(g.conjugatedBy(r)))

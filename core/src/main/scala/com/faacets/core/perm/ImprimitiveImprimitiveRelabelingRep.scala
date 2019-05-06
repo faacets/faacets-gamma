@@ -8,6 +8,6 @@ import net.alasc.finite.FaithfulPermutationActionBuilder
 final class ImprimitiveImprimitiveRelabelingRepBuilder extends FaithfulPermutationActionBuilder[Relabeling] {
 
   def apply(generators: Iterable[Relabeling]): PermutationAction[Relabeling] =
-    Scenario.homogenousFor(generators).shape.ImpImpAction
+    Scenario.homogenousFor(generators).shape.impImpAction.asInstanceOf[PermutationAction[Relabeling]]
 
 }

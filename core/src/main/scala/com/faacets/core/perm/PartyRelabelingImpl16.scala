@@ -13,8 +13,8 @@ import net.alasc.syntax.all._
   */
 class PartyRelabelingImpl16 protected[perm] (val aArrayEnc: Array[Long], val xPermEnc: Long) extends PartyRelabeling {
   def nInputsWithOutputRelabelings: Int = aArrayEnc.length
-  def aPermEnc(x: Int) = if (x < aArrayEnc.length) aArrayEnc(x) else 0L
-  def aPerm(x: Int) = if (x < aArrayEnc.length) Perm16.fromEncoding(aArrayEnc(x)).toPerm else Group[Perm].id
+  def aPermEnc(x: Int): Long = if (x < aArrayEnc.length) aArrayEnc(x) else 0L
+  def aPerm(x: Int): Perm = if (x < aArrayEnc.length) Perm16.fromEncoding(aArrayEnc(x)).toPerm else Group[Perm].id
   def xPerm = Perm16.fromEncoding(xPermEnc).toPerm
   def outputPart: PartyRelabeling = new PartyRelabelingImpl16(aArrayEnc, 0L)
   def inputPart: PartyRelabeling = new PartyRelabelingImpl16(new Array[Long](0), xPermEnc)
@@ -32,10 +32,10 @@ object PartyRelabelingImpl16 extends PartyRelabelingCompanion {
       if (!newA.isId && (newAArray eq null))
         newAArray = new Array[Long](i + 1)
       if (newAArray ne null)
-        newAArray(i) = newA.asInstanceOf[Perm16].encoding
+        newAArray(i) = Perm16.fromPerm(newA)
       i -= 1
     }
     if (newAArray eq null) newAArray = new Array[Long](0)
-    new PartyRelabelingImpl16(newAArray, xPerm.asInstanceOf[Perm16].encoding)
+    new PartyRelabelingImpl16(newAArray, Perm16.fromPerm(xPerm))
   }
 }

@@ -61,7 +61,7 @@ object RelabelingImpl16 extends RelabelingCompanion {
     var i = 0
     cforRange(0 until nA) { p =>
       cforRange(0 until aLength(p)) { x =>
-        aArray(i) = aMap(p).aPerm(x).asInstanceOf[Perm16].encoding
+        aArray(i) = Perm16.fromPerm(aMap(p).aPerm(x))
         i += 1
       }
     }
@@ -69,7 +69,7 @@ object RelabelingImpl16 extends RelabelingCompanion {
       case (mx, k) if aMap(k).xPerm.isId => mx
       case (mx, k) => mx.max(k)
     }) + 1
-    val xArray = Array.tabulate[Long](nX)( p => aMap.get(p).map(_.xPerm.asInstanceOf[Perm16].encoding).getOrElse(0L) )
-    new RelabelingImpl16(nA, aLength, aOffset, aArray, nX, xArray, pPerm.asInstanceOf[Perm16].encoding)
+    val xArray = Array.tabulate[Long](nX)( p => aMap.get(p).map(pr => Perm16.fromPerm(pr.xPerm)).getOrElse(0L) )
+    new RelabelingImpl16(nA, aLength, aOffset, aArray, nX, xArray, Perm16.fromPerm(pPerm))
   }
 }

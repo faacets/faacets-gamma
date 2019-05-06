@@ -1,7 +1,7 @@
 import microsites._
 import ReleaseTransformations._
 
-val scala212Version = "2.12.7"
+val scala212Version = "2.12.8"
 
 val alascVersion = "0.16.0.0"
 val catsVersion = "1.4.0"

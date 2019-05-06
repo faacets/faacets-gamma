@@ -2,9 +2,13 @@ package com.faacets
 package core
 
 import scala.annotation.tailrec
+
+import shapeless.Witness
 import spire.math.SafeLong
 import spire.syntax.cfor._
+
 import scalin.immutable.Vec
+
 import net.alasc.finite.Grp
 import com.faacets.consolidate.Merge
 import com.faacets.core.perm._
@@ -46,6 +50,10 @@ import net.alasc.algebra.PermutationAction
   * - the I3322 scenario is written down [(2 2 2) (2 2 2]].*/
 final class Scenario private (val parties: Seq[Party]) {
 
+  type Relabeling = com.faacets.core.Relabeling { type S = this.type }
+
+  implicit val witness: Witness.Aux[this.type] = Witness.mkWitness(this)
+
   override def hashCode = parties.hashCode
 
   override def toString = parties.map(_.toText).mkString("[", " ", "]")
@@ -70,7 +78,7 @@ final class Scenario private (val parties: Seq[Party]) {
     * Example: Scenario.CHSH.nInputTuples === 4. */
   val nInputTuples = parties.foldLeft(SafeLong(1)) { case (mul, party) => mul * SafeLong(party.nInputs) }
 
-  val shape = new Shape(parties)
+  val shape: Shape[this.type] = new Shape[this.type]
 
   def tabulateP[A](coefficients: (Array[Int], Array[Int]) => A): Vec[A] = {
     import scalin.immutable.dense._
@@ -200,11 +208,11 @@ final class Scenario private (val parties: Seq[Party]) {
     !hasContent
   }
 
-  lazy val marginalAction = shape.ImpImpAction.asInstanceOf[PermutationAction[Relabeling.Aux[this.type]]]
+  lazy val marginalAction = shape.impImpAction.asInstanceOf[PermutationAction[Relabeling.Aux[this.type]]]
 
-  lazy val probabilityAction = shape.PriImpAction.asInstanceOf[PermutationAction[Relabeling.Aux[this.type]]]
+  lazy val probabilityAction = shape.priImpAction.asInstanceOf[PermutationAction[Relabeling.Aux[this.type]]]
 
-  lazy val strategyAction = shape.PriPriAction.asInstanceOf[PermutationAction[Relabeling.Aux[this.type]]]
+  lazy val strategyAction = shape.priPriAction.asInstanceOf[PermutationAction[Relabeling.Aux[this.type]]]
 
   /** The value `group` represents the symmetry group of the current
     * Bell scenario. This group is actually a wreath product group,
@@ -259,11 +267,10 @@ object Scenario extends UniquenessCacheEq[Seq[Party], Scenario] {
     iter(generators.iterator)
   }
 
-  val CHSH = nmk(2, 2, 2)
-  val Sliwa = nmk(3, 2, 2)
-  val I3322 = nmk(2, 3, 2)
-  val _112 = nmk(1, 1, 2)
-
+  val CHSH: Scenario = nmk(2, 2, 2)
+  val Sliwa: Scenario = nmk(3, 2, 2)
+  val I3322: Scenario = nmk(2, 3, 2)
+  val _112: Scenario = nmk(1, 1, 2)
   def cglmp(d: Int): Scenario = nmk(2, 2, d)
 
   implicit val textable: Textable[Scenario] = Textable.fromParser[Scenario](Parsers.scenario, _.toString)
