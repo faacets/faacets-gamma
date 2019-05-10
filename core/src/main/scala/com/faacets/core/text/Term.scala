@@ -104,7 +104,6 @@ case object ConstantTerm extends Term(TermType.constant) {
 
 }
 
-/** */
 case class FullTerm(outputs: Seq[Int], inputs: Seq[Int]) extends Term(TermType.full) {
   import scalin.immutable.dense._
 

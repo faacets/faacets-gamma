@@ -1,5 +1,5 @@
 package com.faacets.operation.product
-
+/*
 import spire.math.Rational
 import spire.syntax.cfor._
 
@@ -40,3 +40,4 @@ final class PVecTensor[V <: PVec[V]](implicit builder: PVecBuilder[V]) extends T
   }
 
 }
+*/

@@ -1,7 +1,7 @@
 package com.faacets
 package operation
 package reordering
-
+/*
 import spire.algebra.partial.PartialAction
 import spire.syntax.cfor._
 import spire.syntax.eq._
@@ -65,3 +65,4 @@ final class VecReorderingExtractor[V <: PVec[V]](implicit val partialAction: Par
   def identity(v: V) = Reordering.scenarioReorderingExtractor.identity(v.scenario)
   def extractOperation(v: V) = Reordering.scenarioReorderingExtractor.extractOperation(v.scenario)
 }
+*/

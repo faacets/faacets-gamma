@@ -1,5 +1,5 @@
 package com.faacets.operation.reordering
-
+/*
 import spire.algebra.Order
 
 import com.faacets.core.Party
@@ -19,3 +19,4 @@ object LexicographicPartyOrder extends Order[Party] {
   }
 
 }
+*/

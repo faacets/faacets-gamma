@@ -15,6 +15,7 @@ import com.faacets.core.perm._
 import com.faacets.data.Textable
 import com.faacets.data.syntax.textable._
 import net.alasc.algebra.PermutationAction
+import net.alasc.partitions.Partition
 
 /** TODO: verify doc below
   *
@@ -208,6 +209,8 @@ final class Scenario private (val parties: Seq[Party]) {
     !hasContent
   }
 
+  lazy val partition: Partition = Partition.fromSeq(parties)
+
   lazy val marginalAction = shape.impImpAction.asInstanceOf[PermutationAction[Relabeling.Aux[this.type]]]
 
   lazy val probabilityAction = shape.priImpAction.asInstanceOf[PermutationAction[Relabeling.Aux[this.type]]]
@@ -221,11 +224,11 @@ final class Scenario private (val parties: Seq[Party]) {
   lazy val group: Grp[Relabeling.Aux[this.type]] =
     GrpLexAnsatz.fromGeneratorsAndOrder(subgroups.generators.map(_.asInstanceOf[Relabeling.Aux[this.type]]), subgroups.order, marginalAction)
 
-  lazy val subgroups = ScenarioSubgroups(this)
+  lazy val subgroups = ScenarioSubgroups[this.type]()
 
-  lazy val probabilitySubgroups = ScenarioSubgroups(this, permuteSingleInputOutputParties = false)
+  lazy val probabilitySubgroups = ScenarioSubgroups[this.type](permuteSingleInputOutputParties = false)
 
-  lazy val strategySubgroups = ScenarioSubgroups(this, false, false)
+  lazy val strategySubgroups = ScenarioSubgroups[this.type](false, false)
 
 }
 

@@ -1,6 +1,6 @@
 package com.faacets.operation
 package product
-
+/*
 import spire.math.Rational
 import spire.syntax.cfor._
 import spire.util.Opt
@@ -64,3 +64,4 @@ final class ExprProductExtractor extends ProductExtractor[Expr] {
   }
 
 }
+*/

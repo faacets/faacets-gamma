@@ -13,6 +13,9 @@ import net.alasc.algebra.PermutationAction
 import ref._
 
 abstract class Relabeling {
+
+  def inNC(scenario: Scenario): Relabeling.Aux[scenario.type] = this.asInstanceOf[Relabeling.Aux[scenario.type]]
+
   type S <: Scenario with Singleton
   def pPerm: Perm
   def xPerm(p: Int): Perm
@@ -206,7 +209,7 @@ object Relabeling extends RelabelingCompanion with RelabelingInstances {
   }
 
   implicit def niceGenerators[S <: Scenario with Singleton: Witness.Aux]: NiceGenerators[Relabeling.Aux[S]] = new NiceGenerators[Relabeling.Aux[S]] {
-    def niceGenerators(grp: Grp[Relabeling.Aux[S]]): Iterable[Relabeling.Aux[S]] = RelabelingSubgroups(grp).niceGenerators
+    def niceGenerators(grp: Grp[Relabeling.Aux[S]]): Iterable[Relabeling.Aux[S]] = RelabelingSubgroups[S](grp).niceGenerators
   }
 
 }

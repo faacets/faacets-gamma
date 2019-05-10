@@ -8,10 +8,10 @@ import spire.syntax.group._
 import com.faacets.core._
 
 
-final class VecAffineAction[V <: GenExpr[V]] extends Action[V, Affine] {
+final class VecAffineAction[V[S] <: GenExpr[V, S], S <: Scenario with Singleton] extends Action[V[S], Affine] {
 
-  def actl(a: Affine, v: V) = actr(v, a.inverse)
+  def actl(a: Affine, v: V[S]): V[S] = actr(v, a.inverse)
 
-  def actr(v: V, a: Affine): V = (a.multiplier *: v) + a.shift
+  def actr(v: V[S], a: Affine): V[S] = (a.multiplier *: v) + a.shift
 
 }

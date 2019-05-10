@@ -25,3 +25,4 @@ final class RelabelingComponentPrettyTex extends Pretty[Relabeling.Component, Te
   }
 }
  */
+a

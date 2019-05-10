@@ -1,7 +1,7 @@
 package com.faacets
 package operation
 package reordering
-
+/*
 import spire.algebra.partial.PartialAction
 import spire.syntax.eq._
 import spire.syntax.groupoid._
@@ -38,3 +38,4 @@ final class ScenarioReorderingExtractor extends OperationExtractor[Scenario, Reo
   }
 
 }
+*/

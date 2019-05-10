@@ -1,5 +1,5 @@
 package com.faacets.operation.product
-
+/*
 import scala.collection.immutable.ListMap
 
 import cats.instances.all._
@@ -94,3 +94,4 @@ final class BoundedExprTensor(implicit ppb: ProductPreservedBounds) extends Tens
   }
 
 }
+*/

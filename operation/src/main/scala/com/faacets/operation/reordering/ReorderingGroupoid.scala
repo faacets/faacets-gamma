@@ -1,7 +1,7 @@
 package com.faacets
 package operation
 package reordering
-
+/*
 import spire.algebra.partial.Groupoid
 import spire.syntax.eq._
 import spire.util.Opt
@@ -16,3 +16,4 @@ final class ReorderingGroupoid extends Groupoid[Reordering] {
     if (opIsDefined(x, y)) Opt(Reordering(x.source, y.target)) else Opt.empty[Reordering]
 
 }
+*/

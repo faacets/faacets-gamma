@@ -10,7 +10,7 @@ trait SubgroupsSyntax {
 
   implicit def coreSubgroupsPartyRelabeling(grp: Grp[PartyRelabeling]): PartyRelabelingSubgroups = PartyRelabelingSubgroups(grp)
 
-  implicit def coreSubgroupsRelabeling[S <: Scenario with Singleton:Witness.Aux](grp: Grp[S#Relabeling]): RelabelingSubgroups[S] =
+  implicit def coreSubgroupsRelabeling[S <: Scenario with Singleton:Witness.Aux](grp: Grp[Relabeling.Aux[S]]): RelabelingSubgroups[S] =
     RelabelingSubgroups[S](grp)
 
 }

@@ -1,7 +1,7 @@
 package com.faacets
 package operation
 package product
-
+/*
 import scala.annotation.tailrec
 
 import spire.algebra.{Eq, Field, Ring}
@@ -102,3 +102,4 @@ object Rank1 {
   }
 
 }
+*/

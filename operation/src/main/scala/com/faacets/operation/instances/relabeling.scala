@@ -5,7 +5,7 @@ package instances
 import spire.algebra.Action
 import spire.algebra.partial.PartialAction
 
-import com.faacets.core.{Expr, Relabeling}
+import com.faacets.core.{Expr, Relabeling, Scenario}
 import com.faacets.data.Value
 import com.faacets.operation.relabeling.{VecRelabelingExtractor, VecRelabelingPartialAction}
 
@@ -19,9 +19,10 @@ trait RelabelingInstances {
     def actr(v: Value, o: Relabeling): Value = v
   }
 
-  implicit def boundedExprAction(implicit pb: PreservedBounds[Relabeling]): PartialAction[BoundedExpr, Relabeling] =
+  /*
+  implicit def boundedExprAction[S <: Scenario with Singleton](implicit pb: PreservedBounds[Relabeling]): PartialAction[BoundedExpr, Relabeling] =
     BoundedExpr.constructPartialAction[Relabeling](pb.boundTransform, pb.facetOfTransform)
-
+*/
   /* TODO
 
     class VecRepresentativesSyntax[V <: Vec[V]](val v: V) extends AnyVal {

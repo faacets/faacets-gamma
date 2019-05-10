@@ -1,5 +1,5 @@
 package com.faacets.operation.product
-
+/*
 import spire.util.Opt
 
 import com.faacets.core.Expr
@@ -17,3 +17,4 @@ final class BoundedExprProductExtractor extends ProductExtractor[BoundedExpr] {
   }
 
 }
+*/

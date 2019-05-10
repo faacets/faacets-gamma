@@ -1,5 +1,5 @@
 package com.faacets.operation
-
+/*
 import spire.algebra.partial.PartialAction
 import spire.syntax.partialAction._
 
@@ -47,3 +47,4 @@ object CanonicalDec {
   }
 
 }
+*/

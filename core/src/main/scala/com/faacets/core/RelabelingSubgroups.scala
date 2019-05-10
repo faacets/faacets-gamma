@@ -14,7 +14,7 @@ import net.alasc.perms.Perm
 import net.alasc.perms.default._
 import net.alasc.syntax.all._
 
-case class RelabelingSubgroups[S <: Scenario with Singleton:Witness.Aux](val group: Grp[S#Relabeling]) {
+case class RelabelingSubgroups[S <: Scenario with Singleton:Witness.Aux](val group: Grp[Relabeling.Aux[S]]) {
 
   def scenario: S = valueOf[S]
 
@@ -22,14 +22,14 @@ case class RelabelingSubgroups[S <: Scenario with Singleton:Witness.Aux](val gro
 
   val impImpShape = shape.imprimitiveImprimitive
 
-  implicit val action: PermutationAction[S#Relabeling] = shape.impImpAction
+  implicit val action: PermutationAction[Relabeling.Aux[S]] = shape.impImpAction
 
-  val groupInRep: GrpChain[S#Relabeling, action.type] =
-    GrpChainPermutationAction[S#Relabeling].fromGrp(group, action)
+  val groupInRep: GrpChain[Relabeling.Aux[S], action.type] =
+    GrpChainPermutationAction[Relabeling.Aux[S]].fromGrp(group, action)
 
-  def subgroupFor(test: (Int, Int) => Boolean, predicate: S#Relabeling => Boolean): GrpChain[S#Relabeling, action.type] = {
-    val definition = SubgroupDefinition[S#Relabeling, action.type](test, predicate)(action)
-    GrpChainPermutationAction[S#Relabeling].subgroupFor[action.type](groupInRep, action, definition)
+  def subgroupFor(test: (Int, Int) => Boolean, predicate: Relabeling.Aux[S] => Boolean): GrpChain[Relabeling.Aux[S], action.type] = {
+    val definition = SubgroupDefinition[Relabeling.Aux[S], action.type](test, predicate)(action)
+    GrpChainPermutationAction[Relabeling.Aux[S]].subgroupFor[action.type](groupInRep, action, definition)
   }
 
   def partiesPermSubgroup: Grp[Perm] = {
@@ -37,8 +37,8 @@ case class RelabelingSubgroups[S <: Scenario with Singleton:Witness.Aux](val gro
     Grp.fromGeneratorsAndOrder(subgrp.generators.map(_.pPerm), subgrp.order)
   }
 
-  def partiesSubgroup: Grp[S#Relabeling] = {
-    def predicate(r: S#Relabeling) = r.nPartiesWithInputOutputRelabelings == 0
+  def partiesSubgroup: Grp[Relabeling.Aux[S]] = {
+    def predicate(r: Relabeling.Aux[S]) = r.nPartiesWithInputOutputRelabelings == 0
     def test(preimage: Int, image: Int) = {
       val preimageIndex = preimage - impImpShape.offsets(impImpShape.blockIndices(preimage))
       val imageIndex = image - impImpShape.offsets(impImpShape.blockIndices(image))
@@ -63,13 +63,13 @@ case class RelabelingSubgroups[S <: Scenario with Singleton:Witness.Aux](val gro
     Grp.fromGeneratorsAndOrder(relSubGrp.generators.map(_.partyRelabeling(p)), relSubGrp.order)
   }
 
-  def inputSubgroup(p: Int, x: Int): Grp[S#Relabeling] = {
+  def inputSubgroup(p: Int, x: Int): Grp[Relabeling.Aux[S]] = {
     val prSubGrp = PartyRelabelingSubgroups(partyRelabelingSubgroup(p)).inputSubgroup(x)
-    Grp.fromGeneratorsAndOrder(prSubGrp.generators.map(g => Relabeling(Map(p -> g), Group[Perm].id)), prSubGrp.order)
+    Grp.fromGeneratorsAndOrder(prSubGrp.generators.map(g => Relabeling(Map(p -> g), Group[Perm].id).inNC(scenario)), prSubGrp.order)
   }
 
-  def partySubgroup(p: Int): Grp[S#Relabeling] = {
-    def predicate(r: S#Relabeling): Boolean = r.pPerm.isId && {
+  def partySubgroup(p: Int): Grp[Relabeling.Aux[S]] = {
+    def predicate(r: Relabeling.Aux[S]): Boolean = r.pPerm.isId && {
       cforRange(0 until r.nPartiesWithInputOutputRelabelings) { p1 =>
         if (p1 != p && (!r.xPerm(p1).isId || r.nInputsWithOutputRelabelings(p1) > 0)) return false
       }
@@ -83,8 +83,8 @@ case class RelabelingSubgroups[S <: Scenario with Singleton:Witness.Aux](val gro
     subgroupFor(test, predicate)
   }
 
-  def inputsOutputsSubgroup: Grp[S#Relabeling] = {
-    def predicate(r: S#Relabeling) = r.pPerm.isId
+  def inputsOutputsSubgroup: Grp[Relabeling.Aux[S]] = {
+    def predicate(r: Relabeling.Aux[S]) = r.pPerm.isId
     def test(preimage: Int, image: Int) = {
       val preimageParty = impImpShape.blockIndices(preimage)
       val imageParty = impImpShape.blockIndices(image)
@@ -93,9 +93,9 @@ case class RelabelingSubgroups[S <: Scenario with Singleton:Witness.Aux](val gro
     subgroupFor(test, predicate)
   }
 
-  def outputsSubgroup: Grp[S#Relabeling] = {
+  def outputsSubgroup: Grp[Relabeling.Aux[S]] = {
     val partyShapes = shape.partyShapes
-    def predicate(r: S#Relabeling) = r.pPerm.isId && r.nPartiesWithInputRelabelings == 0
+    def predicate(r: Relabeling.Aux[S]) = r.pPerm.isId && r.nPartiesWithInputRelabelings == 0
     def test(preimage: Int, image: Int) = {
       val preimageParty = impImpShape.blockIndices(preimage)
       val imageParty = impImpShape.blockIndices(image)
@@ -110,12 +110,12 @@ case class RelabelingSubgroups[S <: Scenario with Singleton:Witness.Aux](val gro
     subgroupFor(test, predicate)
   }
 
-  def niceGenerators: Iterable[S#Relabeling] = {
+  def niceGenerators: Iterable[Relabeling.Aux[S]] = {
     val partiesGrp = partiesSubgroup
     val partiesGen = partiesGrp.generators
     val outputPermSubgrps = outputPermSubgroups
     val liftingsGen = outputPermSubgroups.flatMap {
-      case ((p, x), subgrp) => subgrp.generators.map(g => Relabeling(Map(p -> PartyRelabeling(Map(x -> g), Group[Perm].id)), Group[Perm].id))
+      case ((p, x), subgrp) => subgrp.generators.map(g => Relabeling(Map(p -> PartyRelabeling(Map(x -> g), Group[Perm].id)), Group[Perm].id).inNC(scenario))
     }
     val liftingsOrder = (SafeLong(1) /: outputPermSubgrps) { case (cumOrder, (_, subgrp)) => cumOrder * subgrp.order }
     val liftingsGrp = Grp.fromGeneratorsAndOrder(liftingsGen.toIndexedSeq, liftingsOrder)

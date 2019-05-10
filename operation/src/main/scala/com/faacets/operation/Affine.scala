@@ -1,6 +1,7 @@
 package com.faacets
 package operation
 
+import shapeless.Witness
 import spire.algebra.{Action, Eq, Group}
 import spire.math.Rational
 import spire.syntax.action._
@@ -48,18 +49,18 @@ object Affine {
 
   implicit val equ: Eq[Affine] = new AffineEq
 
-  implicit val exprAction: Action[Expr, Affine] = new VecAffineAction[Expr]
+  implicit def exprAction[S <: Scenario with Singleton:Witness.Aux]: Action[Expr[S], Affine] = new VecAffineAction[Expr, S]
 
   implicit val valueAction: Action[Value, Affine] = new Action[Value, Affine] {
     def actl(a: Affine, v: Value): Value = actr(v, a.inverse)
     def actr(v: Value, a: Affine): Value = v * a.multiplier + a.shift
   }
 
-  implicit val boundedExprAction: Action[BoundedExpr, Affine] = new Action[BoundedExpr, Affine] {
+  implicit def boundedExprAction[S <: Scenario with Singleton:Witness.Aux]: Action[BoundedExpr[S], Affine] = new Action[BoundedExpr[S], Affine] {
 
-    def actl(a: Affine, be: BoundedExpr): BoundedExpr = actr(be, a.inverse)
+    def actl(a: Affine, be: BoundedExpr[S]): BoundedExpr[S] = actr(be, a.inverse)
 
-    def actr(be: BoundedExpr, a: Affine): BoundedExpr = {
+    def actr(be: BoundedExpr[S], a: Affine): BoundedExpr[S] = {
       def boundTransform(name: String, v: Value): Option[(String, Value)] = Some((name, v <|+| a))
       val newLower = be.lower.processBounds(boundTransform)
       val newUpper = be.upper.processBounds(boundTransform)
@@ -69,6 +70,6 @@ object Affine {
 
   }
 
-  implicit val exprExtractor: OperationExtractor[Expr, Affine] = new ExprAffineExtractor
+  implicit def exprExtractor[S <: Scenario with Singleton:Witness.Aux]: OperationExtractor[Expr[S], Affine] = new ExprAffineExtractor
 
 }

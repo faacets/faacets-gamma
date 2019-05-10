@@ -25,18 +25,42 @@ import com.faacets.data.Value
 import com.faacets.data.instances.all._
 import com.faacets.data.syntax.all._
 import com.faacets.operation.instances.relabeling._
-import com.faacets.operation.product.BoundedExprTensor
+//import com.faacets.operation.product.BoundedExprTensor
 
-case class BoundedExpr(expr: Expr,
-                       lower: LowerOrientation = LowerOrientation.empty,
-                       upper: UpperOrientation = UpperOrientation.empty
-                         ) {
+trait BoundedExpr { self =>
+  type S <: Scenario with Singleton
+  def expr: Expr[S]
+  def lower: LowerOrientation
+  def upper: UpperOrientation
+  override def equals(a: Any): Boolean = a match {
+    case that: BoundedExpr => (self.expr == that.expr) && (self.lower == that.lower) && (self.upper == that.upper)
+  }
+  override def toString: String = s"BoundedExpr($expr, $lower, $upper)"
+  override def hashCode: Int = expr.hashCode + lower.hashCode * 41 + upper.hashCode * 41 * 41
+}
 
-  def decomposition(implicit br: BoundRules): PolyProduct[CanonicalDec[BoundedExpr]] =
-    ProductExtractor[BoundedExpr].forceExtract(BoundedExpr(expr))
-      .mapAffine(be => CanonicalWithAffineExtractor[BoundedExpr].apply(be).splitAffine)
+object BoundedExpr {
 
-  def reconstructBounds(implicit br: BoundRules): BoundedExpr = {
+  type Aux[S0 <: Scenario with Singleton] = BoundedExpr { type S = S0 }
+
+  def apply[S0 <: Scenario with Singleton](expr0: Expr[S0], lower0: LowerOrientation = LowerOrientation.empty, upper0: UpperOrientation = UpperOrientation.empty): BoundedExpr.Aux[S0] =
+    new BoundedExpr {
+      type S = S0
+      val expr: Expr[S] = expr0
+      val lower: LowerOrientation = lower0
+      val upper: UpperOrientation = upper0
+    }
+
+  def unapply(be: BoundedExpr): Option[(Expr[be.S], LowerOrientation, UpperOrientation)] =
+    Some((be.expr, be.lower, be.upper))
+}
+
+  /*
+  def decomposition(implicit br: BoundRules): PolyProduct[CanonicalDec[BoundedExpr[S]]] =
+    ProductExtractor[BoundedExpr[S]].forceExtract(BoundedExpr(expr))
+      .mapAffine(be => CanonicalWithAffineExtractor[BoundedExpr[S]].apply(be).splitAffine)
+
+  def reconstructBounds(implicit br: BoundRules): BoundedExpr[S] = {
     val pprec = decomposition.map(_.map { be =>
       BoundedExpr.canonicals.get(be.expr) match {
         case Some(c) => c
@@ -45,12 +69,11 @@ case class BoundedExpr(expr: Expr,
     })
     pprec.toProductTreeOption.fold(decomposition.map(_.original).original)(_.map(_.original).original)
   }
-
-}
-
+*/
+/*
 object BoundedExpr {
 
-  val canonicalPositivity = BoundedExpr(
+  val canonicalPositivity: BoundedExpr[Scenario._112.type] = BoundedExpr(
     Expr.canonicalPositivity,
     LowerOrientation(ListMap("local" -> Value(-1), "quantum" -> Value(-1), "nonsignaling" -> Value(-1)),
       ListMap("local" -> true, "nonsignaling" -> true)),
@@ -58,7 +81,7 @@ object BoundedExpr {
       ListMap("local" -> true, "nonsignaling" -> true))
   )
 
-  val canonicalCHSH = BoundedExpr(
+  val canonicalCHSH: BoundedExpr[Scenario.CHSH.type] = BoundedExpr(
     Expr.canonicalCHSH,
     LowerOrientation(ListMap("local" -> Value(-2), "quantum" -> Value(-RealCyclo.sqrt2*2), "nonsignaling" -> Value(-4)),
       ListMap("local" -> true)),
@@ -66,9 +89,7 @@ object BoundedExpr {
       ListMap("local" -> true))
   )
 
-  val canonicals: Map[Expr, BoundedExpr] = Map(canonicalPositivity.expr -> canonicalPositivity, canonicalCHSH.expr -> canonicalCHSH)
-
-  val CH = BoundedExpr(
+  val CH: BoundedExpr[Scenario.CHSH.type] = BoundedExpr(
     Expr.collinsGisin(Scenario.CHSH, Vec[Rational](0,0,-1,-1,1,1,0,-1,1)),
     LowerOrientation.empty,
     UpperOrientation(ListMap("local" -> Value(0)), ListMap.empty[String, Boolean])
@@ -76,6 +97,7 @@ object BoundedExpr {
 
   val stdPreserved = Set("local", "quantum", "nonsignaling")
 
+  /*
   def constructPartialAction[O:Groupoid](boundsF: (String, Value) => Option[(String, Value)],
                                          facetOfF: (String, Boolean) => Option[(String, Boolean)])
                                         (implicit exprPA: PartialAction[Expr, O]): PartialAction[BoundedExpr, O] =
@@ -164,5 +186,6 @@ object BoundedExpr {
       }
     }
   })
-
+*/
 }
+*/

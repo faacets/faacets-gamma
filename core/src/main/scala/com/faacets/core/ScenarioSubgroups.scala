@@ -1,31 +1,34 @@
 package com.faacets
 package core
 
+import shapeless.Witness
 import spire.algebra.Group
 import spire.math.{SafeLong, fact}
+
 import net.alasc.finite.Grp
 import net.alasc.partitions.Partition
 import net.alasc.perms.default._
 import net.alasc.perms.{GrpFixingPartition, Perm}
 import net.alasc.syntax.all._
-
 import com.faacets.core.Select._
 
-case class ScenarioSubgroups(scenario: Scenario, permuteSingleInputOutputParties: Boolean = true,
+case class ScenarioSubgroups[S <: Scenario with Singleton: Witness.Aux](permuteSingleInputOutputParties: Boolean = true,
                              permuteSingleOutputInputs: Boolean = true) {
 
-  def n = scenario.parties.length
+  def scenario: S = valueOf[S]
+
+  def n: Int = scenario.parties.length
   def isSingleIOParty(p: Int): Boolean = scenario.parties(p).inputs.size == 1 && scenario.parties(p).inputs(0) == 1
 
   val singleInputOutputParties: Set[Int] = (0 until n).toSet.filter(isSingleIOParty)
   val nSingleInputOutputParties = singleInputOutputParties.size
-  val partition: Partition = Partition.fromSeq(scenario.parties)
+  def partition: Partition = scenario.partition
 
-  def innerGenerators: IndexedSeq[Relabeling] =
+  def innerGenerators: IndexedSeq[Relabeling.Aux[S]] =
     if (permuteSingleOutputInputs)
-      (0 until n).flatMap { p => scenario.parties(p).subgroups.generators.map(_.forParty(p)) }
+      (0 until n).flatMap { p => scenario.parties(p).subgroups.generators.map(_.forParty(p).inNC(scenario)) }
     else
-      (0 until n).flatMap { p => scenario.parties(p).strategySubgroups.generators.map(_.forParty(p)) }
+      (0 until n).flatMap { p => scenario.parties(p).strategySubgroups.generators.map(_.forParty(p).inNC(scenario)) }
 
   def innerOrder: SafeLong =
     if (permuteSingleOutputInputs)
@@ -37,26 +40,26 @@ case class ScenarioSubgroups(scenario: Scenario, permuteSingleInputOutputParties
     val fullOrder = GrpFixingPartition.order(partition)
     if (permuteSingleInputOutputParties) fullOrder else fullOrder / fact(nSingleInputOutputParties)
   }
-  def partyGenerators: IndexedSeq[Relabeling] = {
+  def partyGenerators: IndexedSeq[Relabeling.Aux[S]] = {
     val fullGenerators = GrpFixingPartition.generators(partition)
     val generators = if (permuteSingleInputOutputParties) fullGenerators
     else fullGenerators.filterNot(g => isSingleIOParty(g.findMovedPoint.get))
-    generators.map(p => ref.PartyComponent(p).toRelabeling)
+    generators.map(p => ref.PartyComponent(p).toRelabeling.inNC(scenario))
   }
   def partyPermGroup: Grp[Perm] = {
     val fullGroup = GrpFixingPartition(partition)
     if (permuteSingleInputOutputParties) fullGroup else fullGroup.pointwiseStabilizer(singleInputOutputParties)
   }
-  def partyGroup: Grp[Relabeling] = Grp.fromGeneratorsAndOrder(partyGenerators, partyOrder)
+  def partyGroup: Grp[Relabeling.Aux[S]] = Grp.fromGeneratorsAndOrder(partyGenerators, partyOrder)
 
-  def generators: IndexedSeq[Relabeling] = innerGenerators ++ partyGenerators
+  def generators: IndexedSeq[Relabeling.Aux[S]] = innerGenerators ++ partyGenerators
   def order: SafeLong = innerOrder * partyOrder
 
-  def apply(outputs: Select, inputs: Select, parties: Select): Iterable[Grp[Relabeling]] =
+  def apply(outputs: Select, inputs: Select, parties: Select): Iterable[Grp[Relabeling.Aux[S]]] =
     (outputs, inputs, parties) match {
       case (_, _, For(party)) =>
         scenario.parties(party).subgroups(outputs, inputs).map { partySubgroup =>
-          val generators = partySubgroup.generators.map(pg => Relabeling(Map(party -> pg), Group[Perm].id))
+          val generators = partySubgroup.generators.map(pg => Relabeling(Map(party -> pg), Group[Perm].id).inNC(scenario))
 
           Grp.fromGeneratorsAndOrder(generators, partySubgroup.order)
         }

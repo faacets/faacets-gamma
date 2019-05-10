@@ -34,14 +34,14 @@ lazy val data = (project in file("data"))
   .settings(moduleName := "faacets-data")
   .settings(faacetsSettings: _*)
   .settings(commonJvmSettings: _*)
-
+/*
 lazy val laws = (project in file("laws"))
   .settings(moduleName := "faacets-laws")
   .settings(faacetsSettings: _*)
   .settings(lawsSettings:_*)
   .settings(commonJvmSettings: _*)
   .dependsOn(core, coreLaws, data, operation)
-
+ */
 lazy val core = (project in file("core"))
   .settings(moduleName := "faacets-core")
   .settings(faacetsSettings)
@@ -63,6 +63,7 @@ lazy val coreTests = (project in file("core-tests"))
   .settings(noPublishSettings:_*)
   .dependsOn(core, coreLaws, data)
 
+/*
 lazy val operation = (project in file("operation"))
   .settings(moduleName := "faacets-operation")
   .settings(faacetsSettings)
@@ -81,7 +82,6 @@ lazy val docs = (project in file("docs"))
   .settings(faacetsSettings)
   .settings(docsSettings)
   .dependsOn(core, data, operation)
-
 lazy val tests = (project in file("tests"))
   .settings(moduleName := "faacets-tests")
   .settings(faacetsSettings: _*)
@@ -89,6 +89,7 @@ lazy val tests = (project in file("tests"))
   .settings(noPublishSettings:_*)
   .settings(commonJvmSettings: _*)
   .dependsOn(core, data, laws, coreLaws, coreTests, operation)
+ */
 
 lazy val docsSettings = Seq(
   micrositeName := "Faacets",

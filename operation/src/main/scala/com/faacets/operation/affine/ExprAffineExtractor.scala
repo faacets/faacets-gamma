@@ -8,15 +8,15 @@ import spire.util.Opt
 
 import com.faacets.core._
 
-class ExprAffineExtractor extends GroupActionOperationExtractor[Expr, Affine] {
+final class ExprAffineExtractor[S <: Scenario with Singleton] extends GroupActionOperationExtractor[Expr[S], Affine] {
 
   def group = Affine.group
 
   def action = Affine.exprAction
 
-  def computeShift(expr: Expr): Rational = expr.inner(Behavior.uniformlyRandom(expr.scenario))
+  def computeShift(expr: Expr[S]): Rational = expr.inner(Behavior.uniformlyRandom(expr.scenario))
 
-  def extractOperation(expr: Expr): Opt[Affine] = {
+  def extractOperation(expr: Expr[S]): Opt[Affine] = {
     val shift = computeShift(expr)
     val withoutShift = expr - shift
     val factor = withoutShift.coefficients.gcd

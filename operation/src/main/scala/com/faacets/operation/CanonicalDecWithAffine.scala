@@ -1,5 +1,5 @@
 package com.faacets.operation
-
+/*
 import cats.kernel.Comparison
 import spire.algebra.partial.PartialAction
 import spire.syntax.groupoid._
@@ -8,7 +8,7 @@ import spire.syntax.partialAction._
 import io.circe.syntax._
 import io.circe.{Encoder, Json}
 
-import com.faacets.core.{LexicographicOrder, Relabeling}
+import com.faacets.core.{Relabeling}
 import com.faacets.data.instances.textable._
 import com.faacets.operation.syntax.extractor._
 
@@ -79,3 +79,4 @@ object CanonicalWithAffineExtractor {
     }
 
 }
+*/

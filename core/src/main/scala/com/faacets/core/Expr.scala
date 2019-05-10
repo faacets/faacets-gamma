@@ -3,9 +3,12 @@ package core
 
 import cats.data.Validated.Valid
 import cats.data.{Validated, ValidatedNel}
+import shapeless.Witness
 import spire.math.{Rational, SafeLong}
+
 import scalin.immutable.dense._
 import scalin.immutable.{Mat, Vec}
+
 import com.faacets.core.NDVec.attributes.symmetryGroup
 import com.faacets.core.repr.ReverseKronHelpers.revKronMatVec
 import com.faacets.core.text.UserVecRational.userVecRationalTextable
@@ -13,7 +16,9 @@ import com.faacets.core.text._
 import spire.algebra.Action
 
 /** Describes a Bell expression in the relevant nonsignaling subspace. */
-class Expr[S <: Scenario with Singleton] protected (val scenario: S, val coefficients: Vec[Rational]) extends NDVec[Expr, S] with GenExpr[Expr, S] { lhs =>
+class Expr[S <: Scenario with Singleton:Witness.Aux] protected (val coefficients: Vec[Rational]) extends NDVec[Expr, S] with GenExpr[Expr, S] { lhs =>
+
+  def scenario: S = valueOf[S]
 
   def builder = Expr
 
@@ -107,7 +112,7 @@ object Expr extends NDVecBuilder[Expr] with GenExprBuilder[Expr] {
 
   def applyUnsafe(scenario: Scenario, coefficients: Vec[Rational]): Expr[scenario.type] = {
     require(coefficients.length == scenario.shapeP.size, "Coefficients vector length is incorrect")
-    new Expr(scenario, coefficients)
+    new Expr[scenario.type](coefficients)
   }
 
   def validateCollinsGisin(scenario: Scenario, collinsGisinCoefficients: Vec[Rational]): ValidatedNel[String, Expr[scenario.type]] =

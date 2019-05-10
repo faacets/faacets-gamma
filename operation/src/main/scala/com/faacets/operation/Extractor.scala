@@ -6,6 +6,7 @@ import spire.algebra.partial.{Groupoid, PartialAction}
 import spire.util.Opt
 
 import com.faacets.core.Expr
+/*
 import com.faacets.operation.product.{BoundedExprProductExtractor, ExprProductExtractor}
 
 trait Extractor[V] {
@@ -94,3 +95,4 @@ trait GroupActionOperationExtractor[V, O] extends GroupOperationExtractor[V, O] 
   }
 
 }
+*/
