@@ -17,63 +17,39 @@ import com.faacets.data.syntax.textable._
 import net.alasc.algebra.PermutationAction
 import net.alasc.partitions.Partition
 
-/** TODO: verify doc below
-  *
-  * Description of a Bell scenario.
+/** Description of a Bell scenario.
   * 
   * A `Scenario` object describes a Bell scenario composed of several parties,
   * each having a certain number of measurement settings, each setting having a number
   * of possible outcomes.
-  * 
-  * Instances of `Scenario` also enable:
-  * 
-  * - description of the different representations using `Repr` objects,
-  * - conversion of `Expr` or `Corr` between representations,
-  * - `Term` instances to represent the elements of a `Expr` or `Corr` in any representation,
-  * - the construction of its Bell permutation group, some remarkable subgroups 
-  and the following actions:
-  * - `marginalAction` defines the action of the group on concatenated single party
-  *    marginals \\( P(a|x) P(b|y) ... \\),
-  * - `probabilityAction` defines the action of the group on probability distributions
-  *    \\( P(a b ... | x y ...) \\),
-  * - `strategyAction` defines the action of the group on strategy weights.
-  * 
-  * A `Scenario` can be represented in plain text using the following grammar:
-  * - `Scenario := [Party Party ... ]`
-  * - `Party := (Input Input ...)`
-  * - `Input := number >= 1`
-  * 
-  * Examples:
-  * 
-  * - the CHSH scenario is written down [(2 2) (2 2)],
-  * - the Sliwa scenario is written down [(2 2) (2 2) (2 2)],
-  * - the I2233 scenario is written down [(3 3) (3 3)],
-  * - the I3322 scenario is written down [(2 2 2) (2 2 2]].*/
+  */
 final class Scenario private (val parties: Seq[Party]) {
-
-  type Relabeling = com.faacets.core.Relabeling { type S = this.type }
 
   implicit val witness: Witness.Aux[this.type] = Witness.mkWitness(this)
 
-  override def hashCode = parties.hashCode
+  //region Java methods
+  override def hashCode: Int = parties.hashCode
 
-  override def toString = parties.map(_.toText).mkString("[", " ", "]")
+  override def toString: String = parties.map(_.toText).mkString("[", " ", "]")
 
-  override def equals(any: Any) = any match {
-    case that: Scenario => this eq that
+  override def equals(any: Any): Boolean = any match {
+    case that: Scenario => this eq that // Scenarios are cached
     case _ => false
   }
+  //endregion
 
-  def hasHomogenousParties = (1 until parties.length).forall(parties(_) == parties(0))
+  /** Returns whether all parties in this scenario have the same structure. */
+  def hasHomogenousParties: Boolean = (1 until parties.length).forall(parties(_) == parties(0))
+
   /** The scenario can be represented using a Java identifier,
     * for example to name keys in the repository.*/
   def toIdentifier = parties.map(party => party.inputs.mkString("")).mkString("_")
 
-  val minNumInputs = parties.map(_.inputs.length).min
-  val maxNumInputs = parties.map(_.inputs.length).max
-  val minNumOutputs = parties.flatMap(_.inputs).min
-  val maxNumOutputs = parties.flatMap(_.inputs).max
-  val nParties = parties.length
+  val minNumInputs: Int = parties.map(_.inputs.length).min
+  val maxNumInputs: Int = parties.map(_.inputs.length).max
+  val minNumOutputs: Int = parties.flatMap(_.inputs).min
+  val maxNumOutputs: Int = parties.flatMap(_.inputs).max
+  def nParties: Int = parties.length
 
   /** Number of different input tuples, i.e. the number of different measurements overall.
     * Example: Scenario.CHSH.nInputTuples === 4. */

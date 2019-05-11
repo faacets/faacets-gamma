@@ -2,6 +2,7 @@
 
 ... and their own dependencies, not listing scalatest/scalacheck/discipline used generally in tests:
 
+- [atto](http://tpolecat.github.io/atto/)
 - [alasc](http://github.com/denisrosset/alasc): metal, attributes, cyclo, shapeless, spire, fastparse
 - [cats](http://github.com/typelevel/cats): compile/test dependencies
 - [circe](http://github.com/circe/circe): cats-core (only dependency for circe-core); if we use the other modules, monocle (for optics) refined (for refined) shapeless (for generic, shapes) jawn (for parser)

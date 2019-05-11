@@ -4,8 +4,9 @@ import ReleaseTransformations._
 val scala212Version = "2.12.8"
 
 val alascVersion = "0.16.0.0"
-val catsVersion = "1.4.0"
-val catsEffectVersion = "1.0.0"
+val attoVersion = "0.6.5"
+val catsVersion = "1.5.0"
+val catsEffectVersion = "1.3.0"
 val circeVersion = "0.10.0"
 val circeYamlVersion = "0.9.0"
 val consolidateVersion = "0.8.1"
@@ -27,8 +28,8 @@ lazy val faacets = (project in file("."))
   .settings(moduleName := "faacets")
   .settings(faacetsSettings)
   .settings(noPublishSettings)
-  .aggregate(core, data, operation, laws, tests)
-  .dependsOn(core, data, operation, laws, tests)
+  .aggregate(core, coreLaws, coreTests, data) // operation, laws, tests)
+  .dependsOn(core, coreLaws, coreTests, data) //, operation, laws, tests)
 
 lazy val data = (project in file("data"))
   .settings(moduleName := "faacets-data")
@@ -138,6 +139,7 @@ lazy val commonSettings = Seq(
     Resolver.sonatypeRepo("releases")
   ),
   libraryDependencies ++= Seq( // update DEPENDENCIES.md on change
+    "org.tpolecat" %% "atto-core"    % "0.6.5",
     "net.alasc" %% "alasc-core" % alascVersion,
     "org.typelevel" %% "cats-core" % catsVersion,
     "io.circe" %% "circe-core" % circeVersion,
