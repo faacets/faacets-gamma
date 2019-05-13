@@ -8,5 +8,6 @@ package object syntax {
   object textable extends TextableSyntax
   object validatedNel extends ValidatedNelSyntax
   object asYaml extends YamlSyntax
+  object attoParser extends AttoParserSyntax
 
 }

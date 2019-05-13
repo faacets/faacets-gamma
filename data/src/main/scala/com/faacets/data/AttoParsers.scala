@@ -13,6 +13,7 @@ import net.alasc.syntax.permutationAction._
 import atto._
 import Atto._
 import net.alasc.perms.{Cycle, Cycles, Perm}
+import syntax.attoParser._
 
 // Parser convention: inside the parser, we consume whitespace, but not to the left or right of the thing parsed
 
@@ -87,26 +88,6 @@ object RealCycloParsers {
     .mapN( (hd, tl) => tl.foldLeft(hd)(_ + _) )
 
   val realCyclo: Parser[RealCyclo] = realCycloComposite | realCycloHeadTerm
-}
-
-object MySyntax {
-  implicit def toParserErrorReporting[A](p: Parser[A]): ParserErrorReporting[A] =
-    new ParserErrorReporting[A] {
-      val self: Parser[A] = p
-    }
-}
-
-trait ParserErrorReporting[A] {
-  val self: Parser[A]
-
-  /** Ensures, if the parse has been successful so far, that a property of the result satisfies a predicate.
-    * If not, returns a failed parse with an explanatory message. */
-  def check[B](property: A => B)(predicate: B => Boolean, message: (A, B) => String): Parser[A] =
-    self.flatMap { a =>
-      val b = property(a)
-      if (!predicate(b)) err(message(a, b)) else ok(a)
-    }
-
 }
 
 object PermParsers {

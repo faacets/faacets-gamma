@@ -101,6 +101,7 @@ object Value {
   }
 
   implicit val valueTextable: Textable[Value] =
+    Textable.fromAttoParser(Parsers.intervalScalar)
     Textable.fromParserAndValidation(Parsers.intervalScalar.intervalScalar, Value.validate,_.toString)
 
 }
